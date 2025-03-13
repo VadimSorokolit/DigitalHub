@@ -6,6 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DD3C3D2B2D838FAC00EEC37E /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2A2D838FAC00EEC37E /* CombineMoya */; };
+		DD3C3D2D2D838FAC00EEC37E /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2C2D838FAC00EEC37E /* Moya */; };
+		DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */; };
+		DD3C3D312D838FAC00EEC37E /* RxMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D302D838FAC00EEC37E /* RxMoya */; };
+		DD70B6B22D8380D6003B9A05 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6AE2D8380D6003B9A05 /* ContentView.swift */; };
+		DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6AF2D8380D6003B9A05 /* DigitalHubApp.swift */; };
+		DD70B6B42D8380D6003B9A05 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6B02D8380D6003B9A05 /* Item.swift */; };
+		DD70B6B52D8380D6003B9A05 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD70B6AB2D8380D6003B9A05 /* Preview Assets.xcassets */; };
+		DD70B6B62D8380D6003B9A05 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */; };
+		DD70B6B92D8380EF003B9A05 /* itemRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6B82D8380EB003B9A05 /* itemRouter.swift */; };
+		DD70B6D52D838CD0003B9A05 /* Untitled.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6D42D838CCE003B9A05 /* Untitled.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		DD70B67E2D8376E1003B9A05 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,14 +41,16 @@
 		DD70B66B2D8376DF003B9A05 /* DigitalHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DigitalHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD70B67D2D8376E1003B9A05 /* DigitalHubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalHubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD70B6872D8376E1003B9A05 /* DigitalHubUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalHubUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DD70B6AB2D8380D6003B9A05 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DD70B6AE2D8380D6003B9A05 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DD70B6AF2D8380D6003B9A05 /* DigitalHubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalHubApp.swift; sourceTree = "<group>"; };
+		DD70B6B02D8380D6003B9A05 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
+		DD70B6B82D8380EB003B9A05 /* itemRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = itemRouter.swift; sourceTree = "<group>"; };
+		DD70B6D42D838CCE003B9A05 /* Untitled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Untitled.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		DD70B66D2D8376DF003B9A05 /* DigitalHub */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DigitalHub;
-			sourceTree = "<group>";
-		};
 		DD70B6802D8376E1003B9A05 /* DigitalHubTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = DigitalHubTests;
@@ -52,6 +68,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD3C3D2D2D838FAC00EEC37E /* Moya in Frameworks */,
+				DD3C3D2B2D838FAC00EEC37E /* CombineMoya in Frameworks */,
+				DD3C3D312D838FAC00EEC37E /* RxMoya in Frameworks */,
+				DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,7 +95,7 @@
 		DD70B6622D8376DF003B9A05 = {
 			isa = PBXGroup;
 			children = (
-				DD70B66D2D8376DF003B9A05 /* DigitalHub */,
+				DD70B6B12D8380D6003B9A05 /* DigitalHub */,
 				DD70B6802D8376E1003B9A05 /* DigitalHubTests */,
 				DD70B68A2D8376E1003B9A05 /* DigitalHubUITests */,
 				DD70B66C2D8376DF003B9A05 /* Products */,
@@ -90,6 +110,44 @@
 				DD70B6872D8376E1003B9A05 /* DigitalHubUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DD70B6AC2D8380D6003B9A05 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				DD70B6AB2D8380D6003B9A05 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		DD70B6B12D8380D6003B9A05 /* DigitalHub */ = {
+			isa = PBXGroup;
+			children = (
+				DD70B6C02D838126003B9A05 /* AppMainView */,
+				DD70B6B72D8380DE003B9A05 /* API */,
+				DD70B6AC2D8380D6003B9A05 /* Preview Content */,
+				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
+				DD70B6AE2D8380D6003B9A05 /* ContentView.swift */,
+				DD70B6B02D8380D6003B9A05 /* Item.swift */,
+			);
+			path = DigitalHub;
+			sourceTree = "<group>";
+		};
+		DD70B6B72D8380DE003B9A05 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				DD70B6D42D838CCE003B9A05 /* Untitled.swift */,
+				DD70B6B82D8380EB003B9A05 /* itemRouter.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		DD70B6C02D838126003B9A05 /* AppMainView */ = {
+			isa = PBXGroup;
+			children = (
+				DD70B6AF2D8380D6003B9A05 /* DigitalHubApp.swift */,
+			);
+			path = AppMainView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -107,11 +165,12 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				DD70B66D2D8376DF003B9A05 /* DigitalHub */,
-			);
 			name = DigitalHub;
 			packageProductDependencies = (
+				DD3C3D2A2D838FAC00EEC37E /* CombineMoya */,
+				DD3C3D2C2D838FAC00EEC37E /* Moya */,
+				DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */,
+				DD3C3D302D838FAC00EEC37E /* RxMoya */,
 			);
 			productName = DigitalHub;
 			productReference = DD70B66B2D8376DF003B9A05 /* DigitalHub.app */;
@@ -195,6 +254,9 @@
 			);
 			mainGroup = DD70B6622D8376DF003B9A05;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DD70B66C2D8376DF003B9A05 /* Products */;
 			projectDirPath = "";
@@ -212,6 +274,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD70B6B52D8380D6003B9A05 /* Preview Assets.xcassets in Resources */,
+				DD70B6B62D8380D6003B9A05 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +300,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD70B6B22D8380D6003B9A05 /* ContentView.swift in Sources */,
+				DD70B6D52D838CD0003B9A05 /* Untitled.swift in Sources */,
+				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,
+				DD70B6B92D8380EF003B9A05 /* itemRouter.swift in Sources */,
+				DD70B6B42D8380D6003B9A05 /* Item.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,9 +462,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DigitalHub/Preview Content\"";
+				DEVELOPMENT_TEAM = D28SS25G7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -410,6 +481,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.DigitalHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -421,9 +493,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"DigitalHub/Preview Content\"";
+				DEVELOPMENT_TEAM = D28SS25G7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -438,6 +512,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.DigitalHub;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -552,6 +627,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Moya/Moya.git";
+			requirement = {
+				kind = exactVersion;
+				version = 15.0.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DD3C3D2A2D838FAC00EEC37E /* CombineMoya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = CombineMoya;
+		};
+		DD3C3D2C2D838FAC00EEC37E /* Moya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = Moya;
+		};
+		DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = ReactiveMoya;
+		};
+		DD3C3D302D838FAC00EEC37E /* RxMoya */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */;
+			productName = RxMoya;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = DD70B6632D8376DF003B9A05 /* Project object */;
 }
