@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  DigitalItemRouter.swift
 //  DigitalHub
 //
 //  Created by Vadim Sorokolit on 13.03.2025.
@@ -30,6 +30,7 @@ enum DigitalItemRouter {
 }
 
 extension DigitalItemRouter: TargetType {
+    
     var baseURL: URL {
         if let url = Constants.API.baseURL {
             return url
@@ -40,7 +41,7 @@ extension DigitalItemRouter: TargetType {
     
     var path: String {
         switch self {
-                case .searchItems:
+            case .searchItems:
                 return Constants.API.path
             case .createItemWith(name: _, id: _):
                 return Constants.API.path
