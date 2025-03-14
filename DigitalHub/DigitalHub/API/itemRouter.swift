@@ -23,13 +23,13 @@ private struct Constants {
     
 }
 
-enum itemRouter {
+enum DigitalItemRouter {
     case searchItems
     case createItemWith(name: String, id:String)
     case deleteItemBY(id: String)
 }
 
-extension itemRouter: TargetType {
+extension DigitalItemRouter: TargetType {
     var baseURL: URL {
         if let url = Constants.API.baseURL {
             return url
