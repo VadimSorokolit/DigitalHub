@@ -24,7 +24,7 @@ private struct Constants {
 }
 
 enum DigitalProductRouter {
-    case searchProducts
+    case getProducts
     case createProductWith(name: String, id:String)
     case deleteProductBY(id: String)
 }
@@ -41,7 +41,7 @@ extension DigitalProductRouter: TargetType {
     
     var path: String {
         switch self {
-            case .searchProducts:
+            case .getProducts:
                 return Constants.API.path
             case .createProductWith(name: _, id: _):
                 return Constants.API.path
@@ -52,7 +52,7 @@ extension DigitalProductRouter: TargetType {
     
     var method: Moya.Method {
         switch self {
-            case .searchProducts:
+            case .getProducts:
                 return .get
             case .createProductWith(name: _, id: _):
                 return .post
@@ -63,7 +63,7 @@ extension DigitalProductRouter: TargetType {
         
     var task: Moya.Task {
         switch self {
-            case .searchProducts:
+            case .getProducts:
                 return Task.requestParameters(parameters: [:], encoding: URLEncoding.default)
             case .createProductWith(name: let name, id: let id):
                 let parameters: [String: Any] = [

@@ -11,7 +11,7 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Query private var items: [DigitalProduct]
 
     var body: some View {
         NavigationSplitView {
@@ -42,8 +42,8 @@ struct ContentView: View {
 
     private func addItem() {
         withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+            let newProduct = DigitalProduct(timestamp: Date())
+            modelContext.insert(newProduct)
         }
     }
 
@@ -58,5 +58,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: DigitalProduct.self, inMemory: true)
 }
