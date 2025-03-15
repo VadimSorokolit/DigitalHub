@@ -6,7 +6,7 @@
 //
     
 
-struct Product: Decodable {
+struct Product: Decodable, Identifiable {
     let name: String
     let id: String
 }

@@ -6,62 +6,59 @@
 //
     
 
-import SwiftUI
+import Foundation
 import Combine
 
-struct ContentView3: View {
-    @State private var products: [Product] = []
-    @State private var errorMessage: String = ""
-    private let client: ProductApiClientProtocol = MoyaClient()
-    @State private var cancellables = Set<AnyCancellable>()
+class ProductViewModel: ObservableObject {
     
-    var body: some View {
-        VStack {
-            Button("Load Products") {
-                client.getProducts()
-                    .receive(on: DispatchQueue.main)
-                    .sink { completion in
-                        switch completion {
-                        case .failure(let error):
-                            errorMessage = error.errorDescription ?? "Unknown error"
-                            print("Ошибка получения продуктов: \(error.errorDescription ?? "Unknown error")")
-                        case .finished:
-                            break
-                        }
-                    } receiveValue: { products in
-                        self.products = products
-                        print("Получено продуктов: \(products.count)")
-                    }
-                    .store(in: &cancellables)
-            }
-            .padding()
-            
-            if !errorMessage.isEmpty {
-                Text("Error: \(errorMessage)")
-                    .foregroundColor(.red)
-            }
-            
-            if products.isEmpty {
-                Text("No products loaded")
-                    .padding()
-            } else {
-                List(products, id: \.id) { product in
-                    VStack(alignment: .leading) {
-                        Text(product.name)
-                            .font(.headline)
-                        Text(product.id)
-                            .font(.subheadline)
-                    }
-                }
-            }
+    @Published var products: [Product] = []
+    @Published var errorMessage: String? = nil
+    
+    private let apiClient: ProductApiClientProtocol
+    private var cancellables = Set<AnyCancellable>()
+    
+    init(apiClient: ProductApiClientProtocol = MoyaClient()) {
+        self.apiClient = apiClient
+        loadProducts()
+    }
+    
+    private func handleCompletion(_ completion: Subscribers.Completion<APIError>) {
+        if case let .failure(error) = completion {
+            errorMessage = error.errorDescription
         }
-        .padding()
     }
-}
-
-
-struct ContentView3_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView3()
+    
+    func loadProducts() {
+        apiClient.getProducts()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] products in
+                self?.products = products
+            }
+            .store(in: &cancellables)
     }
+    
+    func createProduct(name: String, id: String) {
+        apiClient.createProdutWith(name: name, id: id)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] product in
+                self?.products.append(product)
+            }
+            .store(in: &cancellables)
+    }
+    
+    func deleteProduct(id: String) {
+        apiClient.deleteProductById(id)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] in
+                self?.products.removeAll { $0.id == id }
+            }
+            .store(in: &cancellables)
+    }
+    
 }
