@@ -23,13 +23,13 @@ private struct Constants {
     
 }
 
-enum DigitalItemRouter {
-    case searchItems
-    case createItemWith(name: String, id:String)
-    case deleteItemBY(id: String)
+enum DigitalProductRouter {
+    case searchProducts
+    case createProductWith(name: String, id:String)
+    case deleteProductBY(id: String)
 }
 
-extension DigitalItemRouter: TargetType {
+extension DigitalProductRouter: TargetType {
     
     var baseURL: URL {
         if let url = Constants.API.baseURL {
@@ -41,37 +41,37 @@ extension DigitalItemRouter: TargetType {
     
     var path: String {
         switch self {
-            case .searchItems:
+            case .searchProducts:
                 return Constants.API.path
-            case .createItemWith(name: _, id: _):
+            case .createProductWith(name: _, id: _):
                 return Constants.API.path
-            case .deleteItemBY(id: let id):
+            case .deleteProductBY(id: let id):
                 return Constants.API.path + "/\(id)"
         }
     }
     
     var method: Moya.Method {
         switch self {
-            case .searchItems:
+            case .searchProducts:
                 return .get
-            case .createItemWith(name: _, id: _):
+            case .createProductWith(name: _, id: _):
                 return .post
-            case .deleteItemBY(id: _):
+            case .deleteProductBY(id: _):
                 return .delete
         }
     }
         
     var task: Moya.Task {
         switch self {
-            case .searchItems:
+            case .searchProducts:
                 return Task.requestParameters(parameters: [:], encoding: URLEncoding.default)
-            case .createItemWith(name: let name, id: let id):
+            case .createProductWith(name: let name, id: let id):
                 let parameters: [String: Any] = [
                     Constants.Parameter.name: name,
                     Constants.Parameter.id: id
                 ]
                 return Task.requestParameters(parameters: parameters, encoding: URLEncoding.default)
-            case .deleteItemBY(id: _):
+            case .deleteProductBY(id: _):
                 return .requestPlain
         }
     }
