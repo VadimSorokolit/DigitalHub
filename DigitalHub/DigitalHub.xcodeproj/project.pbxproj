@@ -11,13 +11,16 @@
 		DD3C3D2D2D838FAC00EEC37E /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2C2D838FAC00EEC37E /* Moya */; };
 		DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */; };
 		DD3C3D312D838FAC00EEC37E /* RxMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D302D838FAC00EEC37E /* RxMoya */; };
+		DD3C3D642D85AE4000EEC37E /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3C3D632D85AE3E00EEC37E /* Product.swift */; };
+		DD3C3D782D85B06700EEC37E /* ProductViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3C3D772D85B06500EEC37E /* ProductViewModel.swift */; };
+		DD3C3D8C2D85B3E600EEC37E /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD3C3D8B2D85B3E400EEC37E /* APIError.swift */; };
 		DD70B6B22D8380D6003B9A05 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6AE2D8380D6003B9A05 /* ContentView.swift */; };
 		DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6AF2D8380D6003B9A05 /* DigitalHubApp.swift */; };
-		DD70B6B42D8380D6003B9A05 /* Product.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6B02D8380D6003B9A05 /* Product.swift */; };
+		DD70B6B42D8380D6003B9A05 /* DigitalProduct.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6B02D8380D6003B9A05 /* DigitalProduct.swift */; };
 		DD70B6B52D8380D6003B9A05 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD70B6AB2D8380D6003B9A05 /* Preview Assets.xcassets */; };
 		DD70B6B62D8380D6003B9A05 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */; };
 		DD70B6B92D8380EF003B9A05 /* DigitalProductRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6B82D8380EB003B9A05 /* DigitalProductRouter.swift */; };
-		DD70B6D52D838CD0003B9A05 /* ForTesting.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6D42D838CCE003B9A05 /* ForTesting.swift */; };
+		DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6D42D838CCE003B9A05 /* NetworkManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +41,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DD3C3D632D85AE3E00EEC37E /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
+		DD3C3D772D85B06500EEC37E /* ProductViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductViewModel.swift; sourceTree = "<group>"; };
+		DD3C3D8B2D85B3E400EEC37E /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
 		DD70B66B2D8376DF003B9A05 /* DigitalHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DigitalHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD70B67D2D8376E1003B9A05 /* DigitalHubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalHubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD70B6872D8376E1003B9A05 /* DigitalHubUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DigitalHubUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -45,9 +51,9 @@
 		DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DD70B6AE2D8380D6003B9A05 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DD70B6AF2D8380D6003B9A05 /* DigitalHubApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalHubApp.swift; sourceTree = "<group>"; };
-		DD70B6B02D8380D6003B9A05 /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
+		DD70B6B02D8380D6003B9A05 /* DigitalProduct.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalProduct.swift; sourceTree = "<group>"; };
 		DD70B6B82D8380EB003B9A05 /* DigitalProductRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalProductRouter.swift; sourceTree = "<group>"; };
-		DD70B6D42D838CCE003B9A05 /* ForTesting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForTesting.swift; sourceTree = "<group>"; };
+		DD70B6D42D838CCE003B9A05 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -92,6 +98,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DD3C3D5A2D85ABA100EEC37E /* MVVM */ = {
+			isa = PBXGroup;
+			children = (
+				DD3C3D622D85AC8100EEC37E /* Model */,
+				DD3C3D5B2D85ABD700EEC37E /* ViewModel */,
+			);
+			path = MVVM;
+			sourceTree = "<group>";
+		};
+		DD3C3D5B2D85ABD700EEC37E /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				DD3C3D772D85B06500EEC37E /* ProductViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		DD3C3D622D85AC8100EEC37E /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				DD3C3D632D85AE3E00EEC37E /* Product.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		DD70B6622D8376DF003B9A05 = {
 			isa = PBXGroup;
 			children = (
@@ -123,12 +154,13 @@
 		DD70B6B12D8380D6003B9A05 /* DigitalHub */ = {
 			isa = PBXGroup;
 			children = (
+				DD3C3D5A2D85ABA100EEC37E /* MVVM */,
 				DD70B6C02D838126003B9A05 /* AppMainView */,
 				DD70B6B72D8380DE003B9A05 /* API */,
 				DD70B6AC2D8380D6003B9A05 /* Preview Content */,
 				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
 				DD70B6AE2D8380D6003B9A05 /* ContentView.swift */,
-				DD70B6B02D8380D6003B9A05 /* Product.swift */,
+				DD70B6B02D8380D6003B9A05 /* DigitalProduct.swift */,
 			);
 			path = DigitalHub;
 			sourceTree = "<group>";
@@ -136,7 +168,8 @@
 		DD70B6B72D8380DE003B9A05 /* API */ = {
 			isa = PBXGroup;
 			children = (
-				DD70B6D42D838CCE003B9A05 /* ForTesting.swift */,
+				DD3C3D8B2D85B3E400EEC37E /* APIError.swift */,
+				DD70B6D42D838CCE003B9A05 /* NetworkManager.swift */,
 				DD70B6B82D8380EB003B9A05 /* DigitalProductRouter.swift */,
 			);
 			path = API;
@@ -300,11 +333,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD3C3D642D85AE4000EEC37E /* Product.swift in Sources */,
 				DD70B6B22D8380D6003B9A05 /* ContentView.swift in Sources */,
-				DD70B6D52D838CD0003B9A05 /* ForTesting.swift in Sources */,
+				DD3C3D8C2D85B3E600EEC37E /* APIError.swift in Sources */,
+				DD3C3D782D85B06700EEC37E /* ProductViewModel.swift in Sources */,
+				DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */,
 				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,
 				DD70B6B92D8380EF003B9A05 /* DigitalProductRouter.swift in Sources */,
-				DD70B6B42D8380D6003B9A05 /* Product.swift in Sources */,
+				DD70B6B42D8380D6003B9A05 /* DigitalProduct.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
