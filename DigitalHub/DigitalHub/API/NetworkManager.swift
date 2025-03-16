@@ -23,6 +23,8 @@ class MoyaClient: ProductApiClientProtocol {
 
     private let provider = MoyaProvider<DigitalProductRouter>()
     
+    // API: - https://docs.stripe.com/api/products/list
+    
     func getProducts() -> AnyPublisher<[Product], APIError> {
         return self.provider
             .requestPublisher(.getProducts)
@@ -33,6 +35,9 @@ class MoyaClient: ProductApiClientProtocol {
             .eraseToAnyPublisher()
     }
     
+    
+    // API: - https://docs.stripe.com/api/products/create
+    
     func createProdutWith(name: String, id: String) -> AnyPublisher<Product, APIError> {
         return self.provider
             .requestPublisher(.createProductWith(name: name, id: id))
@@ -41,6 +46,8 @@ class MoyaClient: ProductApiClientProtocol {
             .mapError { APIError.from($0) }
             .eraseToAnyPublisher()
     }
+    
+    //  API: - https://docs.stripe.com/api/products/delete
     
     func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError> {
         return self.provider

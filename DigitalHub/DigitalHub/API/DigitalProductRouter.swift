@@ -12,7 +12,7 @@ import Moya
 private struct Constants {
     
     struct API {
-        static let baseURL: URL? = URL(string: "https://api1.stripe.com")
+        static let baseURL: URL? = URL(string: "https://api.stripe.com")
         static let path: String = "v1/products"
     }
     
