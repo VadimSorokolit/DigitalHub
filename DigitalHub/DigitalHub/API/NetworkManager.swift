@@ -59,6 +59,10 @@ class MoyaClient: ProductApiClientProtocol {
             .eraseToAnyPublisher()
     }
     
+    public func Foo() {
+        
+    }
+    
 }
 
 

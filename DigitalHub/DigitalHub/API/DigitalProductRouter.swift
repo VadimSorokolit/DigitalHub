@@ -25,7 +25,7 @@ private struct Constants {
 
 enum DigitalProductRouter {
     case getProducts
-    case createProductWith(name: String, id:String)
+    case createProductWith(name: String, id: String)
     case deleteProductBY(id: String)
 }
 
@@ -82,5 +82,33 @@ extension DigitalProductRouter: TargetType {
     
 }
 
+import Combine
 
-
+class ABC: TargetType {
+    var baseURL: URL
+    {
+        return URL(string: "https://www.baidu.com")!
+    }
+    var path: String
+    {return "/"}
+    
+    var method: Moya.Method
+    { return .get}
+    
+    var task: Moya.Task
+    { return .requestPlain}
+    
+    var headers: [String : String]?
+    {return nil}
+    
+    func getProducts() -> AnyPublisher<[Product], APIError> {
+        return Empty().eraseToAnyPublisher()
+    }
+    func createProdutWith(name: String, id: String) -> AnyPublisher<Product, APIError> {
+        return Empty().eraseToAnyPublisher()
+    }
+    func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError> {
+        return Empty().eraseToAnyPublisher()
+    }
+    
+}

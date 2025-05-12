@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 
+
 class ProductViewModel: ObservableObject {
     
     @Published var products: [Product] = []
@@ -17,19 +18,19 @@ class ProductViewModel: ObservableObject {
     private let apiClient: ProductApiClientProtocol
     private var cancellables = Set<AnyCancellable>()
     
-    init(apiClient: ProductApiClientProtocol = MoyaClient()) {
+    init(apiClient: ProductApiClientProtocol) {
         self.apiClient = apiClient
-        loadProducts()
+        self.loadProducts()
     }
     
     private func handleCompletion(_ completion: Subscribers.Completion<APIError>) {
         if case let .failure(error) = completion {
-            errorMessage = error.errorDescription
+            self.errorMessage = error.errorDescription
         }
     }
     
     func loadProducts() {
-        apiClient.getProducts()
+        self.apiClient.getProducts()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
@@ -40,7 +41,7 @@ class ProductViewModel: ObservableObject {
     }
     
     func createProduct(name: String, id: String) {
-        apiClient.createProdutWith(name: name, id: id)
+        self.apiClient.createProdutWith(name: name, id: id)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
@@ -51,7 +52,7 @@ class ProductViewModel: ObservableObject {
     }
     
     func deleteProduct(id: String) {
-        apiClient.deleteProductById(id)
+        self.apiClient.deleteProductById(id)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)

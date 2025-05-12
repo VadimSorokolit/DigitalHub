@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @StateObject private var viewModel = ProductViewModel(apiClient: MoyaClient())
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [DigitalProduct]
 
