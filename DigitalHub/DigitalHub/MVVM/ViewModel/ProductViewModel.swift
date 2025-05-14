@@ -5,10 +5,8 @@
 //  Created by Vadim Sorokolit on 15.03.2025.
 //
     
-
 import Foundation
 import Combine
-
 
 class ProductViewModel: ObservableObject {
     

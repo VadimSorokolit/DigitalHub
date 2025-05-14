@@ -89,16 +89,16 @@ extension DigitalProductRouter: TargetType {
                     Constants.Parameter.expandDefaultPrice: Constants.Expand.defaultPrice
                 ]
                 
-                if let brandName = brandName, !brandName.isEmpty {
+                if brandName?.isEmpty == false {
                     parameters[Constants.Parameter.brandName] = brandName
                 }
 
-                if let url = imageURL, !url.isEmpty {
-                    parameters[Constants.Parameter.imageURL] = url
+                if imageURL?.isEmpty == false {
+                    parameters[Constants.Parameter.imageURL] = imageURL
                 }
 
-                if let taxCode = discount, !taxCode.isEmpty {
-                    parameters[Constants.Parameter.discount] = taxCode
+                if discount?.isEmpty == false {
+                    parameters[Constants.Parameter.discount] = discount
                 }
 
                 if let price = price, let priceInt = Int(price) {

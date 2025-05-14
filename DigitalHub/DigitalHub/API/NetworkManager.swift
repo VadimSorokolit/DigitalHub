@@ -5,7 +5,6 @@
 //  Created by Vadim Sorokolit on 13.03.2025.
 //
 
-
 import Foundation
 import Combine
 import Moya
@@ -13,7 +12,6 @@ import CombineMoya
 import Alamofire
 
 // Client Interface
-
 protocol ProductApiClientProtocol: AnyObject {
     func getProducts() -> AnyPublisher<[Product], APIError>
     func createProductWith(productName: String, brandName: String?, imageURL: String?, price: String?, discount: String?)  -> AnyPublisher<Product, APIError>
@@ -36,7 +34,6 @@ class MoyaClient: ProductApiClientProtocol {
             .eraseToAnyPublisher()
     }
     
-    
     // API: - https://docs.stripe.com/api/products/create
     
     func createProductWith(productName: String, brandName: String?, imageURL: String?, price: String?, discount: String?) -> AnyPublisher<Product, APIError> {
@@ -53,7 +50,7 @@ class MoyaClient: ProductApiClientProtocol {
             .eraseToAnyPublisher()
     }
     
-    //  API: - https://docs.stripe.com/api/products/delete
+    // API: - https://docs.stripe.com/api/products/delete
     
     func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError> {
         return self.provider

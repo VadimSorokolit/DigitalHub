@@ -5,7 +5,6 @@
 //  Created by Vadim Sorokolit on 13.03.2025.
 //
     
-
 import XCTest
 import Combine
 @testable import DigitalHub  // Замените на имя вашего модуля
