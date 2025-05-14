@@ -19,6 +19,7 @@ private struct Constants {
     struct Parameter {
         static let name: String = "name"
         static let id: String = "id"
+        static let active: Bool = true
     }
     
 }
@@ -82,33 +83,4 @@ extension DigitalProductRouter: TargetType {
     
 }
 
-import Combine
 
-class ABC: TargetType {
-    var baseURL: URL
-    {
-        return URL(string: "https://www.baidu.com")!
-    }
-    var path: String
-    {return "/"}
-    
-    var method: Moya.Method
-    { return .get}
-    
-    var task: Moya.Task
-    { return .requestPlain}
-    
-    var headers: [String : String]?
-    {return nil}
-    
-    func getProducts() -> AnyPublisher<[Product], APIError> {
-        return Empty().eraseToAnyPublisher()
-    }
-    func createProdutWith(name: String, id: String) -> AnyPublisher<Product, APIError> {
-        return Empty().eraseToAnyPublisher()
-    }
-    func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError> {
-        return Empty().eraseToAnyPublisher()
-    }
-    
-}
