@@ -15,6 +15,7 @@ enum APIError: LocalizedError {
     case noInternet
     case networkError(Error)
     case decodingError(Error)
+    case custom
     case serverError(statusCode: Int)
     case invalidURL
     case unknown
@@ -33,6 +34,8 @@ enum APIError: LocalizedError {
                 return "Invalid URL provided"
             case .unknown:
                 return "An unknown error occurred"
+            case .custom:
+                return "Error: Product name cannot be empty"
         }
     }
     

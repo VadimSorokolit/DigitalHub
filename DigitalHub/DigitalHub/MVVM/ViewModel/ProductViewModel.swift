@@ -40,13 +40,13 @@ class ProductViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func createProduct(name: String, id: String) {
-        self.apiClient.createProdutWith(name: name, id: id)
+    func createProductWith(productName: String, brandName: String?, imageURL: String?, price: String?, discount: String?)  {
+        self.apiClient.createProductWith(productName: productName, brandName: brandName, imageURL: imageURL, price: price, discount: discount)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] product in
-                self?.products.append(product)
+                self?.loadProducts()
             }
             .store(in: &cancellables)
     }
