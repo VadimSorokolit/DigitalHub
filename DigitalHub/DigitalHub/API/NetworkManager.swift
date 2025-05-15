@@ -54,7 +54,7 @@ class MoyaClient: ProductApiClientProtocol {
     
     func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError> {
         return self.provider
-            .requestPublisher(.deleteProductBY(id: id))
+            .requestPublisher(.deleteProductBy(id: id))
             .map { _ in
                 return ()
             }

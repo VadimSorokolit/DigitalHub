@@ -11,34 +11,17 @@ struct Product: Decodable, Identifiable {
     let imageURL: String?
     let id: String
     let isFavourite: Bool
-    let price: Price?
+    let price: String?
     let discount: String?
-    
-    struct Price: Decodable {
-        let id: String
-        let unitAmount: Int
-        let currency: String
-        
-        var formatted: String {
-            let amount = Double(unitAmount) / 100
-            return String(format: "%@ %.2f", currency.uppercased(), amount)
-        }
-        
-        enum CodingKeys: String, CodingKey {
-            case id
-            case unitAmount = "unit_amount"
-            case currency
-        }
-    }
     
     enum CodingKeys: String, CodingKey {
         case productName = "name"
         case brandName = "description"
         case imageURL = "url"
         case id
-        case isFavourite = "livemode"
-        case price = "default_price"
-        case discount = "tax_code"
+        case isFavourite = "active"
+        case price = "unit_label"
+        case discount = "statement_descriptor"
     }
 }
 

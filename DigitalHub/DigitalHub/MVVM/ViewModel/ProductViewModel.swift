@@ -14,7 +14,7 @@ class ProductViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     
     private let apiClient: ProductApiClientProtocol
-    private var cancellables = Set<AnyCancellable>()
+    private var cancellables: Set<AnyCancellable> = Set<AnyCancellable>()
     
     init(apiClient: ProductApiClientProtocol) {
         self.apiClient = apiClient
@@ -49,7 +49,7 @@ class ProductViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    func deleteProduct(id: String) {
+    func deleteProductBy(id: String) {
         self.apiClient.deleteProductById(id)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
