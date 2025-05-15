@@ -10,38 +10,44 @@ import Moya
 
 private struct Constants {
     
-    struct Header {
-        static let authorization: String = "Authorization"
-        static let bearerToken: String = "Bearer sk_test_51QqY1YRvGwnRrL9T73pkGR9tOby4upVse7KDYQtvHqBEhpVEM8FlVz8JMXxxXEGG9C2bqbCk3HQ7S5FmxUNIEkpk00jWWfn0om"
-    }
-    
     struct API {
         static let baseURL: URL? = URL(string: "https://api.stripe.com")
         static let path: String = "v1/products"
     }
-
-    struct Parameter {
+    
+    struct Parameters {
         static let productName: String = "name"
         static let brandName: String = "description"
         static let imageURL: String = "url"
         static let price: String = "unit_label"
         static let discount: String = "statement_descriptor"
+        static let isFavourite = "active"
+    }
+    
+    struct Headers {
+        static let authorization: String = "Authorization"
+        static let bearerToken: String = "Bearer sk_test_51QqY1YRvGwnRrL9T73pkGR9tOby4upVse7KDYQtvHqBEhpVEM8FlVz8JMXxxXEGG9C2bqbCk3HQ7S5FmxUNIEkpk00jWWfn0om"
+    }
+    
+    enum Values: String {
+        case boolTrue
+        case boolFalse
     }
     
     static let discontStringName: String = "Discount"
-
+    static let fatalErrorMessage: String = "Base URL is invalid"
 }
 
 enum DigitalProductRouter {
     case getProducts
-    case createProductWith(productName: String, brandName: String?, imageURL: String?, price: String?, discount: String?)
+    case createProductWith(productName: String, isFavourite: Bool ,brandName: String?, imageURL: String?, price: String?, discount: String?)
     case deleteProductBy(id: String)
 }
 
 extension DigitalProductRouter: TargetType {
     
     var baseURL: URL {
-        guard let url = Constants.API.baseURL else { fatalError("Base URL is invalid") }
+        guard let url = Constants.API.baseURL else { fatalError(Constants.fatalErrorMessage) }
         return url
     }
     
@@ -73,26 +79,27 @@ extension DigitalProductRouter: TargetType {
                     encoding: URLEncoding.default
                 )
                 
-            case .createProductWith(let productName, let brandName, let imageURL, let price, let discount):
+            case .createProductWith(let productName, let isFavourite, let brandName, let imageURL, let price, let discount):
                 var parameters: [String: Any] = [
-                    Constants.Parameter.productName: productName,
+                    Constants.Parameters.productName: productName,
+                    Constants.Parameters.isFavourite: isFavourite ? Constants.Values.boolTrue.rawValue : Constants.Values.boolFalse.rawValue
                 ]
                 
                 if brandName?.isEmpty == false {
-                    parameters[Constants.Parameter.brandName] = brandName
+                    parameters[Constants.Parameters.brandName] = brandName
                 }
                 
                 if imageURL?.isEmpty == false {
-                    parameters[Constants.Parameter.imageURL] = imageURL
+                    parameters[Constants.Parameters.imageURL] = imageURL
                 }
                 
                 if let discount, !discount.isEmpty {
                     let descriptor = "\(Constants.discontStringName)\(discount)"
-                    parameters[Constants.Parameter.discount] = descriptor
+                    parameters[Constants.Parameters.discount] = descriptor
                 }
                 
                 if price?.isEmpty == false {
-                    parameters[Constants.Parameter.price] = price
+                    parameters[Constants.Parameters.price] = price
                 }
                 
                 return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
@@ -103,7 +110,7 @@ extension DigitalProductRouter: TargetType {
     }
     
     var headers: [String: String]? {
-        [Constants.Header.authorization: Constants.Header.bearerToken]
+        [Constants.Headers.authorization: Constants.Headers.bearerToken]
     }
     
 }
