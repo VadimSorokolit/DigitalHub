@@ -1,4 +1,3 @@
-//
 //  NetworkManager.swift
 //  DigitalHub
 //
@@ -15,6 +14,7 @@ import Alamofire
 protocol ProductApiClientProtocol: AnyObject {
     func getProducts() -> AnyPublisher<[Product], APIError>
     func createProductWith(productName: String, isFavourite: Bool, brandName: String?, imageURL: String?, price: String?, discount: String?)  -> AnyPublisher<Product, APIError>
+    func updateProductStatusBy(_ id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
     func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError>
 }
 
@@ -50,6 +50,19 @@ class MoyaClient: ProductApiClientProtocol {
             .eraseToAnyPublisher()
     }
     
+    // API: - https://docs.stripe.com/api/products/update
+    
+    func updateProductStatusBy(_ id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError> {
+        return self.provider
+            .requestPublisher(.updateProductStatusBy(id: id, isFavourite: isFavourite))
+            .map { $0.data }
+            .decode(type: Product.self, decoder: JSONDecoder())
+            .mapError { APIError.from($0) }
+            .eraseToAnyPublisher()
+    }
+    
+    // API: - https://docs.stripe.com/api/products/search
+    
     // API: - https://docs.stripe.com/api/products/delete
     
     func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError> {
@@ -63,8 +76,3 @@ class MoyaClient: ProductApiClientProtocol {
     }
     
 }
-
-
-
-
-

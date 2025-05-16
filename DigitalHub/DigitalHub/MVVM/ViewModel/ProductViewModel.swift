@@ -107,6 +107,18 @@ class ProductViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
+    func updateProductStatusBy(id: String, isFavourite: Bool)  {
+        self.isLoading = true
+        self.apiClient.updateProductStatusBy(id, isFavourite: isFavourite)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] updateProduct in
+                self?.loadProducts()
+            }
+            .store(in: &cancellables)
+    }
+    
     func deleteProductBy(id: String) {
         self.isLoading = true
         self.apiClient.deleteProductById(id)

@@ -17,6 +17,7 @@ private struct Constants {
     
     struct Parameters {
         static let productName: String = "name"
+        static let id: String = "id"
         static let brandName: String = "description"
         static let imageURL: String = "url"
         static let price: String = "unit_label"
@@ -30,8 +31,8 @@ private struct Constants {
     }
     
     enum Values: String {
-        case boolTrue
-        case boolFalse
+        case boolTrue = "true"
+        case boolFalse = "false"
     }
     
     static let discontStringName: String = "Discount"
@@ -41,6 +42,7 @@ private struct Constants {
 enum DigitalProductRouter {
     case getProducts
     case createProductWith(productName: String, isFavourite: Bool ,brandName: String?, imageURL: String?, price: String?, discount: String?)
+    case updateProductStatusBy(id: String, isFavourite: Bool)
     case deleteProductBy(id: String)
 }
 
@@ -55,7 +57,7 @@ extension DigitalProductRouter: TargetType {
         switch self {
             case .getProducts, .createProductWith:
                 return Constants.API.path
-            case .deleteProductBy(let id):
+            case .updateProductStatusBy(let id, _), .deleteProductBy(let id):
                 return "\(Constants.API.path)/\(id)"
         }
     }
@@ -65,6 +67,8 @@ extension DigitalProductRouter: TargetType {
             case .getProducts:
                 return .get
             case .createProductWith:
+                return .post
+            case .updateProductStatusBy:
                 return .post
             case .deleteProductBy:
                 return .delete
@@ -104,6 +108,12 @@ extension DigitalProductRouter: TargetType {
                 
                 return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
                 
+            case .updateProductStatusBy(_, let isFavourite):
+                let parameters: [String: Any] = [
+                    Constants.Parameters.isFavourite: isFavourite ? Constants.Values.boolTrue.rawValue : Constants.Values.boolFalse.rawValue
+                ]
+                return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
+            
             case .deleteProductBy:
                 return .requestPlain
         }
