@@ -37,6 +37,7 @@ class ProductViewModel: ObservableObject {
     // MARK: - Properties
     
     @Published var products: [Product] = []
+    @Published var isLoading: Bool = false
     @Published var sections: [Section] = []
     @Published var errorMessage: String? = nil
     
@@ -53,6 +54,7 @@ class ProductViewModel: ObservableObject {
     // MARK: - Methods
     
     private func handleCompletion(_ completion: Subscribers.Completion<APIError>) {
+        self.isLoading = false
         if case let .failure(error) = completion {
             self.errorMessage = error.errorDescription
         }
@@ -81,6 +83,7 @@ class ProductViewModel: ObservableObject {
     }
     
     func loadProducts() {
+        self.isLoading = true
         self.apiClient.getProducts()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -93,25 +96,25 @@ class ProductViewModel: ObservableObject {
     }
     
     func createProductWith(productName: String, isFavourite: Bool, brandName: String?, imageURL: String?, price: String?, discount: String?)  {
+        self.isLoading = true
         self.apiClient.createProductWith(productName: productName, isFavourite: isFavourite, brandName: brandName, imageURL: imageURL, price: price, discount: discount)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] product in
-                self?.products.append(product)
-                self?.updateSections()
+                self?.loadProducts()
             }
             .store(in: &cancellables)
     }
     
     func deleteProductBy(id: String) {
+        self.isLoading = true
         self.apiClient.deleteProductById(id)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] in
-                self?.products.removeAll { $0.id == id }
-                self?.updateSections()
+                self?.loadProducts()
             }
             .store(in: &cancellables)
     }
