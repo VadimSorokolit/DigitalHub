@@ -23,6 +23,7 @@ private struct Constants {
         static let price: String = "unit_label"
         static let discount: String = "statement_descriptor"
         static let isFavorite = "active"
+        static let startingAfter: String = "starting_after"
     }
     
     struct Headers {
@@ -58,7 +59,7 @@ extension DigitalProductRouter: TargetType {
             case .getProducts(let startingAfter):
                 var parameters: [String: Any] = [:]
                 if let after = startingAfter {
-                    parameters["starting_after"] = after
+                    parameters[Constants.Parameters.startingAfter] = after
                 }
                 return parameters
             case .createProduct(let product):
