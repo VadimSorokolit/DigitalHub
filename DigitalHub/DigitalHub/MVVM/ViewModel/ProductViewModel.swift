@@ -1,54 +1,55 @@
 //
-//  ProductViewModel.swift
+//  ProductsViewModel.swift
 //  DigitalHub
 //
 //  Created by Vadim Sorokolit on 15.03.2025.
 //
 
-enum SectionType: String {
-    case favourite
-    case unFavourite
-}
-
-struct Section: Identifiable {
-    let id: UUID = UUID()
-    let type: SectionType
-    let title: String
-    let subtitle: String
-    let buttonTitle: String
-    let buttonImage: String
-    var items: [Product]
-}
-
 import Foundation
 import Combine
 
-class ProductViewModel: ObservableObject {
+class ProductsViewModel: ObservableObject {
     
     // MARK: - Objects
     
-    struct Constants {
+    private struct Constants {
         static let favouriteSubtitle: String = "Check your Favorite Products list"
         static let unfavouriteSubtitle: String = "Check your common products"
         static let buttonTitle: String = "See All"
-        static let buttonImageName = "chevron.right"
+        static let buttonImageName: String = "chevron.right"
+    }
+    
+    struct Section: Identifiable {
+        let id: UUID = UUID()
+        let type: SectionType
+        let title: String
+        let subtitle: String
+        let buttonTitle: String
+        let buttonImageName: String
+        var items: [Product]
+        
+        enum SectionType: String {
+            case favorite
+            case unfavorite
+        }
     }
     
     // MARK: - Properties
     
     @Published var products: [Product] = []
-    @Published var isLoading: Bool = false
     @Published var sections: [Section] = []
-    @Published var errorMessage: String? = nil
     
+    @Published var errorMessage: String? = nil
+    @Published var isLoading: Bool = false
+    
+    private var lastProductId: String?
     private let apiClient: ProductApiClientProtocol
-    private var cancellables: Set<AnyCancellable> = Set<AnyCancellable>()
+    private var subscriptions: Set<AnyCancellable> = Set<AnyCancellable>()
     
     // MARK: - Initializer
     
     init(apiClient: ProductApiClientProtocol) {
         self.apiClient = apiClient
-        self.loadProducts()
     }
     
     // MARK: - Methods
@@ -60,76 +61,124 @@ class ProductViewModel: ObservableObject {
         }
     }
     
-    private func updateSections() {
-        let favouriteSection = Section(
-            type: .favourite,
-            title: SectionType.favourite.rawValue.capitalized,
+    private func createSections(with products: [Product]) {
+        let favoriteSection = Section(
+            type: .favorite,
+            title: Section.SectionType.favorite.rawValue.capitalized,
             subtitle: Constants.favouriteSubtitle,
             buttonTitle: Constants.buttonTitle,
-            buttonImage: Constants.buttonImageName,
-            items: products.filter { $0.isFavourite }
+            buttonImageName: Constants.buttonImageName,
+            items: products.filter { $0.isFavorite }
         )
-
-        let unfavouriteSection = Section(
-            type: .unFavourite,
-            title: SectionType.unFavourite.rawValue.capitalized,
+        
+        let unfavoriteSection = Section(
+            type: .unfavorite,
+            title: Section.SectionType.unfavorite.rawValue.capitalized,
             subtitle: Constants.unfavouriteSubtitle,
             buttonTitle: Constants.buttonTitle,
-            buttonImage: Constants.buttonImageName,
-            items: products.filter { !$0.isFavourite }
+            buttonImageName: Constants.buttonImageName,
+            items: products.filter { !$0.isFavorite }
         )
-
-        self.sections = [favouriteSection, unfavouriteSection]
+        
+        self.sections = [favoriteSection, unfavoriteSection]
+    }
+    
+    private func addProduct(_ product: Product) {
+        if let oldIndex = self.sections.firstIndex(where: { $0.items.contains(where: { $0.id == product.id }) }) {
+            var updatedSection = self.sections[oldIndex]
+            updatedSection.items.removeAll { $0.id == product.id }
+            self.sections[oldIndex] = updatedSection
+        }
+        
+        if product.isFavorite {
+            if let index = self.sections.firstIndex(where: { $0.type == .favorite }) {
+                var updatedSection = self.sections[index]
+                updatedSection.items.append(product)
+                self.sections[index] = updatedSection
+            }
+        } else {
+            if let index = self.sections.firstIndex(where: { $0.type == .unfavorite }) {
+                var updatedSection = self.sections[index]
+                updatedSection.items.append(product)
+                self.sections[index] = updatedSection
+            }
+        }
+    }
+    
+    private func removeProductFromSections(id: String) {
+        for index in self.sections.indices {
+            var updatedSection = self.sections[index]
+            updatedSection.items.removeAll { $0.id == id }
+            self.sections[index] = updatedSection
+        }
     }
     
     func loadProducts() {
         self.isLoading = true
-        self.apiClient.getProducts()
+        self.apiClient.getProducts(startingAfter: lastProductId)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
-            } receiveValue: { [weak self] products in
-                self?.products = products
-                self?.updateSections()
+            } receiveValue: { [weak self] productList in
+                let newProducts = productList.products
+
+                self?.sections = []
+                self?.createSections(with: newProducts)
+
+                self?.lastProductId = newProducts.last?.id
+
+                if productList.hasMore {
+                    self?.loadProducts()
+                }
             }
-            .store(in: &cancellables)
+            .store(in: &subscriptions)
     }
     
-    func createProductWith(productName: String, isFavourite: Bool, brandName: String?, imageURL: String?, price: String?, discount: String?)  {
+    func createProduct(productName: String, isFavorite: Bool, brandName: String?, imageURL: String?, price: String?, discount: String?) {
         self.isLoading = true
-        self.apiClient.createProductWith(productName: productName, isFavourite: isFavourite, brandName: brandName, imageURL: imageURL, price: price, discount: discount)
+        
+        let newProduct: Product = Product(
+            productName: productName,
+            brandName: brandName,
+            imageURL: imageURL,
+            id: UUID().uuidString,
+            isFavorite: isFavorite,
+            price: price,
+            discount: discount
+        )
+        
+        self.apiClient.create(product: newProduct)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] product in
-                self?.loadProducts()
+                self?.addProduct(product)
             }
-            .store(in: &cancellables)
+            .store(in: &subscriptions)
     }
     
-    func updateProductStatusBy(id: String, isFavourite: Bool)  {
+    func updateProductStatus(id: String, isFavourite: Bool)  {
         self.isLoading = true
-        self.apiClient.updateProductStatusBy(id, isFavourite: isFavourite)
+        self.apiClient.updateProductStatus(id: id, isFavourite: isFavourite)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
-            } receiveValue: { [weak self] updateProduct in
-                self?.loadProducts()
+            } receiveValue: { [weak self] updatedProduct in
+                self?.addProduct(updatedProduct)
             }
-            .store(in: &cancellables)
+            .store(in: &subscriptions)
     }
     
-    func deleteProductBy(id: String) {
+    func deleteProduct(id: String) {
         self.isLoading = true
-        self.apiClient.deleteProductById(id)
+        self.apiClient.deleteProduct(id: id)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] in
-                self?.loadProducts()
+                self?.removeProductFromSections(id: id)
             }
-            .store(in: &cancellables)
+            .store(in: &subscriptions)
     }
     
 }
-

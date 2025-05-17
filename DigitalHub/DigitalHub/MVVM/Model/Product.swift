@@ -4,13 +4,15 @@
 //
 //  Created by Vadim Sorokolit on 15.03.2025.
 //
-    
+
+import Foundation
+
 struct Product: Decodable, Identifiable {
     let productName: String
     let brandName: String?
     let imageURL: String?
     let id: String
-    let isFavourite: Bool
+    let isFavorite: Bool
     let price: String?
     let discount: String?
     
@@ -19,7 +21,7 @@ struct Product: Decodable, Identifiable {
         case brandName = "description"
         case imageURL = "url"
         case id
-        case isFavourite = "active"
+        case isFavorite = "active"
         case price = "unit_label"
         case discount = "statement_descriptor"
     }
@@ -27,9 +29,11 @@ struct Product: Decodable, Identifiable {
 
 struct ProductList: Decodable {
     let products: [Product]
-
+    let hasMore: Bool
+    
     enum CodingKeys: String, CodingKey {
         case products = "data"
+        case hasMore = "has_more"
     }
 }
 

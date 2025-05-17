@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @StateObject private var viewModel = ProductViewModel(apiClient: MoyaClient())
+    @StateObject private var viewModel = ProductsViewModel(apiClient: MoyaClient())
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [DigitalProduct]
 
@@ -37,6 +37,9 @@ struct ContentView: View {
             }
         } detail: {
             Text("Select an item")
+        }
+        .onAppear {
+            viewModel.loadProducts()
         }
     }
 

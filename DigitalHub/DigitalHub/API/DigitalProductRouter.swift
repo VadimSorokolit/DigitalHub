@@ -22,7 +22,7 @@ private struct Constants {
         static let imageURL: String = "url"
         static let price: String = "unit_label"
         static let discount: String = "statement_descriptor"
-        static let isFavourite = "active"
+        static let isFavorite = "active"
     }
     
     struct Headers {
@@ -33,31 +33,77 @@ private struct Constants {
     enum Values: String {
         case boolTrue = "true"
         case boolFalse = "false"
+        
+        static func from(_ value: Bool) -> Self {
+            return value ? .boolTrue : .boolFalse
+        }
     }
     
-    static let discontStringName: String = "Discount"
+    static let discontStringName: String = "discount"
     static let fatalErrorMessage: String = "Base URL is invalid"
+    static let googleURL: URL? = URL(string: "https://www.google.com")
 }
 
 enum DigitalProductRouter {
-    case getProducts
-    case createProductWith(productName: String, isFavourite: Bool ,brandName: String?, imageURL: String?, price: String?, discount: String?)
-    case updateProductStatusBy(id: String, isFavourite: Bool)
-    case deleteProductBy(id: String)
+    case getProducts(startingAfter: String? = nil)
+    case createProduct(product: Product)
+    case updateProductStatus(id: String, isFavourite: Bool)
+    case deleteProduct(id: String)
 }
 
 extension DigitalProductRouter: TargetType {
     
+    private var params: [String: Any] {
+        switch self {
+            case .getProducts(let startingAfter):
+                var parameters: [String: Any] = [:]
+                if let after = startingAfter {
+                    parameters["starting_after"] = after
+                }
+                return parameters
+            case .createProduct(let product):
+                var parameters: [String: Any] = [
+                    Constants.Parameters.productName: product.productName,
+                    Constants.Parameters.isFavorite: Constants.Values.from(product.isFavorite).rawValue
+                ]
+                
+                if product.brandName?.isEmpty == false {
+                    parameters[Constants.Parameters.brandName] = product.brandName
+                }
+                if product.imageURL?.isEmpty == false {
+                    parameters[Constants.Parameters.imageURL] = product.imageURL
+                }
+                if let discount = product.discount, !discount.isEmpty {
+                    let descriptor = "\(Constants.discontStringName)\(discount)"
+                    parameters[Constants.Parameters.discount] = descriptor
+                }
+                if product.price?.isEmpty == false {
+                    parameters[Constants.Parameters.price] = product.price
+                }
+                return parameters
+            case .updateProductStatus(_, let isFavourite):
+                let parameters: [String: Any] = [
+                    Constants.Parameters.isFavorite: Constants.Values.from(isFavourite).rawValue
+                ]
+
+                return parameters
+            default:
+                return [:]
+        }
+    }
+    
     var baseURL: URL {
-        guard let url = Constants.API.baseURL else { fatalError(Constants.fatalErrorMessage) }
+        guard let url = Constants.API.baseURL ?? Constants.googleURL else {
+            fatalError(Constants.fatalErrorMessage)
+        }
         return url
     }
     
     var path: String {
         switch self {
-            case .getProducts, .createProductWith:
+            case .getProducts, .createProduct:
                 return Constants.API.path
-            case .updateProductStatusBy(let id, _), .deleteProductBy(let id):
+            case .updateProductStatus(let id, _), .deleteProduct(let id):
                 return "\(Constants.API.path)/\(id)"
         }
     }
@@ -66,11 +112,11 @@ extension DigitalProductRouter: TargetType {
         switch self {
             case .getProducts:
                 return .get
-            case .createProductWith:
+            case .createProduct:
                 return .post
-            case .updateProductStatusBy:
+            case .updateProductStatus:
                 return .post
-            case .deleteProductBy:
+            case .deleteProduct:
                 return .delete
         }
     }
@@ -78,43 +124,12 @@ extension DigitalProductRouter: TargetType {
     var task: Moya.Task {
         switch self {
             case .getProducts:
-                return .requestParameters(
-                    parameters: [:],
-                    encoding: URLEncoding.default
-                )
-                
-            case .createProductWith(let productName, let isFavourite, let brandName, let imageURL, let price, let discount):
-                var parameters: [String: Any] = [
-                    Constants.Parameters.productName: productName,
-                    Constants.Parameters.isFavourite: isFavourite ? Constants.Values.boolTrue.rawValue : Constants.Values.boolFalse.rawValue
-                ]
-                
-                if brandName?.isEmpty == false {
-                    parameters[Constants.Parameters.brandName] = brandName
-                }
-                
-                if imageURL?.isEmpty == false {
-                    parameters[Constants.Parameters.imageURL] = imageURL
-                }
-                
-                if let discount, !discount.isEmpty {
-                    let descriptor = "\(Constants.discontStringName)\(discount)"
-                    parameters[Constants.Parameters.discount] = descriptor
-                }
-                
-                if price?.isEmpty == false {
-                    parameters[Constants.Parameters.price] = price
-                }
-                
-                return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
-                
-            case .updateProductStatusBy(_, let isFavourite):
-                let parameters: [String: Any] = [
-                    Constants.Parameters.isFavourite: isFavourite ? Constants.Values.boolTrue.rawValue : Constants.Values.boolFalse.rawValue
-                ]
-                return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
-            
-            case .deleteProductBy:
+                return .requestParameters(parameters: params, encoding: URLEncoding.default)
+            case .createProduct(_):
+                return .requestParameters(parameters: params, encoding: URLEncoding.default)
+            case .updateProductStatus(_, _):
+                return .requestParameters(parameters: params, encoding: URLEncoding.default)
+            case .deleteProduct:
                 return .requestPlain
         }
     }

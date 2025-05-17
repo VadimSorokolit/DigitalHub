@@ -8,42 +8,41 @@ import Foundation
 import Combine
 import Moya
 import CombineMoya
-import Alamofire
 
 // Client Interface
 protocol ProductApiClientProtocol: AnyObject {
-    func getProducts() -> AnyPublisher<[Product], APIError>
-    func createProductWith(productName: String, isFavourite: Bool, brandName: String?, imageURL: String?, price: String?, discount: String?)  -> AnyPublisher<Product, APIError>
-    func updateProductStatusBy(_ id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
-    func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError>
+    func getProducts(startingAfter: String?) -> AnyPublisher<ProductList, APIError>
+    func create(product: Product) -> AnyPublisher<Product, APIError>
+    func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
+    func deleteProduct(id: String) -> AnyPublisher<Void, APIError>
 }
 
 class MoyaClient: ProductApiClientProtocol {
 
     private let provider = MoyaProvider<DigitalProductRouter>()
     
+    // API: - https://docs.stripe.com/api/products/search 
+    
     // API: - https://docs.stripe.com/api/products/list
     
-    func getProducts() -> AnyPublisher<[Product], APIError> {
-        return self.provider
-            .requestPublisher(.getProducts)
-            .map { $0.data }
+    func getProducts(startingAfter: String? = nil) -> AnyPublisher<ProductList, APIError> {
+        return provider.requestPublisher(.getProducts(startingAfter: startingAfter))
+            .map(\.data)
             .decode(type: ProductList.self, decoder: JSONDecoder())
-            .map { $0.products }
             .mapError { APIError.from($0) }
             .eraseToAnyPublisher()
     }
     
     // API: - https://docs.stripe.com/api/products/create
     
-    func createProductWith(productName: String, isFavourite: Bool = false, brandName: String?, imageURL: String?, price: String?, discount: String?) -> AnyPublisher<Product, APIError> {
+    func create(product: Product) -> AnyPublisher<Product, APIError> {
         
-        guard !productName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            return Fail(error: APIError.custom)
+        if product.productName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return Fail(error: APIError.emptyProductNameError)
                 .eraseToAnyPublisher()
         }
         return self.provider
-            .requestPublisher(.createProductWith(productName: productName, isFavourite: isFavourite, brandName: brandName, imageURL: imageURL, price: price, discount: discount))
+            .requestPublisher(.createProduct(product: product))
             .map { $0.data }
             .decode(type: Product.self, decoder: JSONDecoder())
             .mapError { APIError.from($0) }
@@ -52,22 +51,20 @@ class MoyaClient: ProductApiClientProtocol {
     
     // API: - https://docs.stripe.com/api/products/update
     
-    func updateProductStatusBy(_ id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError> {
+    func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError> {
         return self.provider
-            .requestPublisher(.updateProductStatusBy(id: id, isFavourite: isFavourite))
+            .requestPublisher(.updateProductStatus(id: id, isFavourite: isFavourite))
             .map { $0.data }
             .decode(type: Product.self, decoder: JSONDecoder())
             .mapError { APIError.from($0) }
             .eraseToAnyPublisher()
     }
     
-    // API: - https://docs.stripe.com/api/products/search
-    
     // API: - https://docs.stripe.com/api/products/delete
     
-    func deleteProductById(_ id: String) -> AnyPublisher<Void, APIError> {
+    func deleteProduct(id: String) -> AnyPublisher<Void, APIError> {
         return self.provider
-            .requestPublisher(.deleteProductBy(id: id))
+            .requestPublisher(.deleteProduct(id: id))
             .map { _ in
                 return ()
             }
