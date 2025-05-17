@@ -36,7 +36,6 @@ class ProductsViewModel: ObservableObject {
     
     // MARK: - Properties
     
-    @Published var products: [Product] = []
     @Published var sections: [Section] = []
     
     @Published var errorMessage: String? = nil
@@ -83,13 +82,16 @@ class ProductsViewModel: ObservableObject {
         self.sections = [favoriteSection, unfavoriteSection]
     }
     
+    private func mergeCurrentProducts(with newProducts: [Product]) -> [Product] {
+        return self.sections.flatMap { $0.items } + newProducts
+    }
+    
     private func addProduct(_ product: Product) {
         if let oldIndex = self.sections.firstIndex(where: { $0.items.contains(where: { $0.id == product.id }) }) {
             var updatedSection = self.sections[oldIndex]
             updatedSection.items.removeAll { $0.id == product.id }
             self.sections[oldIndex] = updatedSection
         }
-        
         if product.isFavorite {
             if let index = self.sections.firstIndex(where: { $0.type == .favorite }) {
                 var updatedSection = self.sections[index]
@@ -120,15 +122,17 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] productList in
+                guard let self else { return }
+
                 let newProducts = productList.products
+                
+                let allProducts = mergeCurrentProducts(with: newProducts)
+                self.createSections(with: allProducts)
 
-                self?.sections = []
-                self?.createSections(with: newProducts)
-
-                self?.lastProductId = newProducts.last?.id
+                self.lastProductId = newProducts.last?.id
 
                 if productList.hasMore {
-                    self?.loadProducts()
+                    self.loadProducts()
                 }
             }
             .store(in: &subscriptions)
