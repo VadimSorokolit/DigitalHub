@@ -11,7 +11,7 @@ import CombineMoya
 
 // Client Interface
 protocol ProductApiClientProtocol: AnyObject {
-    func getProducts(startingAfter: String?) -> AnyPublisher<ProductList, APIError>
+    func getProducts(startingAfterId: String?) -> AnyPublisher<ProductList, APIError>
     func create(product: Product) -> AnyPublisher<Product, APIError>
     func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
     func deleteProduct(id: String) -> AnyPublisher<Void, APIError>
@@ -25,8 +25,8 @@ class MoyaClient: ProductApiClientProtocol {
     
     // API: - https://docs.stripe.com/api/products/list
     
-    func getProducts(startingAfter: String? = nil) -> AnyPublisher<ProductList, APIError> {
-        return provider.requestPublisher(.getProducts(startingAfter: startingAfter))
+    func getProducts(startingAfterId: String? = nil) -> AnyPublisher<ProductList, APIError> {
+        return provider.requestPublisher(.getProducts(startingAfterId: startingAfterId))
             .map(\.data)
             .decode(type: ProductList.self, decoder: JSONDecoder())
             .mapError { APIError.from($0) }

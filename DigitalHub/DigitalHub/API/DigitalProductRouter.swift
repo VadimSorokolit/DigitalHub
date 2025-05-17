@@ -24,6 +24,7 @@ private struct Constants {
         static let discount: String = "statement_descriptor"
         static let isFavorite = "active"
         static let startingAfter: String = "starting_after"
+        static let productsLimit: String = "limit"
     }
     
     struct Headers {
@@ -31,22 +32,25 @@ private struct Constants {
         static let bearerToken: String = "Bearer sk_test_51QqY1YRvGwnRrL9T73pkGR9tOby4upVse7KDYQtvHqBEhpVEM8FlVz8JMXxxXEGG9C2bqbCk3HQ7S5FmxUNIEkpk00jWWfn0om"
     }
     
-    enum Values: String {
-        case boolTrue = "true"
-        case boolFalse = "false"
+    struct Values {
+        static let maxProductsPerPage = 100
         
-        static func from(_ value: Bool) -> Self {
-            return value ? .boolTrue : .boolFalse
+        enum BoolString: String {
+            case boolTrue = "true"
+            case boolFalse = "false"
+            
+            static func from(_ value: Bool) -> Self {
+                return value ? .boolTrue : .boolFalse
+            }
         }
     }
-    
     static let discontStringName: String = "discount"
     static let fatalErrorMessage: String = "Base URL is invalid"
     static let googleURL: URL? = URL(string: "https://www.google.com")
 }
 
 enum DigitalProductRouter {
-    case getProducts(startingAfter: String? = nil)
+    case getProducts(startingAfterId: String? = nil)
     case createProduct(product: Product)
     case updateProductStatus(id: String, isFavourite: Bool)
     case deleteProduct(id: String)
@@ -56,16 +60,19 @@ extension DigitalProductRouter: TargetType {
     
     private var params: [String: Any] {
         switch self {
-            case .getProducts(let startingAfter):
-                var parameters: [String: Any] = [:]
-                if let after = startingAfter {
-                    parameters[Constants.Parameters.startingAfter] = after
+            case .getProducts(let productId):
+                var parameters: [String: Any] = [
+                    Constants.Parameters.productsLimit : Constants.Values.maxProductsPerPage
+                ]
+                
+                if let productId {
+                    parameters[Constants.Parameters.startingAfter] = productId
                 }
                 return parameters
             case .createProduct(let product):
                 var parameters: [String: Any] = [
                     Constants.Parameters.productName: product.productName,
-                    Constants.Parameters.isFavorite: Constants.Values.from(product.isFavorite).rawValue
+                    Constants.Parameters.isFavorite: Constants.Values.BoolString.from(product.isFavorite).rawValue
                 ]
                 
                 if product.brandName?.isEmpty == false {
@@ -84,7 +91,7 @@ extension DigitalProductRouter: TargetType {
                 return parameters
             case .updateProductStatus(_, let isFavourite):
                 let parameters: [String: Any] = [
-                    Constants.Parameters.isFavorite: Constants.Values.from(isFavourite).rawValue
+                    Constants.Parameters.isFavorite: Constants.Values.BoolString.from(isFavourite).rawValue
                 ]
 
                 return parameters

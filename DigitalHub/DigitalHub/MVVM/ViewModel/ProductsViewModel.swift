@@ -117,7 +117,7 @@ class ProductsViewModel: ObservableObject {
     
     func loadProducts() {
         self.isLoading = true
-        self.apiClient.getProducts(startingAfter: lastProductId)
+        self.apiClient.getProducts(startingAfterId: self.lastProductId)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
