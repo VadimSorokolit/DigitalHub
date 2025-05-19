@@ -12,11 +12,22 @@ class ProductsViewModel: ObservableObject {
     
     // MARK: - Objects
     
-    private struct Constants {
-        static let favouriteSubtitle: String = "Check your Favorite Products list"
-        static let unfavouriteSubtitle: String = "Check your common products"
-        static let buttonTitle: String = "See All"
-        static let buttonImageName: String = "chevron.right"
+    struct Constants {
+        
+        struct Titles {
+            let firstScreen = "Products"
+            let secondScreen = "Add product"
+            let favoriteSubtitle = "Check your Favorite Products list"
+            let unfavoriteSubtitle = "Check your common products"
+        }
+        
+        struct Button {
+            let title = "See All"
+            let imageName = "chevron.right"
+        }
+        
+        let titles = Titles()
+        let button = Button()
     }
     
     struct Section: Identifiable {
@@ -45,6 +56,7 @@ class ProductsViewModel: ObservableObject {
     private var lastProductId: String?
     private let apiClient: ProductApiClientProtocol
     private var subscriptions: Set<AnyCancellable> = Set<AnyCancellable>()
+    let constants: ProductsViewModel.Constants = Constants()
     
     // MARK: - Initializer
     
@@ -65,18 +77,18 @@ class ProductsViewModel: ObservableObject {
         let favoriteSection = Section(
             type: .favorite,
             title: Section.SectionType.favorite.rawValue.capitalized,
-            subtitle: Constants.favouriteSubtitle,
-            buttonTitle: Constants.buttonTitle,
-            buttonImageName: Constants.buttonImageName,
+            subtitle: self.constants.titles.favoriteSubtitle,
+            buttonTitle: self.constants.button.title,
+            buttonImageName: self.constants.button.imageName,
             items: products.filter { $0.isFavorite }
         )
         
         let unfavoriteSection = Section(
             type: .unfavorite,
             title: Section.SectionType.unfavorite.rawValue.capitalized,
-            subtitle: Constants.unfavouriteSubtitle,
-            buttonTitle: Constants.buttonTitle,
-            buttonImageName: Constants.buttonImageName,
+            subtitle: self.constants.titles.unfavoriteSubtitle,
+            buttonTitle: self.constants.button.imageName,
+            buttonImageName: self.constants.button.imageName,
             items: products.filter { !$0.isFavorite }
         )
         

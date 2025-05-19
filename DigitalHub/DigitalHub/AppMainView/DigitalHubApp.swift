@@ -25,7 +25,7 @@ struct DigitalHubApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ProductsView()
         }
         .modelContainer(sharedModelContainer)
     }
