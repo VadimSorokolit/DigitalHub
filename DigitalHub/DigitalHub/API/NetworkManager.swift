@@ -12,7 +12,7 @@ import CombineMoya
 // Client Interface
 protocol ProductApiClientProtocol: AnyObject {
     func getProducts(startingAfterId: String?) -> AnyPublisher<ProductList, APIError>
-    func create(product: Product) -> AnyPublisher<Product, APIError>
+    func createProduct(_ product: Product) -> AnyPublisher<Product, APIError>
     func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
     func deleteProduct(id: String) -> AnyPublisher<Void, APIError>
 }
@@ -26,7 +26,8 @@ class MoyaClient: ProductApiClientProtocol {
     // API: - https://docs.stripe.com/api/products/list
     
     func getProducts(startingAfterId: String? = nil) -> AnyPublisher<ProductList, APIError> {
-        return provider.requestPublisher(.getProducts(startingAfterId: startingAfterId))
+        return provider
+            .requestPublisher(.getProducts(startingAfterId: startingAfterId))
             .map(\.data)
             .decode(type: ProductList.self, decoder: JSONDecoder())
             .mapError { APIError.from($0) }
@@ -35,10 +36,9 @@ class MoyaClient: ProductApiClientProtocol {
     
     // API: - https://docs.stripe.com/api/products/create
     
-    func create(product: Product) -> AnyPublisher<Product, APIError> {
-        
+    func createProduct(_ product: Product) -> AnyPublisher<Product, APIError> {
         if product.productName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return Fail(error: APIError.emptyProductNameError)
+            return Fail(error: APIError.emptyProductName)
                 .eraseToAnyPublisher()
         }
         return self.provider

@@ -37,6 +37,7 @@ class ProductsViewModel: ObservableObject {
     // MARK: - Properties
     
     @Published var sections: [Section] = []
+    @Published var hasMoreData: Bool = false
     
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
@@ -82,41 +83,58 @@ class ProductsViewModel: ObservableObject {
         self.sections = [favoriteSection, unfavoriteSection]
     }
     
-    private func mergeCurrentProducts(with newProducts: [Product]) -> [Product] {
-        return self.sections.flatMap { $0.items } + newProducts
+    private func addProducts(_ products: [Product]) {
+        for product in products {
+            self.addProduct(product)
+        }
     }
     
     private func addProduct(_ product: Product) {
-        if let oldIndex = self.sections.firstIndex(where: { $0.items.contains(where: { $0.id == product.id }) }) {
-            var updatedSection = self.sections[oldIndex]
-            updatedSection.items.removeAll { $0.id == product.id }
-            self.sections[oldIndex] = updatedSection
-        }
-        if product.isFavorite {
-            if let index = self.sections.firstIndex(where: { $0.type == .favorite }) {
-                var updatedSection = self.sections[index]
-                updatedSection.items.append(product)
-                self.sections[index] = updatedSection
-            }
-        } else {
-            if let index = self.sections.firstIndex(where: { $0.type == .unfavorite }) {
-                var updatedSection = self.sections[index]
-                updatedSection.items.append(product)
-                self.sections[index] = updatedSection
-            }
+        let type: Section.SectionType = product.isFavorite ? .favorite : .unfavorite
+
+        if let index = sections.firstIndex(where: { $0.type == type }) {
+            sections[index].items.append(product)
         }
     }
     
-    private func removeProductFromSections(id: String) {
-        for index in self.sections.indices {
-            var updatedSection = self.sections[index]
-            updatedSection.items.removeAll { $0.id == id }
-            self.sections[index] = updatedSection
+    private func updateProduct(_ product: Product) {
+        self.removeProduct(id: product.id)
+        self.addProduct(product)
+    }
+    
+    private func removeProduct(id: String) {
+        if let sectionIndex = self.sections.firstIndex(where: { section in
+            section.items.contains(where: { $0.id == id })
+        }) {
+            self.sections[sectionIndex].items.removeAll { $0.id == id }
         }
     }
     
-    func loadProducts() {
+    func loadFirstPage() {
         self.isLoading = true
+        
+        self.apiClient.getProducts(startingAfterId: nil)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] productList in
+                guard let self else { return }
+                
+                let products = productList.products
+                self.createSections(with: products)
+                
+                self.lastProductId = products.last?.id
+                
+                if self.hasMoreData != productList.hasMore {
+                    self.hasMoreData = productList.hasMore
+                }
+            }
+            .store(in: &self.subscriptions)
+    }
+    
+    func loadNextPage() {
+        self.isLoading = true
+        
         self.apiClient.getProducts(startingAfterId: self.lastProductId)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
@@ -124,41 +142,29 @@ class ProductsViewModel: ObservableObject {
             } receiveValue: { [weak self] productList in
                 guard let self else { return }
 
-                let newProducts = productList.products
+                let products = productList.products
+                self.addProducts(products)
                 
-                let allProducts = mergeCurrentProducts(with: newProducts)
-                self.createSections(with: allProducts)
-
-                self.lastProductId = newProducts.last?.id
-
-                if productList.hasMore {
-                    self.loadProducts()
+                self.lastProductId = products.last?.id
+                
+                if self.hasMoreData != productList.hasMore {
+                    self.hasMoreData = productList.hasMore
                 }
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
-    func createProduct(productName: String, isFavorite: Bool, brandName: String?, imageURL: String?, price: String?, discount: String?) {
+    func createProduct(_ newProduct: Product) {
         self.isLoading = true
         
-        let newProduct: Product = Product(
-            productName: productName,
-            brandName: brandName,
-            imageURL: imageURL,
-            id: UUID().uuidString,
-            isFavorite: isFavorite,
-            price: price,
-            discount: discount
-        )
-        
-        self.apiClient.create(product: newProduct)
+        self.apiClient.createProduct(newProduct)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] product in
                 self?.addProduct(product)
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     func updateProductStatus(id: String, isFavourite: Bool)  {
@@ -168,9 +174,9 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] updatedProduct in
-                self?.addProduct(updatedProduct)
+                self?.updateProduct(updatedProduct)
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     func deleteProduct(id: String) {
@@ -180,9 +186,9 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] in
-                self?.removeProductFromSections(id: id)
+                self?.removeProduct(id: id)
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
 }

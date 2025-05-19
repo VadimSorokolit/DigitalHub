@@ -22,7 +22,7 @@ private struct Constants {
         static let imageURL: String = "url"
         static let price: String = "unit_label"
         static let discount: String = "statement_descriptor"
-        static let isFavorite = "active"
+        static let isFavorite: String = "active"
         static let startingAfter: String = "starting_after"
         static let productsLimit: String = "limit"
     }
@@ -33,7 +33,7 @@ private struct Constants {
     }
     
     struct Values {
-        static let maxProductsPerPage = 100
+        static let perPage: Int = 20
         
         enum BoolString: String {
             case boolTrue = "true"
@@ -46,7 +46,7 @@ private struct Constants {
     }
     static let discontStringName: String = "discount"
     static let fatalErrorMessage: String = "Base URL is invalid"
-    static let googleURL: URL? = URL(string: "https://www.google.com")
+    static let defaultURL: URL? = URL(string: "https://www.google.com")
 }
 
 enum DigitalProductRouter {
@@ -62,7 +62,7 @@ extension DigitalProductRouter: TargetType {
         switch self {
             case .getProducts(let productId):
                 var parameters: [String: Any] = [
-                    Constants.Parameters.productsLimit : Constants.Values.maxProductsPerPage
+                    Constants.Parameters.productsLimit : Constants.Values.perPage
                 ]
                 
                 if let productId {
@@ -101,7 +101,7 @@ extension DigitalProductRouter: TargetType {
     }
     
     var baseURL: URL {
-        guard let url = Constants.API.baseURL ?? Constants.googleURL else {
+        guard let url = Constants.API.baseURL ?? Constants.defaultURL else {
             fatalError(Constants.fatalErrorMessage)
         }
         return url

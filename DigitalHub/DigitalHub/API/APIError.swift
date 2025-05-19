@@ -12,10 +12,10 @@ import Alamofire
 enum APIError: LocalizedError {
     
     case noInternet
-    case networkError(Error)
-    case decodingError(Error)
-    case emptyProductNameError
-    case serverError(statusCode: Int)
+    case network(Error)
+    case decoding(Error)
+    case emptyProductName
+    case serverStatusCode(_ code: Int)
     case invalidURL
     case unknown
     
@@ -23,17 +23,17 @@ enum APIError: LocalizedError {
         switch self {
             case .noInternet:
                 return "No internet connection"
-            case .networkError(let err):
+            case .network(let err):
                 return "Network Error: \(err.localizedDescription)"
-            case .decodingError(let err):
+            case .decoding(let err):
                 return "Decoding Error: \(err.localizedDescription)"
-            case .serverError(let statusCode):
-                return "Server Error (Code: \(statusCode))"
+            case .serverStatusCode(let code):
+                return "Server Error (Code: \(code))"
             case .invalidURL:
                 return "Invalid URL provided"
             case .unknown:
                 return "An unknown error occurred"
-            case .emptyProductNameError:
+            case .emptyProductName:
                 return "Error: Product name cannot be empty"
         }
     }
@@ -51,7 +51,7 @@ enum APIError: LocalizedError {
                             if code == 404 {
                                 return .invalidURL
                             } else {
-                                return .serverError(statusCode: code)
+                                return .serverStatusCode(code)
                             }
                         default:
                             return .unknown
@@ -66,7 +66,7 @@ enum APIError: LocalizedError {
                             case .cannotFindHost, .dnsLookupFailed:
                                 return .invalidURL
                             default:
-                                return .networkError(urlError)
+                                return .network(urlError)
                         }
                     }
                     return .unknown
@@ -76,7 +76,7 @@ enum APIError: LocalizedError {
         }
         
         if let decodingError = error as? DecodingError {
-            return .decodingError(decodingError)
+            return .decoding(decodingError)
         }
         
         if let urlError = error as? URLError {
@@ -86,7 +86,7 @@ enum APIError: LocalizedError {
                 case .cannotFindHost, .dnsLookupFailed:
                     return .invalidURL
                 default:
-                    return .networkError(urlError)
+                    return .network(urlError)
             }
         }
         
