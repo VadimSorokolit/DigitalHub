@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DD27CA002DDCD7640034A127 /* Inter-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = DD27C9FD2DDCD7640034A127 /* Inter-Medium.otf */; };
+		DD27CA012DDCD7640034A127 /* Inter-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = DD27C9FE2DDCD7640034A127 /* Inter-Regular.otf */; };
+		DD27CA022DDCD7640034A127 /* Inter-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = DD27C9FF2DDCD7640034A127 /* Inter-SemiBold.otf */; };
+		DD27CA052DDCD7900034A127 /* GlobalConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD27CA042DDCD7900034A127 /* GlobalConstants.swift */; };
 		DD3C3D2B2D838FAC00EEC37E /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2A2D838FAC00EEC37E /* CombineMoya */; };
 		DD3C3D2D2D838FAC00EEC37E /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2C2D838FAC00EEC37E /* Moya */; };
 		DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */; };
@@ -42,6 +46,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DD27C9FD2DDCD7640034A127 /* Inter-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.otf"; sourceTree = "<group>"; };
+		DD27C9FE2DDCD7640034A127 /* Inter-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.otf"; sourceTree = "<group>"; };
+		DD27C9FF2DDCD7640034A127 /* Inter-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.otf"; sourceTree = "<group>"; };
+		DD27CA042DDCD7900034A127 /* GlobalConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalConstants.swift; sourceTree = "<group>"; };
+		DD27CA062DDCD8BE0034A127 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DD3C3D632D85AE3E00EEC37E /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		DD3C3D772D85B06500EEC37E /* ProductsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsViewModel.swift; sourceTree = "<group>"; };
 		DD3C3DD92D87FF8D00EEC37E /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
@@ -100,6 +109,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DD27C9F92DDCD6900034A127 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				DD27C9FD2DDCD7640034A127 /* Inter-Medium.otf */,
+				DD27C9FE2DDCD7640034A127 /* Inter-Regular.otf */,
+				DD27C9FF2DDCD7640034A127 /* Inter-SemiBold.otf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		DD27CA032DDCD7770034A127 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				DD27C9F92DDCD6900034A127 /* Fonts */,
+				DD27CA042DDCD7900034A127 /* GlobalConstants.swift */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		DD27CA072DDCDCC40034A127 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DD70B6AE2D8380D6003B9A05 /* ProductsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		DD3C3D5A2D85ABA100EEC37E /* MVVM */ = {
 			isa = PBXGroup;
 			children = (
@@ -156,14 +192,16 @@
 		DD70B6B12D8380D6003B9A05 /* DigitalHub */ = {
 			isa = PBXGroup;
 			children = (
-				DD755D822DDB80B200B142FA /* Extensions */,
-				DD3C3D5A2D85ABA100EEC37E /* MVVM */,
 				DD70B6C02D838126003B9A05 /* AppMainView */,
 				DD70B6B72D8380DE003B9A05 /* API */,
+				DD3C3D5A2D85ABA100EEC37E /* MVVM */,
+				DD27CA072DDCDCC40034A127 /* Views */,
 				DD70B6AC2D8380D6003B9A05 /* Preview Content */,
-				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
-				DD70B6AE2D8380D6003B9A05 /* ProductsView.swift */,
+				DD755D822DDB80B200B142FA /* Extensions */,
+				DD27CA032DDCD7770034A127 /* Resources */,
 				DD70B6B02D8380D6003B9A05 /* DigitalProduct.swift */,
+				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
+				DD27CA062DDCD8BE0034A127 /* Info.plist */,
 			);
 			path = DigitalHub;
 			sourceTree = "<group>";
@@ -318,6 +356,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD27CA002DDCD7640034A127 /* Inter-Medium.otf in Resources */,
+				DD27CA012DDCD7640034A127 /* Inter-Regular.otf in Resources */,
+				DD27CA022DDCD7640034A127 /* Inter-SemiBold.otf in Resources */,
 				DD70B6B52D8380D6003B9A05 /* Preview Assets.xcassets in Resources */,
 				DD70B6B62D8380D6003B9A05 /* Assets.xcassets in Resources */,
 			);
@@ -346,6 +387,7 @@
 			files = (
 				DD3C3D642D85AE4000EEC37E /* Product.swift in Sources */,
 				DD70B6B22D8380D6003B9A05 /* ProductsView.swift in Sources */,
+				DD27CA052DDCD7900034A127 /* GlobalConstants.swift in Sources */,
 				DD3C3D782D85B06700EEC37E /* ProductsViewModel.swift in Sources */,
 				DD755D842DDB80C500B142FA /* Color+hexString.swift in Sources */,
 				DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */,
@@ -517,6 +559,7 @@
 				DEVELOPMENT_TEAM = D28SS25G7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DigitalHub/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -548,6 +591,7 @@
 				DEVELOPMENT_TEAM = D28SS25G7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DigitalHub/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

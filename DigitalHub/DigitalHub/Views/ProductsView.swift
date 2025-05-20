@@ -40,7 +40,7 @@ struct ProductsView: View {
             VStack {
                 ZStack {
                     Text(Constants.headerTitleName)
-                        .font(.custom(GlobalConstants.mediumFont, size: Constants.headerTitleFontSize))
+                        .font(.custom(GlobalConstants.semiBoldFont, size: Constants.headerTitleFontSize))
                         .foregroundColor(Color(hex: Constants.headerTitleFontColor))
                         .overlay(
                             Image(Constants.headerImageName)
