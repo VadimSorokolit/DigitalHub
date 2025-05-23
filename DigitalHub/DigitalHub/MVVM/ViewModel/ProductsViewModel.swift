@@ -8,34 +8,34 @@
 import Foundation
 import Combine
 
+struct Section: Identifiable {
+    let id: UUID = UUID()
+    let type: SectionType
+    let title: String
+    let subtitle: String
+    let buttonTitle: String
+    let buttonImageName: String
+    var items: [Product]
+    
+    enum SectionType: String {
+        case favorite
+        case unfavorite
+    }
+}
+
 class ProductsViewModel: ObservableObject {
     
     // MARK: Objects
     
     struct SectionConstants {
         struct Subtitles {
-            static let favorite: String = "Check your Favorite Products list"
-            static let unfavorite: String = "Check your common products"
+            static let favorite: String = "Check your favorite products"
+            static let unfavorite: String = "Check your unfavorite products"
         }
         
         struct Button {
             static let title: String = "See All"
             static let imageName: String = "chevron.right"
-        }
-    }
-    
-    struct Section: Identifiable {
-        let id: UUID = UUID()
-        let type: SectionType
-        let title: String
-        let subtitle: String
-        let buttonTitle: String
-        let buttonImageName: String
-        var items: [Product]
-        
-        enum SectionType: String {
-            case favorite
-            case unfavorite
         }
     }
     
@@ -114,6 +114,19 @@ class ProductsViewModel: ObservableObject {
         }) {
             self.sections[sectionIndex].items.removeAll { $0.id == id }
         }
+    }
+    
+    // MARK: - For test
+    
+    func getMokeData() {
+        var products: [Product] = []
+        for _ in 1...10 {
+            let unfavoriteProduct = Product(productName: "iPhoneXS", brandName: "Apple", imageURL: "", id: "", isFavorite: false, price: "100", discount: "20")
+            let favoriteProduct = Product(productName: "iPhone16ProMax iPhone16ProMax iPhone16ProMax", brandName: "iPhone16ProMax iPhone16ProMax Apple Apple Apple Apple Apple", imageURL: "", id: "", isFavorite: true, price: "100", discount: "30")
+            products.append(unfavoriteProduct)
+            products.append(favoriteProduct)
+        }
+        self.createSections(with: products)
     }
     
     func loadFirstPage() {
