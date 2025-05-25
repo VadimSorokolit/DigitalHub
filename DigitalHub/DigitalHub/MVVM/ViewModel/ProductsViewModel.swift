@@ -15,7 +15,7 @@ struct Section: Identifiable {
     let subtitle: String
     let buttonTitle: String
     let buttonImageName: String
-    var items: [Product]
+    var products: [Product]
     
     enum SectionType: String {
         case favorite
@@ -74,7 +74,7 @@ class ProductsViewModel: ObservableObject {
             subtitle: SectionConstants.Subtitles.favorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
-            items: products.filter { $0.isFavorite }
+            products: products.filter { $0.isFavorite }
         )
         
         let unfavoriteSection = Section(
@@ -83,7 +83,7 @@ class ProductsViewModel: ObservableObject {
             subtitle: SectionConstants.Subtitles.unfavorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
-            items: products.filter { !$0.isFavorite }
+            products: products.filter { !$0.isFavorite }
         )
         
         self.sections = [favoriteSection, unfavoriteSection]
@@ -99,7 +99,7 @@ class ProductsViewModel: ObservableObject {
         let type: Section.SectionType = product.isFavorite ? .favorite : .unfavorite
 
         if let index = sections.firstIndex(where: { $0.type == type }) {
-            sections[index].items.append(product)
+            sections[index].products.append(product)
         }
     }
     
@@ -110,19 +110,19 @@ class ProductsViewModel: ObservableObject {
     
     private func removeProduct(id: String) {
         if let sectionIndex = self.sections.firstIndex(where: { section in
-            section.items.contains(where: { $0.id == id })
+            section.products.contains(where: { $0.id == id })
         }) {
-            self.sections[sectionIndex].items.removeAll { $0.id == id }
+            self.sections[sectionIndex].products.removeAll { $0.id == id }
         }
     }
     
     // MARK: - For test
     
-    func getMokeData() {
+    func getMockData() {
         var products: [Product] = []
         for _ in 1...10 {
-            let unfavoriteProduct = Product(productName: "iPhoneXS", brandName: "Apple", imageURL: "", id: "", isFavorite: false, price: "100", discount: "20")
-            let favoriteProduct = Product(productName: "iPhone16ProMax iPhone16ProMax iPhone16ProMax", brandName: "iPhone16ProMax iPhone16ProMax Apple Apple Apple Apple Apple", imageURL: "", id: "", isFavorite: true, price: "100", discount: "30")
+            let unfavoriteProduct = Product(name: "iPhoneXS", brandName: "Apple", imageURL: "", id: "", isFavorite: false, price: "100", discount: "20")
+            let favoriteProduct = Product(name: "iPhone16ProMax iPhone16ProMax iPhone16ProMax", brandName: "iPhone16ProMax iPhone16ProMax Apple Apple Apple Apple Apple", imageURL: "", id: "", isFavorite: true, price: "100", discount: "30")
             products.append(unfavoriteProduct)
             products.append(favoriteProduct)
         }

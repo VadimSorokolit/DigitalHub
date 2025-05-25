@@ -8,7 +8,7 @@
 import Foundation
 
 struct Product: Decodable, Identifiable {
-    let productName: String
+    let name: String
     let brandName: String?
     let imageURL: String?
     let id: String
@@ -17,7 +17,7 @@ struct Product: Decodable, Identifiable {
     let discount: String?
     
     enum CodingKeys: String, CodingKey {
-        case productName = "name"
+        case name = "name"
         case brandName = "description"
         case imageURL = "url"
         case id

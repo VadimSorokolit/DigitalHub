@@ -37,7 +37,7 @@ class MoyaClient: ProductApiClientProtocol {
     // API: - https://docs.stripe.com/api/products/create
     
     func createProduct(_ product: Product) -> AnyPublisher<Product, APIError> {
-        if product.productName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if product.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return Fail(error: APIError.emptyProductName)
                 .eraseToAnyPublisher()
         }

@@ -71,7 +71,7 @@ extension DigitalProductRouter: TargetType {
                 return parameters
             case .createProduct(let product):
                 var parameters: [String: Any] = [
-                    Constants.Parameters.productName: product.productName,
+                    Constants.Parameters.productName: product.name,
                     Constants.Parameters.isFavorite: Constants.Values.BoolString.from(product.isFavorite).rawValue
                 ]
                 
