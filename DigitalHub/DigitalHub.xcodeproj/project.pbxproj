@@ -26,6 +26,7 @@
 		DD70B6B92D8380EF003B9A05 /* DigitalProductRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6B82D8380EB003B9A05 /* DigitalProductRouter.swift */; };
 		DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD70B6D42D838CCE003B9A05 /* NetworkManager.swift */; };
 		DD755D842DDB80C500B142FA /* Color+hexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD755D832DDB80C300B142FA /* Color+hexString.swift */; };
+		DD77799A2DE47D2500EDC278 /* FavoritesProductsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779992DE47D1600EDC278 /* FavoritesProductsView.swift */; };
 		DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +67,7 @@
 		DD70B6B82D8380EB003B9A05 /* DigitalProductRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalProductRouter.swift; sourceTree = "<group>"; };
 		DD70B6D42D838CCE003B9A05 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		DD755D832DDB80C300B142FA /* Color+hexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+hexString.swift"; sourceTree = "<group>"; };
+		DD7779992DE47D1600EDC278 /* FavoritesProductsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesProductsView.swift; sourceTree = "<group>"; };
 		DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+cornerRadius.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -133,6 +135,7 @@
 		DD27CA072DDCDCC40034A127 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DD7779992DE47D1600EDC278 /* FavoritesProductsView.swift */,
 				DD70B6AE2D8380D6003B9A05 /* ProductsView.swift */,
 			);
 			path = Views;
@@ -392,6 +395,7 @@
 				DD70B6B22D8380D6003B9A05 /* ProductsView.swift in Sources */,
 				DD27CA052DDCD7900034A127 /* GlobalConstants.swift in Sources */,
 				DD3C3D782D85B06700EEC37E /* ProductsViewModel.swift in Sources */,
+				DD77799A2DE47D2500EDC278 /* FavoritesProductsView.swift in Sources */,
 				DD755D842DDB80C500B142FA /* Color+hexString.swift in Sources */,
 				DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */,
 				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,

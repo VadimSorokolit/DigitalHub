@@ -39,13 +39,25 @@ struct ProductsView: View {
         static let favoriteImageWidth: CGFloat = 128.0
     }
     
+    enum ProductScreen: Hashable {
+        case favorite
+    }
+    
+    @State private var path = NavigationPath()
+    
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             VStack(spacing: 28.0) {
                 HeaderView()
-                ProductListView()
+                ProductListView(path: $path)
             }
             .background(Color(hex: Constants.backgroundColor))
+        }
+        .navigationDestination(for: ProductScreen.self) { list in
+            switch list {
+                case .favorite:
+                    FavoritesProductsView()
+            }
         }
     }
     
@@ -122,12 +134,13 @@ struct ProductsView: View {
     
     private struct ProductListView: View {
         @StateObject private var viewModel = ProductsViewModel(apiClient: MoyaClient())
+        @Binding var path: NavigationPath
         
         var body: some View {
             VStack(spacing: Constants.productsListInterSectionSpacing) {
                 ForEach(viewModel.sections, id: \.id) { section in
                     if section.type == .favorite, !section.products.isEmpty {
-                        SectionFavorites(section: section)
+                        SectionFavorites(path: $path, section: section)
                     }
                     if section.type == .unfavorite, !section.products.isEmpty {
                         SectionUnfavorites(section: section)
@@ -140,16 +153,18 @@ struct ProductsView: View {
         }
         
         private struct SectionFavorites: View {
+            @Binding var path: NavigationPath
             let section: Section
             
             var body: some View {
                 VStack(alignment: .leading, spacing: 16.0) {
-                    HeaderView(section: section)
+                    HeaderView(path: $path, section: section)
                     FavoriteListView(products: section.products)
                 }
             }
             
             private struct HeaderView: View {
+                @Binding var path: NavigationPath
                 let section: Section
                 
                 var body: some View {
@@ -167,8 +182,7 @@ struct ProductsView: View {
                         Spacer()
                         
                         Button(action: {
-                            // TODO: - Go to "Favorites list" screen
-                            print("Button tapped")
+                            path.append(ProductScreen.favorite)
                         }) {
                             HStack(spacing: 6.0) {
                                 Text(section.buttonTitle)
@@ -474,9 +488,9 @@ struct ProductsView: View {
                     }
                     
                 }
-                
+
             }
-            
+                        
         }
         
     }
