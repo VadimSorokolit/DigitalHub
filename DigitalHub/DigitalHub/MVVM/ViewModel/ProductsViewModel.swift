@@ -121,8 +121,8 @@ class ProductsViewModel: ObservableObject {
     func getMockData() {
         var products: [Product] = []
         for _ in 1...10 {
-            let unfavoriteProduct = Product(name: "iPhoneXS", brandName: "Apple", imageURL: "", id: "", isFavorite: false, price: "100", discount: "20")
-            let favoriteProduct = Product(name: "iPhone16ProMax iPhone16ProMax iPhone16ProMax", brandName: "iPhone16ProMax iPhone16ProMax Apple Apple Apple Apple Apple", imageURL: "", id: "", isFavorite: true, price: "100", discount: "30")
+            let unfavoriteProduct = Product(name: "iPhoneXS", brandName: "Apple", imageURL: "mockImage", id: "", isFavorite: false, price: "100", discount: "20")
+            let favoriteProduct = Product(name: "iPhone16ProMax iPhone16ProMax iPhone16ProMax", brandName: "iPhone16ProMax iPhone16ProMax Apple Apple Apple Apple Apple", imageURL: "mockImage", id: "", isFavorite: true, price: "100", discount: "30")
             products.append(unfavoriteProduct)
             products.append(favoriteProduct)
         }

@@ -11,8 +11,8 @@ struct ProductsView: View {
     
     private struct Constants {
         static let headerTitleName: String = "Products"
-        static let mockImageName: String = "mockImage"
         static let headerImageName: String = "headerImage"
+        static let systemImageName: String = "photo"
         static let headerButtonImageName: String = "headerButtonImage"
         static let searchBarImageName: String = "magnifyingglass"
         static let searchBarPlaceholder: String = "Search"
@@ -145,9 +145,7 @@ struct ProductsView: View {
             var body: some View {
                 VStack(alignment: .leading, spacing: 16.0) {
                     HeaderView(section: section)
-                        .padding(.horizontal, 18.0)
-                    ProductCellView(products: section.products)
-                        .padding(.leading, 18.0)
+                    FavoriteListView(products: section.products)
                 }
             }
             
@@ -159,11 +157,11 @@ struct ProductsView: View {
                         VStack(alignment: .leading, spacing: Constants.productsHeaderTextSpacing) {
                             Text(section.title)
                                 .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                                .foregroundColor(Color(hex:Constants.sectionTitleColor))
+                                .foregroundColor(Color(hex: Constants.sectionTitleColor))
                             
                             Text(section.subtitle)
                                 .font(.custom(GlobalConstants.mediumFont, size: 12.0))
-                                .foregroundColor(Color(hex:Constants.sectionSubtitleColor))
+                                .foregroundColor(Color(hex: Constants.sectionSubtitleColor))
                         }
                         
                         Spacer()
@@ -175,7 +173,7 @@ struct ProductsView: View {
                             HStack(spacing: 6.0) {
                                 Text(section.buttonTitle)
                                     .font(.custom(GlobalConstants.mediumFont, size: 12.0))
-                                    .foregroundColor(Color(hex:Constants.sectionButtonTitleColor))
+                                    .foregroundColor(Color(hex: Constants.sectionButtonTitleColor))
                                 
                                 Image(systemName: section.buttonImageName)
                                     .resizable()
@@ -184,104 +182,124 @@ struct ProductsView: View {
                             }
                         }
                     }
+                    .padding(.horizontal, 18.0)
                 }
                 
             }
             
-            private struct ProductCellView: View {
+            private struct FavoriteListView: View {
                 let products: [Product]
                 
                 var body: some View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12.0) {
                             ForEach(products, id: \.id) { product in
-                                VStack(spacing: 11.0) {
-                                    ImageView()
-                                    
-                                    VStack(alignment: .leading, spacing: 7.0) {
-                                        InfoView(product: product)
-                                        PriceView(product: product)
-                                    }
-                                }
-                                .padding([.top, .bottom, .horizontal], 10.0)
-                                .background(Color(hex: Constants.productCellColor))
-                                .cornerRadius(16.0)
+                                FavoriteCellView(product: product)
                             }
                         }
+                        .padding(.leading, 18.0)
                     }
                 }
                 
-                struct ImageView: View {
+                private struct FavoriteCellView: View {
+                    let product: Product
                     
                     var body: some View {
-                        Image(Constants.mockImageName)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 128.0, height: 100.0, alignment: .top)
+                        VStack(spacing: 11.0) {
+                            ImageView(product: product)
+                            
+                            VStack(alignment: .leading, spacing: 7.0) {
+                                InfoView(product: product)
+                                PriceView(product: product)
+                            }
+                        }
+                        .padding([.top, .bottom, .horizontal], 10.0)
+                        .background(Color(hex: Constants.productCellColor))
+                        .cornerRadius(16.0)
+                    }
+                    
+                    struct ImageView: View {
+                        let product: Product
+                        
+                        var body: some View {
+                            Group {
+                                if let productImage = product.imageURL, !productImage.isEmpty, UIImage(named: productImage) != nil {
+                                    Image(productImage)
+                                        .resizable()
+                                } else {
+                                    Image(systemName: Constants.systemImageName)
+                                        .resizable()
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 128.0, height: 100.0)
                             .clipped()
                             .cornerRadius(8.0, corners: [.topLeft, .topRight])
-                    }
-                    
-                }
-                
-                private struct InfoView: View {
-                    let product: Product
-                    
-                    var body: some View {
-                        VStack(alignment: .leading, spacing: 4.0) {
-                            Text(product.name)
-                                .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                                .foregroundColor(Color(hex: "1F2937"))
-                            
-                            Text(product.brandName ?? "")
-                                .font(.custom(GlobalConstants.regularFont, size: 10.0))
-                                .foregroundColor(Color(hex: "6B7280"))
                         }
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(Constants.textLineCount)
-                        .frame(width: Constants.favoriteImageWidth, alignment: .leading)
+                        
                     }
                     
-                }
-                
-                private struct PriceView: View {
-                    let product: Product
-                    
-                    var body: some View {
-                        HStack {
-                            ZStack(alignment: .topTrailing) {
-                                Rectangle()
-                                    .fill(Color(hex: Constants.priceLabelColor))
-                                    .frame(width: 50.0, height: 20.0)
-                                    .cornerRadius(3.0, corners: [.topLeft, .topRight, .bottomRight])
-                                    .cornerRadius(10.0, corners: [.bottomLeft])
-                                    .overlay(
-                                        Text(product.price ?? "--")
-                                            .font(.custom(GlobalConstants.semiBoldFont, size: 8.0))
-                                            .foregroundColor(Color(hex: Constants.priceValueColor)),
-                                        alignment: .center
-                                    )
+                    private struct InfoView: View {
+                        let product: Product
+                        
+                        var body: some View {
+                            VStack(alignment: .leading, spacing: 4.0) {
+                                Text(product.name)
+                                    .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
+                                    .foregroundColor(Color(hex: "1F2937"))
                                 
-                                Rectangle()
-                                    .fill(Color(hex: Constants.discountLabelColor))
-                                    .frame(width: 23.0, height: 9.0)
-                                    .cornerRadius(3.0)
-                                    .overlay(
-                                        Text(product.discount ?? "--")
-                                            .font(.custom(GlobalConstants.semiBoldFont, size: 6.0))
-                                            .foregroundColor(Color(hex: Constants.discountValueColor)),
-                                        alignment: .center
-                                    )
-                                    .offset(x: 8.0, y: -3.0)
+                                Text(product.brandName ?? "")
+                                    .font(.custom(GlobalConstants.regularFont, size: 10.0))
+                                    .foregroundColor(Color(hex: "6B7280"))
                             }
-                            
-                            Spacer()
-                            
-                            Image(Constants.redHeartImageName)
-                                .resizable()
-                                .frame(width: 20.0, height: 20.0)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(Constants.textLineCount)
+                            .frame(width: Constants.favoriteImageWidth, alignment: .leading)
                         }
-                        .frame(width: Constants.favoriteImageWidth)
+                        
+                    }
+                    
+                    private struct PriceView: View {
+                        let product: Product
+                        
+                        var body: some View {
+                            HStack {
+                                ZStack(alignment: .topTrailing) {
+                                    Rectangle()
+                                        .fill(Color(hex: Constants.priceLabelColor))
+                                        .frame(width: 50.0, height: 20.0)
+                                        .cornerRadius(3.0, corners: [.topLeft, .topRight, .bottomRight])
+                                        .cornerRadius(10.0, corners: [.bottomLeft])
+                                        .overlay(
+                                            Text(product.price ?? "--")
+                                                .font(.custom(GlobalConstants.semiBoldFont, size: 8.0))
+                                                .foregroundColor(Color(hex: Constants.priceValueColor)),
+                                            alignment: .center
+                                        )
+                                    
+                                    Rectangle()
+                                        .fill(Color(hex: Constants.discountLabelColor))
+                                        .frame(width: 23.0, height: 9.0)
+                                        .cornerRadius(3.0)
+                                        .overlay(
+                                            Text(product.discount ?? "--")
+                                                .font(.custom(GlobalConstants.semiBoldFont, size: 6.0))
+                                                .foregroundColor(Color(hex: Constants.discountValueColor)),
+                                            alignment: .center
+                                        )
+                                        .offset(x: 8.0, y: -3.0)
+                                }
+                                
+                                Spacer()
+                                
+                                Image(Constants.redHeartImageName)
+                                    .resizable()
+                                    .frame(width: 20.0, height: 20.0)
+                            }
+                            .frame(width: Constants.favoriteImageWidth)
+                        }
+                        
                     }
                     
                 }
@@ -296,11 +314,10 @@ struct ProductsView: View {
         let section: Section
         
         var body: some View {
-            VStack(alignment: .leading, spacing: 6.0) {
+            VStack(alignment: .leading, spacing: 16.0) {
                 HeaderView(section: section)
-                ProductCellView(products: section.products)
+                UnfavoriteListView(products: section.products)
             }
-            .padding(.horizontal, 18.0)
         }
         
         private struct HeaderView: View {
@@ -311,11 +328,11 @@ struct ProductsView: View {
                     VStack(alignment: .leading, spacing: Constants.productsHeaderTextSpacing) {
                         Text(section.title)
                             .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                            .foregroundColor(Color(hex:Constants.sectionTitleColor))
+                            .foregroundColor(Color(hex: Constants.sectionTitleColor))
                         
                         Text(section.subtitle)
                             .font(.custom(GlobalConstants.mediumFont, size: 12.0))
-                            .foregroundColor(Color(hex:Constants.sectionSubtitleColor))
+                            .foregroundColor(Color(hex: Constants.sectionSubtitleColor))
                     }
                     
                     Spacer()
@@ -327,115 +344,135 @@ struct ProductsView: View {
                         HStack(spacing: 6.0) {
                             Text(section.buttonTitle)
                                 .font(.custom(GlobalConstants.mediumFont, size: 12.0))
-                                .foregroundColor(Color(hex:Constants.sectionButtonTitleColor))
+                                .foregroundColor(Color(hex: Constants.sectionButtonTitleColor))
                             
                             Image(systemName: section.buttonImageName)
                                 .resizable()
                                 .frame(width: 5.0, height: 8.75)
-                                .foregroundColor(Color(hex:Constants.sectionButtonImageColor))
+                                .foregroundColor(Color(hex: Constants.sectionButtonImageColor))
                         }
                     }
                 }
+                .padding(.horizontal, 18.0)
             }
             
         }
         
-        private struct ProductCellView: View {
+        private struct UnfavoriteListView: View {
             let products: [Product]
             
             var body: some View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 6.0) {
                         ForEach(products, id: \.id) { product in
-                            HStack(spacing: 16.0) {
-                                ProductImage()
-                                
-                                VStack(alignment: .leading, spacing: 8.0) {
-                                    TitleWithLike(product: product)
-                                    SubtitleWithPrice(product: product)
-                                }
-                            }
-                            .padding([.top, .bottom, .horizontal], 12.0)
-                            .background(.white)
-                            .cornerRadius(10.0)
+                            UnfavoriteCellView(product: product)
                         }
                     }
                 }
             }
             
-            struct ProductImage: View {
+            private struct UnfavoriteCellView: View {
+                let product: Product
                 
                 var body: some View {
-                    Image(Constants.mockImageName)
-                        .resizable()
-                        .scaledToFill()
+                    HStack(spacing: 16.0) {
+                        ImageView(product: product)
+                        
+                        VStack(alignment: .leading, spacing: 8.0) {
+                            TitleWithLike(product: product)
+                            SubtitleWithPrice(product: product)
+                        }
+                    }
+                    .padding([.top, .bottom, .horizontal], 12.0)
+                    .background(.white)
+                    .cornerRadius(10.0)
+                    .padding(.horizontal, 18.0)
+                }
+                
+                private struct ImageView: View {
+                    let product: Product
+                    
+                    var body: some View {
+                        Group {
+                            if let productImage = product.imageURL, !productImage.isEmpty, UIImage(named: productImage) != nil {
+                                Image(productImage)
+                                    .resizable()
+                            } else {
+                                Image(systemName: Constants.systemImageName)
+                                    .resizable()
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .aspectRatio(contentMode: .fill)
                         .frame(width: 64.0, height: 64.0)
                         .cornerRadius(8.0)
-                }
-                
-            }
-            
-            private struct TitleWithLike: View {
-                let product: Product
-                
-                var body: some View {
-                    HStack(alignment: .top) {
-                        Text(product.name)
-                            .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                            .foregroundColor(Color(hex: "1F2937"))
-                            .frame(width: 195.0, alignment: .leading)
-                            .padding(.top, 8.0)
-                            .lineLimit(Constants.textLineCount)
-                        
-                        Spacer()
-                        
-                        Image(Constants.redHeartImageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 20.0, height: 21.0)
                     }
+                    
                 }
                 
-            }
-            
-            private struct SubtitleWithPrice: View {
-                let product: Product
-                
-                var body: some View {
-                    HStack(alignment: .top) {
-                        Text(product.brandName ?? "")
-                            .font(.custom(GlobalConstants.regularFont, size: 10.0))
-                            .foregroundColor(Color(hex: "6B7280"))
-                            .frame(width: 117.0, alignment: .leading)
-                            .lineLimit(Constants.textLineCount)
-                        
-                        Spacer()
-                        
-                        ZStack(alignment: .topTrailing) {
-                            Rectangle()
-                                .fill(Color(Color(hex: Constants.priceLabelColor)))
-                                .frame(width: 88.0, height: 28.0)
-                                .cornerRadius(8.0)
-                                .overlay(
-                                    Text(product.price ?? "--")
-                                        .font(.custom(GlobalConstants.semiBoldFont, size: 12.0))
-                                        .foregroundColor(.white)
-                                )
+                private struct TitleWithLike: View {
+                    let product: Product
+                    
+                    var body: some View {
+                        HStack(alignment: .top) {
+                            Text(product.name)
+                                .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
+                                .foregroundColor(Color(hex: "1F2937"))
+                                .frame(width: 195.0, alignment: .leading)
+                                .padding(.top, 8.0)
+                                .lineLimit(Constants.textLineCount)
                             
-                            Rectangle()
-                                .fill(Color(hex: Constants.discountLabelColor))
-                                .frame(width: 23.0, height: 9.0)
-                                .cornerRadius(3.0)
-                                .overlay(
-                                    Text(product.discount ?? "--")
-                                        .font(.custom(GlobalConstants.semiBoldFont, size: 6.0))
-                                        .foregroundColor(.white),
-                                    alignment: .center
-                                )
-                                .offset(x: 4.0, y: -4.0)
+                            Spacer()
+                            
+                            Image(Constants.redHeartImageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20.0, height: 21.0)
                         }
-                        .frame(maxHeight: .infinity, alignment: .bottom)
                     }
+                    
+                }
+                
+                private struct SubtitleWithPrice: View {
+                    let product: Product
+                    
+                    var body: some View {
+                        HStack(alignment: .top) {
+                            Text(product.brandName ?? "")
+                                .font(.custom(GlobalConstants.regularFont, size: 10.0))
+                                .foregroundColor(Color(hex: "6B7280"))
+                                .frame(width: 117.0, alignment: .leading)
+                                .lineLimit(Constants.textLineCount)
+                            
+                            Spacer()
+                            
+                            ZStack(alignment: .topTrailing) {
+                                Rectangle()
+                                    .fill(Color(Color(hex: Constants.priceLabelColor)))
+                                    .frame(width: 88.0, height: 28.0)
+                                    .cornerRadius(8.0)
+                                    .overlay(
+                                        Text(product.price ?? "--")
+                                            .font(.custom(GlobalConstants.semiBoldFont, size: 12.0))
+                                            .foregroundColor(.white)
+                                    )
+                                
+                                Rectangle()
+                                    .fill(Color(hex: Constants.discountLabelColor))
+                                    .frame(width: 23.0, height: 9.0)
+                                    .cornerRadius(3.0)
+                                    .overlay(
+                                        Text(product.discount ?? "--")
+                                            .font(.custom(GlobalConstants.semiBoldFont, size: 6.0))
+                                            .foregroundColor(.white),
+                                        alignment: .center
+                                    )
+                                    .offset(x: 4.0, y: -4.0)
+                            }
+                            .frame(maxHeight: .infinity, alignment: .bottom)
+                        }
+                    }
+                    
                 }
                 
             }
