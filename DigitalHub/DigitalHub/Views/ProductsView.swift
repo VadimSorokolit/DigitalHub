@@ -12,7 +12,6 @@ struct ProductsView: View {
     private struct Constants {
         static let headerTitleName: String = "Products"
         static let headerImageName: String = "headerImage"
-        static let systemImageName: String = "photo"
         static let headerButtonImageName: String = "headerButtonImage"
         static let searchBarImageName: String = "magnifyingglass"
         static let searchBarPlaceholder: String = "Search"
@@ -20,16 +19,12 @@ struct ProductsView: View {
         static let searchBarImageColor: String = "9CA3AF"
         static let searchBarPlaceholderColor: String = "9CA3AF"
         static let searchBarColor: String = "E6E7E9"
-        static let backgroundColor: String = "F6F6F6"
         static let sectionTitleColor: String = "1F2937"
         static let sectionSubtitleColor: String = "6B7280"
         static let sectionButtonTitleColor: String = "6B7280"
         static let sectionButtonImageColor: String = "89909E"
-        static let discountLabelColor: String = "EB4132"
-        static let priceLabelColor: String = "32B768"
         static let priceValueColor: String = "FFFFFF"
         static let discountValueColor: String = "FFFFFF"
-        static let redHeartImageName: String = "redHeart"
         static let productCellColor: String = "FFFFFF"
         static let textLineCount: Int = 3
         static let headerTitleImageSize: CGFloat = 30.0
@@ -39,26 +34,31 @@ struct ProductsView: View {
         static let favoriteImageWidth: CGFloat = 128.0
     }
     
-    enum ProductScreen: Hashable {
-        case favorite
-    }
-    
+    @StateObject private var viewModel = ProductsViewModel(apiClient: MoyaClient())
     @State private var path = NavigationPath()
     
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 28.0) {
                 HeaderView()
-                ProductListView(path: $path)
+                ProductListView(viewModel: viewModel, path: $path)
             }
-            .background(Color(hex: Constants.backgroundColor))
-        }
-        .navigationDestination(for: ProductScreen.self) { list in
-            switch list {
-                case .favorite:
-                    FavoritesProductsView()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Color(hex: GlobalConstants.backgroundColor))
+            .navigationDestination(for: Section.SectionType.self) { sectionType in
+                switch sectionType {
+                    case .favorite :
+                        FilteredProductsView(viewModel: viewModel, sectionType: sectionType)
+                        
+                    case .unfavorite:
+                        FilteredProductsView(viewModel: viewModel, sectionType: sectionType)
+                }
             }
         }
+        .onAppear {
+            viewModel.loadFirstPage()
+        }
+        .loadRequestSpinner(isLoading: viewModel.isLoading)
     }
     
     private struct HeaderView: View {
@@ -133,33 +133,32 @@ struct ProductsView: View {
     }
     
     private struct ProductListView: View {
-        @StateObject private var viewModel = ProductsViewModel(apiClient: MoyaClient())
+        @ObservedObject var viewModel: ProductsViewModel
         @Binding var path: NavigationPath
         
         var body: some View {
             VStack(spacing: Constants.productsListInterSectionSpacing) {
                 ForEach(viewModel.sections, id: \.id) { section in
                     if section.type == .favorite, !section.products.isEmpty {
-                        SectionFavorites(path: $path, section: section)
+                        SectionFavorites(viewModel: viewModel, path: $path, section: section)
                     }
                     if section.type == .unfavorite, !section.products.isEmpty {
-                        SectionUnfavorites(section: section)
+                        SectionUnfavorites(path: $path, viewModel: viewModel, section: section)
                     }
                 }
             }
-            .onAppear {
-                viewModel.getMockData()
-            }
+            
         }
-        
+
         private struct SectionFavorites: View {
+            @ObservedObject var viewModel: ProductsViewModel
             @Binding var path: NavigationPath
             let section: Section
             
             var body: some View {
                 VStack(alignment: .leading, spacing: 16.0) {
                     HeaderView(path: $path, section: section)
-                    FavoriteListView(products: section.products)
+                    ListView(viewModel: viewModel, products: section.products)
                 }
             }
             
@@ -182,7 +181,7 @@ struct ProductsView: View {
                         Spacer()
                         
                         Button(action: {
-                            path.append(ProductScreen.favorite)
+                            path.append(Section.SectionType.favorite)
                         }) {
                             HStack(spacing: 6.0) {
                                 Text(section.buttonTitle)
@@ -201,14 +200,15 @@ struct ProductsView: View {
                 
             }
             
-            private struct FavoriteListView: View {
+            private struct ListView: View {
+                @ObservedObject var viewModel: ProductsViewModel
                 let products: [Product]
                 
                 var body: some View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12.0) {
                             ForEach(products, id: \.id) { product in
-                                FavoriteCellView(product: product)
+                                FavoriteCellView(viewModel: viewModel, product: product)
                             }
                         }
                         .padding(.leading, 18.0)
@@ -216,6 +216,7 @@ struct ProductsView: View {
                 }
                 
                 private struct FavoriteCellView: View {
+                    @ObservedObject var viewModel: ProductsViewModel
                     let product: Product
                     
                     var body: some View {
@@ -224,7 +225,7 @@ struct ProductsView: View {
                             
                             VStack(alignment: .leading, spacing: 7.0) {
                                 InfoView(product: product)
-                                PriceView(product: product)
+                                PriceView(viewModel: viewModel, product: product)
                             }
                         }
                         .padding([.top, .bottom, .horizontal], 10.0)
@@ -232,7 +233,7 @@ struct ProductsView: View {
                         .cornerRadius(16.0)
                     }
                     
-                    struct ImageView: View {
+                    private struct ImageView: View {
                         let product: Product
                         
                         var body: some View {
@@ -241,7 +242,7 @@ struct ProductsView: View {
                                     Image(productImage)
                                         .resizable()
                                 } else {
-                                    Image(systemName: Constants.systemImageName)
+                                    Image(systemName: GlobalConstants.systemImageName)
                                         .resizable()
                                         .foregroundColor(.gray)
                                 }
@@ -275,13 +276,14 @@ struct ProductsView: View {
                     }
                     
                     private struct PriceView: View {
+                        @ObservedObject var viewModel: ProductsViewModel
                         let product: Product
                         
                         var body: some View {
                             HStack {
                                 ZStack(alignment: .topTrailing) {
                                     Rectangle()
-                                        .fill(Color(hex: Constants.priceLabelColor))
+                                        .fill(Color(hex: GlobalConstants.priceLabelColor))
                                         .frame(width: 50.0, height: 20.0)
                                         .cornerRadius(3.0, corners: [.topLeft, .topRight, .bottomRight])
                                         .cornerRadius(10.0, corners: [.bottomLeft])
@@ -293,7 +295,7 @@ struct ProductsView: View {
                                         )
                                     
                                     Rectangle()
-                                        .fill(Color(hex: Constants.discountLabelColor))
+                                        .fill(Color(hex: GlobalConstants.discountLabelColor))
                                         .frame(width: 23.0, height: 9.0)
                                         .cornerRadius(3.0)
                                         .overlay(
@@ -307,9 +309,12 @@ struct ProductsView: View {
                                 
                                 Spacer()
                                 
-                                Image(Constants.redHeartImageName)
-                                    .resizable()
-                                    .frame(width: 20.0, height: 20.0)
+                                Button(action: {
+                                    self.viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+                                }) { Image(GlobalConstants.redHeartImageName)
+                                        .resizable()
+                                        .frame(width: 20.0, height: 20.0)
+                                }
                             }
                             .frame(width: Constants.favoriteImageWidth)
                         }
@@ -325,16 +330,32 @@ struct ProductsView: View {
     }
     
     private struct SectionUnfavorites: View {
+        @ObservedObject var viewModel: ProductsViewModel
+        @Binding var path: NavigationPath
         let section: Section
+        let onToggleItem: (Product) -> Void
+
+        init(
+            path: Binding<NavigationPath>,
+            viewModel: ProductsViewModel,
+            section: Section,
+            onToggleItem: @escaping (Product) -> Void = { _ in }
+        ) {
+            self._path = path
+            self.viewModel = viewModel
+            self.section = section
+            self.onToggleItem = onToggleItem
+        }
         
         var body: some View {
             VStack(alignment: .leading, spacing: 16.0) {
-                HeaderView(section: section)
-                UnfavoriteListView(products: section.products)
+                HeaderView(path: $path, section: section)
+                ListView(viewModel: viewModel, products: section.products)
             }
         }
         
         private struct HeaderView: View {
+            @Binding var path: NavigationPath
             let section: Section
             
             var body: some View {
@@ -352,8 +373,7 @@ struct ProductsView: View {
                     Spacer()
                     
                     Button(action: {
-                        // TODO: - Go to "Unfavorites list" screen
-                        print("Button tapped")
+                        path.append(Section.SectionType.unfavorite)
                     }) {
                         HStack(spacing: 6.0) {
                             Text(section.buttonTitle)
@@ -372,123 +392,18 @@ struct ProductsView: View {
             
         }
         
-        private struct UnfavoriteListView: View {
+        private struct ListView: View {
+            @ObservedObject var viewModel: ProductsViewModel
             let products: [Product]
             
             var body: some View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 6.0) {
                         ForEach(products, id: \.id) { product in
-                            UnfavoriteCellView(product: product)
+                            CellView(viewModel: viewModel, product: product, isFavorite: product.isFavorite)
                         }
                     }
                 }
-            }
-            
-            private struct UnfavoriteCellView: View {
-                let product: Product
-                
-                var body: some View {
-                    HStack(spacing: 16.0) {
-                        ImageView(product: product)
-                        
-                        VStack(alignment: .leading, spacing: 8.0) {
-                            TitleWithLike(product: product)
-                            SubtitleWithPrice(product: product)
-                        }
-                    }
-                    .padding([.top, .bottom, .horizontal], 12.0)
-                    .background(.white)
-                    .cornerRadius(10.0)
-                    .padding(.horizontal, 18.0)
-                }
-                
-                private struct ImageView: View {
-                    let product: Product
-                    
-                    var body: some View {
-                        Group {
-                            if let productImage = product.imageURL, !productImage.isEmpty, UIImage(named: productImage) != nil {
-                                Image(productImage)
-                                    .resizable()
-                            } else {
-                                Image(systemName: Constants.systemImageName)
-                                    .resizable()
-                                    .foregroundColor(.gray)
-                            }
-                        }
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 64.0, height: 64.0)
-                        .cornerRadius(8.0)
-                    }
-                    
-                }
-                
-                private struct TitleWithLike: View {
-                    let product: Product
-                    
-                    var body: some View {
-                        HStack(alignment: .top) {
-                            Text(product.name)
-                                .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                                .foregroundColor(Color(hex: "1F2937"))
-                                .frame(width: 195.0, alignment: .leading)
-                                .padding(.top, 8.0)
-                                .lineLimit(Constants.textLineCount)
-                            
-                            Spacer()
-                            
-                            Image(Constants.redHeartImageName)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 20.0, height: 21.0)
-                        }
-                    }
-                    
-                }
-                
-                private struct SubtitleWithPrice: View {
-                    let product: Product
-                    
-                    var body: some View {
-                        HStack(alignment: .top) {
-                            Text(product.brandName ?? "")
-                                .font(.custom(GlobalConstants.regularFont, size: 10.0))
-                                .foregroundColor(Color(hex: "6B7280"))
-                                .frame(width: 117.0, alignment: .leading)
-                                .lineLimit(Constants.textLineCount)
-                            
-                            Spacer()
-                            
-                            ZStack(alignment: .topTrailing) {
-                                Rectangle()
-                                    .fill(Color(Color(hex: Constants.priceLabelColor)))
-                                    .frame(width: 88.0, height: 28.0)
-                                    .cornerRadius(8.0)
-                                    .overlay(
-                                        Text(product.price ?? "--")
-                                            .font(.custom(GlobalConstants.semiBoldFont, size: 12.0))
-                                            .foregroundColor(.white)
-                                    )
-                                
-                                Rectangle()
-                                    .fill(Color(hex: Constants.discountLabelColor))
-                                    .frame(width: 23.0, height: 9.0)
-                                    .cornerRadius(3.0)
-                                    .overlay(
-                                        Text(product.discount ?? "--")
-                                            .font(.custom(GlobalConstants.semiBoldFont, size: 6.0))
-                                            .foregroundColor(.white),
-                                        alignment: .center
-                                    )
-                                    .offset(x: 4.0, y: -4.0)
-                            }
-                            .frame(maxHeight: .infinity, alignment: .bottom)
-                        }
-                    }
-                    
-                }
-
             }
                         
         }
