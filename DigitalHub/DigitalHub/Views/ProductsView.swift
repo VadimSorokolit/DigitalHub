@@ -43,22 +43,10 @@ struct ProductsView: View {
                 HeaderView()
                 ProductListView(viewModel: viewModel, path: $path)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(Color(hex: GlobalConstants.backgroundColor))
-            .navigationDestination(for: Section.SectionType.self) { sectionType in
-                switch sectionType {
-                    case .favorite :
-                        FilteredProductsView(viewModel: viewModel, sectionType: sectionType)
-                        
-                    case .unfavorite:
-                        FilteredProductsView(viewModel: viewModel, sectionType: sectionType)
-                }
-            }
+            .modifier(ScreenBackgroundModifier())
+            .modifier(SectionNavigationModifier(viewModel: viewModel))
+            .modifier(LoadViewModifier(viewModel: viewModel))
         }
-        .onAppear {
-            viewModel.loadFirstPage()
-        }
-        .loadRequestSpinner(isLoading: viewModel.isLoading)
     }
     
     private struct HeaderView: View {
@@ -157,7 +145,7 @@ struct ProductsView: View {
             }
             
         }
-
+        
         private struct SectionFavorites: View {
             @ObservedObject var viewModel: ProductsViewModel
             @Binding var path: NavigationPath
@@ -341,7 +329,7 @@ struct ProductsView: View {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var path: NavigationPath
         let section: Section
-
+        
         var body: some View {
             VStack(alignment: .leading, spacing: 16.0) {
                 HeaderView(path: $path, section: section)
@@ -400,7 +388,48 @@ struct ProductsView: View {
                     }
                 }
             }
-                        
+            
+        }
+        
+    }
+    
+    struct ScreenBackgroundModifier: ViewModifier {
+        
+        func body(content: Content) -> some View {
+            content
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .background(Color(hex: GlobalConstants.backgroundColor))
+        }
+        
+    }
+    
+    struct SectionNavigationModifier: ViewModifier {
+        @ObservedObject var viewModel: ProductsViewModel
+        
+        func body(content: Content) -> some View {
+            content
+                .navigationDestination(for: Section.SectionType.self) { sectionType in
+                    switch sectionType {
+                        case .favorite :
+                            FilteredProductsView(viewModel: viewModel, sectionType: sectionType)
+                            
+                        case .unfavorite:
+                            FilteredProductsView(viewModel: viewModel, sectionType: sectionType)
+                    }
+                }
+        }
+        
+    }
+    
+    struct LoadViewModifier: ViewModifier {
+        @ObservedObject var viewModel: ProductsViewModel
+        
+        func body(content: Content) -> some View {
+            content
+                .onAppear {
+                    viewModel.loadFirstPage()
+                }
+                .loadRequestSpinner(isLoading: viewModel.isLoading)
         }
         
     }

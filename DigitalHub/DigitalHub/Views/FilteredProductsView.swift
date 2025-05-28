@@ -26,33 +26,15 @@ struct FilteredProductsView: View {
 
     var body: some View {
         VStack(spacing: 25.0) {
-            HeaderView(viewModel: viewModel, isSelectedAll: $isSelectedAll, showSpinner: $showSpinner, sectionType: sectionType)
+            HeaderView(viewModel: viewModel,
+                       isSelectedAll: $isSelectedAll, showSpinner: $showSpinner, sectionType: sectionType)
             ListView(viewModel: viewModel, sectionType: sectionType)
         }
-        .background(Color(hex: GlobalConstants.backgroundColor))
-        .navigationBarBackButtonHidden(true)
-        .loadActionSpinner(
-            isPresented: $showSpinner,
-            message: "Are you sure you want to \(actionText) ?",
-            onConfirm: {
-                for section in viewModel.sections {
-                    if section.type == sectionType {
-                        for product in section.products {
-                            viewModel.updateProductStatus(
-                                id: product.id,
-                                isFavourite: isSelectedAll
-                            )
-                        }
-                    }
-                }
-            },
-            onCancel: {
-                isSelectedAll.toggle()
-            }
-        )
-        .onAppear {
-            isSelectedAll = (sectionType == .favorite)
-        }
+        .modifier(ScreenBackgroundModifier())
+        .modifier(SpinnerModifier(viewModel: viewModel, showSpinner: $showSpinner,
+                                  isSelectedAll: $isSelectedAll, actionText: actionText, sectionType: sectionType))
+        .modifier(LoadViewModifier(isSelectedAll: $isSelectedAll, sectionType: sectionType))
+
     }
     
     private struct HeaderView: View {
@@ -120,6 +102,62 @@ struct FilteredProductsView: View {
                     }
                 }
             }
+        }
+        
+    }
+    
+    private struct ScreenBackgroundModifier: ViewModifier {
+        
+        func body(content: Content) -> some View {
+            content
+                .background(Color(hex: GlobalConstants.backgroundColor))
+                .navigationBarBackButtonHidden(true)
+        }
+        
+    }
+    
+    private struct SpinnerModifier: ViewModifier {
+        @ObservedObject var viewModel: ProductsViewModel
+        @Binding var showSpinner: Bool
+        @Binding var isSelectedAll: Bool
+        
+        let actionText: String
+        let sectionType: Section.SectionType
+        
+        func body(content: Content) -> some View {
+            content
+                .loadActionSpinner(
+                    isPresented: $showSpinner,
+                    message: "Are you sure you want to \(actionText) ?",
+                    onConfirm: {
+                        for section in viewModel.sections {
+                            if section.type == sectionType {
+                                for product in section.products {
+                                    viewModel.updateProductStatus(
+                                        id: product.id,
+                                        isFavourite: isSelectedAll
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    onCancel: {
+                        isSelectedAll.toggle()
+                    }
+                )
+        }
+        
+    }
+    
+    private struct LoadViewModifier: ViewModifier {
+        @Binding var isSelectedAll: Bool
+        let sectionType: Section.SectionType
+        
+        func body(content: Content) -> some View {
+            content
+                .onAppear {
+                    isSelectedAll = (sectionType == .favorite)
+                }
         }
         
     }
