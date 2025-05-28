@@ -12,13 +12,12 @@ struct FilteredProductsView: View {
     // MARK: – Constants
     
     private struct Constants {
-        static let headerTitleName = "Products"
+        static let headerTitleName: String = "Products"
     }
     
     @ObservedObject var viewModel: ProductsViewModel
-    @Environment(\.dismiss) private var dismiss
-    @State private var isSelectedAll = false
-    @State private var showSpinner = false
+    @State private var isSelectedAll: Bool = false
+    @State private var showSpinner: Bool = false
     
     var sectionType: Section.SectionType
     private var actionText: String {
@@ -58,7 +57,7 @@ struct FilteredProductsView: View {
     
     private struct HeaderView: View {
         @ObservedObject var viewModel: ProductsViewModel
-        @Environment(\.dismiss) private var dismiss
+        @Environment(\.dismiss) private var dismiss: DismissAction
         @Binding var isSelectedAll: Bool
         @Binding var showSpinner: Bool
         

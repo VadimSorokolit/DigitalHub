@@ -34,8 +34,8 @@ struct ProductsView: View {
         static let favoriteImageWidth: CGFloat = 128.0
     }
     
-    @StateObject private var viewModel = ProductsViewModel(apiClient: MoyaClient())
-    @State private var path = NavigationPath()
+    @StateObject private var viewModel: ProductsViewModel = ProductsViewModel(apiClient: MoyaClient())
+    @State private var path: NavigationPath = NavigationPath()
     
     var body: some View {
         NavigationStack(path: $path) {
@@ -76,18 +76,7 @@ struct ProductsView: View {
             
             var body: some View {
                 ZStack {
-                    Text(Constants.headerTitleName)
-                        .font(.custom(GlobalConstants.semiBoldFont, size: Constants.headerTitleFontSize))
-                        .foregroundColor(Color(hex: Constants.headerTitleFontColor))
-                        .overlay(
-                            Image(Constants.headerImageName)
-                                .resizable()
-                                .frame(width: Constants.headerTitleImageSize, height: Constants.headerTitleImageSize)
-                                .scaledToFit()
-                                .opacity(0.8)
-                                .offset(x: -50.0),
-                            alignment: .leading
-                        )
+                    TitleWithImage()
                     
                     HStack {
                         Spacer()
@@ -104,6 +93,25 @@ struct ProductsView: View {
                         }
                     }
                 }
+            }
+            
+            private struct TitleWithImage: View {
+                
+                var body: some View {
+                    Text(Constants.headerTitleName)
+                        .font(.custom(GlobalConstants.semiBoldFont, size: Constants.headerTitleFontSize))
+                        .foregroundColor(Color(hex: Constants.headerTitleFontColor))
+                        .overlay(
+                            Image(Constants.headerImageName)
+                                .resizable()
+                                .frame(width: Constants.headerTitleImageSize, height: Constants.headerTitleImageSize)
+                                .scaledToFit()
+                                .opacity(0.8)
+                                .offset(x: -50.0),
+                            alignment: .leading
+                        )
+                }
+                
             }
             
         }
@@ -143,7 +151,7 @@ struct ProductsView: View {
                         SectionFavorites(viewModel: viewModel, path: $path, section: section)
                     }
                     if section.type == .unfavorite, !section.products.isEmpty {
-                        SectionUnfavorites(path: $path, viewModel: viewModel, section: section)
+                        SectionUnfavorites(viewModel: viewModel, path: $path, section: section)
                     }
                 }
             }
@@ -333,20 +341,7 @@ struct ProductsView: View {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var path: NavigationPath
         let section: Section
-        let onToggleItem: (Product) -> Void
 
-        init(
-            path: Binding<NavigationPath>,
-            viewModel: ProductsViewModel,
-            section: Section,
-            onToggleItem: @escaping (Product) -> Void = { _ in }
-        ) {
-            self._path = path
-            self.viewModel = viewModel
-            self.section = section
-            self.onToggleItem = onToggleItem
-        }
-        
         var body: some View {
             VStack(alignment: .leading, spacing: 16.0) {
                 HeaderView(path: $path, section: section)

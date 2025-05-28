@@ -109,7 +109,7 @@ struct CellView: View {
                     Rectangle()
                         .fill(Color(hex: GlobalConstants.discountLabelColor))
                         .frame(width: 23.0, height: 9.0)
-                        .cornerRadius(3)
+                        .cornerRadius(3.0)
                         .overlay(
                             
                             Text(product.discount ?? "--")
