@@ -114,7 +114,6 @@ struct CellView: View {
                         .frame(width: 23.0, height: 9.0)
                         .cornerRadius(3.0)
                         .overlay(
-                            
                             Text(product.discount ?? "--")
                                 .font(.custom(GlobalConstants.semiBoldFont, size: 6.0))
                                 .foregroundColor(.white),

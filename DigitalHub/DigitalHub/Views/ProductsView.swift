@@ -72,21 +72,7 @@ struct ProductsView: View {
             var body: some View {
                 ZStack {
                     TitleWithImage()
-                    
-                    HStack {
-                        Spacer()
-                        
-                        Button(action: {
-                            // TODO: - Implement navigation to "Add Product" screen
-                            print("Button tapped")
-                        }) {
-                            Image(Constants.headerButtonImageName)
-                                .resizable()
-                                .frame(width: Constants.headerTitleImageSize, height: Constants.headerTitleImageSize)
-                                .scaledToFit()
-                                .opacity(0.8)
-                        }
-                    }
+                    ImageButton()
                 }
             }
             
@@ -105,6 +91,26 @@ struct ProductsView: View {
                                 .offset(x: -50.0),
                             alignment: .leading
                         )
+                }
+                
+            }
+            
+            private struct ImageButton: View {
+                
+                var body: some View {
+                    HStack {
+                        Spacer()
+                        
+                        Button(action: {
+                            // TODO: - Implement navigation to "Add Product" screen
+                        }) {
+                            Image(Constants.headerButtonImageName)
+                                .resizable()
+                                .frame(width: Constants.headerTitleImageSize, height: Constants.headerTitleImageSize)
+                                .scaledToFit()
+                                .opacity(0.8)
+                        }
+                    }
                 }
                 
             }
@@ -218,7 +224,7 @@ struct ProductsView: View {
                             HStack(spacing: 12.0) {
                                 ForEach(section.products, id: \.id) { product in
                                     CellView(product: product, onLikeToogle: {
-                                        self.viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+                                        viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
                                     })
                                 }
                             }
@@ -375,7 +381,6 @@ struct ProductsView: View {
                         
                         Button(action: {
                             path.append(section.id)
-                            print(section.id)
                         }) {
                             HStack(spacing: 6.0) {
                                 Text(section.buttonTitle)

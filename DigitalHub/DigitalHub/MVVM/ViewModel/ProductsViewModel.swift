@@ -133,10 +133,8 @@ class ProductsViewModel: ObservableObject {
     }
     
     func section(withId id: UUID) -> ProductsSection? {
-        guard let index = self.sections.firstIndex(where: { $0.id == id }) else {
-            return nil
-        }
-        return self.sections[index]
+        let section = self.sections.first { $0.id == id }
+        return section
     }
     
     // MARK: - For test

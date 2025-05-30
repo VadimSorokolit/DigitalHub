@@ -35,16 +35,7 @@ struct DigitalHubApp: App {
         WindowGroup {
             ZStack {
                 ProductsView(viewModel: viewModel)
-                
-                if showSpinner {
-                    SpinnerView()
-                }
-            }
-            .onAppear {
-                viewModel.loadFirstPage()
-            }
-            .onReceive(viewModel.$isLoading) { isLoading in
-                showSpinner = isLoading
+                    .modifier(LoadViewModifier(viewModel: viewModel, showSpinner: $showSpinner))
             }
         }
         .modelContainer(sharedModelContainer)
@@ -57,8 +48,6 @@ struct DigitalHubApp: App {
         func body(content: Content) -> some View {
             content
             ZStack {
-                ProductsView(viewModel: viewModel)
-                
                 if showSpinner {
                     SpinnerView()
                 }
