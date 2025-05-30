@@ -28,10 +28,9 @@
 		DD755D842DDB80C500B142FA /* Color+hexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD755D832DDB80C300B142FA /* Color+hexString.swift */; };
 		DD77799A2DE47D2500EDC278 /* FilteredProductsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779992DE47D1600EDC278 /* FilteredProductsView.swift */; };
 		DD77799C2DE4AF6200EDC278 /* CellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD77799B2DE4AF5200EDC278 /* CellView.swift */; };
-		DD7779A42DE5B42100EDC278 /* DefaultSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A32DE5B42000EDC278 /* DefaultSpinner.swift */; };
-		DD7779A62DE5B58E00EDC278 /* View+loadRequesSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A52DE5B58D00EDC278 /* View+loadRequesSpinner.swift */; };
-		DD7779A82DE5F57700EDC278 /* ActionSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A72DE5F57600EDC278 /* ActionSpinner.swift */; };
-		DD7779AA2DE7182B00EDC278 /* View+loadActionSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A92DE7182900EDC278 /* View+loadActionSpinner.swift */; };
+		DD7779A42DE5B42100EDC278 /* SpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A32DE5B42000EDC278 /* SpinnerView.swift */; };
+		DD7779A82DE5F57700EDC278 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A72DE5F57600EDC278 /* AlertView.swift */; };
+		DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A92DE7182900EDC278 /* View+loadAlert.swift */; };
 		DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */; };
 /* End PBXBuildFile section */
 
@@ -74,10 +73,9 @@
 		DD755D832DDB80C300B142FA /* Color+hexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+hexString.swift"; sourceTree = "<group>"; };
 		DD7779992DE47D1600EDC278 /* FilteredProductsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteredProductsView.swift; sourceTree = "<group>"; };
 		DD77799B2DE4AF5200EDC278 /* CellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellView.swift; sourceTree = "<group>"; };
-		DD7779A32DE5B42000EDC278 /* DefaultSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSpinner.swift; sourceTree = "<group>"; };
-		DD7779A52DE5B58D00EDC278 /* View+loadRequesSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+loadRequesSpinner.swift"; sourceTree = "<group>"; };
-		DD7779A72DE5F57600EDC278 /* ActionSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionSpinner.swift; sourceTree = "<group>"; };
-		DD7779A92DE7182900EDC278 /* View+loadActionSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+loadActionSpinner.swift"; sourceTree = "<group>"; };
+		DD7779A32DE5B42000EDC278 /* SpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerView.swift; sourceTree = "<group>"; };
+		DD7779A72DE5F57600EDC278 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
+		DD7779A92DE7182900EDC278 /* View+loadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+loadAlert.swift"; sourceTree = "<group>"; };
 		DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+cornerRadius.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -145,7 +143,7 @@
 		DD27CA072DDCDCC40034A127 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				DD7779A22DE5B39C00EDC278 /* Spinner */,
+				DD7779A22DE5B39C00EDC278 /* HUD */,
 				DD77799D2DE4AF7000EDC278 /* Cell */,
 				DD7779992DE47D1600EDC278 /* FilteredProductsView.swift */,
 				DD70B6AE2D8380D6003B9A05 /* ProductsView.swift */,
@@ -244,8 +242,7 @@
 		DD755D822DDB80B200B142FA /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				DD7779A92DE7182900EDC278 /* View+loadActionSpinner.swift */,
-				DD7779A52DE5B58D00EDC278 /* View+loadRequesSpinner.swift */,
+				DD7779A92DE7182900EDC278 /* View+loadAlert.swift */,
 				DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */,
 				DD755D832DDB80C300B142FA /* Color+hexString.swift */,
 			);
@@ -260,13 +257,13 @@
 			path = Cell;
 			sourceTree = "<group>";
 		};
-		DD7779A22DE5B39C00EDC278 /* Spinner */ = {
+		DD7779A22DE5B39C00EDC278 /* HUD */ = {
 			isa = PBXGroup;
 			children = (
-				DD7779A72DE5F57600EDC278 /* ActionSpinner.swift */,
-				DD7779A32DE5B42000EDC278 /* DefaultSpinner.swift */,
+				DD7779A72DE5F57600EDC278 /* AlertView.swift */,
+				DD7779A32DE5B42000EDC278 /* SpinnerView.swift */,
 			);
-			path = Spinner;
+			path = HUD;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -424,16 +421,15 @@
 			files = (
 				DD3C3D642D85AE4000EEC37E /* Product.swift in Sources */,
 				DD70B6B22D8380D6003B9A05 /* ProductsView.swift in Sources */,
-				DD7779A82DE5F57700EDC278 /* ActionSpinner.swift in Sources */,
-				DD7779A42DE5B42100EDC278 /* DefaultSpinner.swift in Sources */,
+				DD7779A82DE5F57700EDC278 /* AlertView.swift in Sources */,
+				DD7779A42DE5B42100EDC278 /* SpinnerView.swift in Sources */,
 				DD27CA052DDCD7900034A127 /* GlobalConstants.swift in Sources */,
 				DD3C3D782D85B06700EEC37E /* ProductsViewModel.swift in Sources */,
 				DD77799A2DE47D2500EDC278 /* FilteredProductsView.swift in Sources */,
-				DD7779A62DE5B58E00EDC278 /* View+loadRequesSpinner.swift in Sources */,
 				DD755D842DDB80C500B142FA /* Color+hexString.swift in Sources */,
 				DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */,
 				DD77799C2DE4AF6200EDC278 /* CellView.swift in Sources */,
-				DD7779AA2DE7182B00EDC278 /* View+loadActionSpinner.swift in Sources */,
+				DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */,
 				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,
 				DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */,
 				DD70B6B92D8380EF003B9A05 /* DigitalProductRouter.swift in Sources */,

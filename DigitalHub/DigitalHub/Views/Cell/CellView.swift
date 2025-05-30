@@ -8,17 +8,20 @@
 import SwiftUI
 
 struct CellView: View {
-    @ObservedObject var viewModel: ProductsViewModel
+    
+    // MARK: - Properties
     
     let product: Product
-    let isFavorite: Bool
+    let onLikeToggle: () -> Void
+    
+    // MARK: - Main body
     
     var body: some View {
         HStack(spacing: 16.0) {
             ImageView(product: product)
             
             VStack(alignment: .leading, spacing: 8.0) {
-                TitleWithLike(viewModel: viewModel, product: product, isFavorite: isFavorite)
+                TitleWithLike(product: product, onLikeToggle: onLikeToggle)
                 SubtitleWithPrice(product: product)
             }
         }
@@ -27,6 +30,8 @@ struct CellView: View {
         .cornerRadius(10.0)
         .padding(.horizontal, 18.0)
     }
+    
+    // MARK: - Subviews
     
     private struct ImageView: View {
         let product: Product
@@ -51,25 +56,23 @@ struct CellView: View {
     }
     
     private struct TitleWithLike: View {
-        @ObservedObject var viewModel: ProductsViewModel
-        
         let product: Product
-        let isFavorite: Bool
+        let onLikeToggle: () -> Void
         
         var body: some View {
             HStack {
                 Text(product.name)
                     .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
                     .foregroundColor(Color(hex: "1F2937"))
-                    .lineLimit(2)
+                    .lineLimit(3)
                 
                 Spacer()
                 
                 Button(action: {
-                    viewModel.updateProductStatus(id: product.id, isFavourite: !isFavorite)
+                    onLikeToggle()
                 }) {
                     Image(
-                        isFavorite
+                        product.isFavorite
                         ? GlobalConstants.redHeartImageName
                         : GlobalConstants.grayHeartName
                     )
@@ -90,7 +93,7 @@ struct CellView: View {
                 Text(product.brandName ?? "")
                     .font(.custom(GlobalConstants.regularFont, size: 10.0))
                     .foregroundColor(Color(hex: "6B7280"))
-                    .lineLimit(1)
+                    .lineLimit(3)
                 
                 Spacer()
                 

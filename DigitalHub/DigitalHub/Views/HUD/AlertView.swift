@@ -1,5 +1,5 @@
 //
-//  ActionSpinner.swift
+//  AlertView.swift
 //  DigitalHub
 //
 //  Created by Vadim Sorokolit on 27.05.2025.
@@ -7,8 +7,8 @@
     
 import SwiftUI
 
-struct ActionSpinner<Content: View>: View {
-    @Binding var isPresented: Bool
+struct AlertView<Content: View>: View {
+    @Binding var isLoading: Bool
     let message: String
     let content: () -> Content
     let onConfirm: () -> Void
@@ -17,14 +17,13 @@ struct ActionSpinner<Content: View>: View {
     var body: some View {
         ZStack {
             content()
-                .disabled(isPresented)
+                .disabled(isLoading)
             
-            if isPresented {
+            if isLoading {
                 Color.black.opacity(0.4)
                     .ignoresSafeArea()
                 
                 VStack(spacing: 24.0) {
-                    
                     Text(message)
                         .foregroundColor(.black)
                         .font(.custom(GlobalConstants.semiBoldFont, size: 20.0))
@@ -33,9 +32,9 @@ struct ActionSpinner<Content: View>: View {
                     HStack(spacing: 20.0) {
                         Button("NO") {
                             onCancel()
-                            isPresented = false
+                            isLoading = false
                         }
-                        .frame(width: 80.0, height: 40.0)
+                        .frame(width: 60.0, height: 30.0)
                         .background(Color(hex: GlobalConstants.discountLabelColor))
                         .foregroundColor(.white)
                         .font(.custom(GlobalConstants.semiBoldFont, size: 20.0))
@@ -43,9 +42,9 @@ struct ActionSpinner<Content: View>: View {
                         
                         Button("YES") {
                             onConfirm()
-                            isPresented = false
+                            isLoading = false
                         }
-                        .frame(width: 80.0, height: 40.0)
+                        .frame(width: 60.0, height: 30.0)
                         .background(Color(hex: GlobalConstants.priceLabelColor))
                         .foregroundColor(.white)
                         .font(.custom(GlobalConstants.semiBoldFont, size: 20.0))

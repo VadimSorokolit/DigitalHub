@@ -9,41 +9,52 @@ import SwiftUI
 
 struct FilteredProductsView: View {
     
-    // MARK: – Constants
+    // MARK: – Objects
     
     private struct Constants {
         static let headerTitleName: String = "Products"
     }
     
-    @ObservedObject var viewModel: ProductsViewModel
-    @State private var isSelectedAll: Bool = false
-    @State private var showSpinner: Bool = false
+    // MARK: - Properties
     
-    var sectionType: Section.SectionType
+    @ObservedObject var viewModel: ProductsViewModel
+    @State private var isAllFavoriteSelected: Bool = false
+    @State private var isShowAlert: Bool = false
+    
+    let sectionId: UUID
     private var actionText: String {
-        isSelectedAll ? "add all" : "remove all"
+        isAllFavoriteSelected ? "remove all" : "add all"
     }
-
+    
+    // MARK: - Main body
+    
     var body: some View {
         VStack(spacing: 25.0) {
             HeaderView(viewModel: viewModel,
-                       isSelectedAll: $isSelectedAll, showSpinner: $showSpinner, sectionType: sectionType)
-            ListView(viewModel: viewModel, sectionType: sectionType)
+                       isSelectedAll: $isAllFavoriteSelected,
+                       isShowAlert: $isShowAlert,
+                       sectionId: sectionId)
+            ListView(viewModel: viewModel, sectionId: sectionId)
         }
         .modifier(ScreenBackgroundModifier())
-        .modifier(SpinnerModifier(viewModel: viewModel, showSpinner: $showSpinner,
-                                  isSelectedAll: $isSelectedAll, actionText: actionText, sectionType: sectionType))
-        .modifier(LoadViewModifier(isSelectedAll: $isSelectedAll, sectionType: sectionType))
-
+        .modifier(AlertModifier(viewModel: viewModel,
+                                  isShowAlert: $isShowAlert,
+                                  isSelectedAll: $isAllFavoriteSelected,
+                                  actionText: actionText,
+                                  sectionId: sectionId))
+        .modifier(LoadViewModifier(viewModel: viewModel,
+                                   isAllFavoriteSelected: $isAllFavoriteSelected,
+                                   sectionId: sectionId))
     }
+    
+    // MARK: - Subviews
     
     private struct HeaderView: View {
         @ObservedObject var viewModel: ProductsViewModel
         @Environment(\.dismiss) private var dismiss: DismissAction
         @Binding var isSelectedAll: Bool
-        @Binding var showSpinner: Bool
-        
-        let sectionType: Section.SectionType
+        @Binding var isShowAlert: Bool
+        let sectionId: UUID
 
         var body: some View {
             ZStack {
@@ -57,22 +68,24 @@ struct FilteredProductsView: View {
                     }
                     Spacer()
                     
-                    HStack(spacing: 6.0) {
-                        Text(isSelectedAll ? "Remove" : "Add")
-                            .font(.custom(GlobalConstants.semiBoldFont, size: 10.0))
-                            .foregroundColor(Color(hex: "3C79E6"))
-                        
-                        Button(action: {
-                            isSelectedAll.toggle()
-                            showSpinner = true
-                        }) {
-                            Image(
-                                isSelectedAll
-                                ? GlobalConstants.redHeartImageName
-                                : GlobalConstants.grayHeartName
-                            )
-                            .resizable()
-                            .frame(width: 20.0, height: 16.0)
+                    if let section = viewModel.section(withId: sectionId) {
+                        HStack(spacing: 6.0) {
+                            Text(section.type == .favorite ? "Remove" : "Add")
+                                .font(.custom(GlobalConstants.semiBoldFont, size: 10.0))
+                                .foregroundColor(Color(hex: "3C79E6"))
+                            
+                            Button(action: {
+                                isShowAlert = true
+                            }) {
+                                Image(
+                                    isSelectedAll
+                                    ? GlobalConstants.redHeartImageName
+                                    : GlobalConstants.grayHeartName
+                                )
+                                .resizable()
+                                .frame(width: 20.0, height: 16.0)
+                            }
+                            .disabled(section.products.isEmpty)
                         }
                     }
                 }
@@ -88,16 +101,16 @@ struct FilteredProductsView: View {
     
     private struct ListView: View {
         @ObservedObject var viewModel: ProductsViewModel
-        let sectionType: Section.SectionType
+        let sectionId: UUID
         
         var body: some View {
             ScrollView {
                 VStack(spacing: 6.0) {
-                    ForEach(viewModel.sections) { section in
-                        if section.type == sectionType {
-                            ForEach(section.products) { product in
-                                CellView(viewModel: viewModel, product: product, isFavorite: product.isFavorite)
-                            }
+                    if let section = viewModel.section(withId: sectionId) {
+                        ForEach(section.products) { product in
+                            CellView(product: product, onLikeToggle: {
+                                viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+                            })
                         }
                     }
                 }
@@ -105,6 +118,8 @@ struct FilteredProductsView: View {
         }
         
     }
+    
+    // MARK: - Modifiers
     
     private struct ScreenBackgroundModifier: ViewModifier {
         
@@ -116,33 +131,25 @@ struct FilteredProductsView: View {
         
     }
     
-    private struct SpinnerModifier: ViewModifier {
+    private struct AlertModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
-        @Binding var showSpinner: Bool
+        @Binding var isShowAlert: Bool
         @Binding var isSelectedAll: Bool
-        
         let actionText: String
-        let sectionType: Section.SectionType
+        let sectionId: UUID
         
         func body(content: Content) -> some View {
             content
-                .loadActionSpinner(
-                    isPresented: $showSpinner,
+                .loadAlert(
+                    isShow: $isShowAlert,
                     message: "Are you sure you want to \(actionText) ?",
                     onConfirm: {
-                        for section in viewModel.sections {
-                            if section.type == sectionType {
-                                for product in section.products {
-                                    viewModel.updateProductStatus(
-                                        id: product.id,
-                                        isFavourite: isSelectedAll
-                                    )
-                                }
-                            }
-                        }
+                        viewModel.updateSectionProductsStatus(sectionId: sectionId)
+                        isSelectedAll.toggle()
+                        isShowAlert = false
                     },
                     onCancel: {
-                        isSelectedAll.toggle()
+                        isShowAlert = false
                     }
                 )
         }
@@ -150,16 +157,18 @@ struct FilteredProductsView: View {
     }
     
     private struct LoadViewModifier: ViewModifier {
-        @Binding var isSelectedAll: Bool
-        let sectionType: Section.SectionType
-        
+        @ObservedObject var viewModel: ProductsViewModel
+        @Binding var isAllFavoriteSelected: Bool
+        let sectionId: UUID
+
         func body(content: Content) -> some View {
             content
                 .onAppear {
-                    isSelectedAll = (sectionType == .favorite)
+                    if let section = viewModel.section(withId: sectionId) {
+                        isAllFavoriteSelected = (section.type == .favorite)
+                    }
                 }
         }
-        
     }
     
 }
