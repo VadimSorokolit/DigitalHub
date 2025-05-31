@@ -112,6 +112,7 @@ struct FilteredProductsView: View {
                                       content: {
                                 CellView(
                                     product: product,
+                                    searchText: nil,
                                     onLikeToggle: {
                                         viewModel.updateProductStatus(
                                             id: product.id,
