@@ -12,12 +12,14 @@ private struct Constants {
     
     struct API {
         static let baseURL: URL? = URL(string: "https://api.stripe.com")
-        static let path: String = "v1/products"
+        static let basePath: String = "v1/products"
+        static let searchPath: String = "v1/products/search"
     }
     
     struct Parameters {
         static let productName: String = "name"
         static let id: String = "id"
+        static let query: String = "query"
         static let brandName: String = "description"
         static let imageURL: String = "url"
         static let price: String = "unit_label"
@@ -25,6 +27,11 @@ private struct Constants {
         static let isFavorite: String = "active"
         static let startingAfter: String = "starting_after"
         static let productsLimit: String = "limit"
+        static let page: String = "page"
+        
+        static func queryValue(for searchString: String) -> String {
+            return #"name~"\#(searchString)""#
+        }
     }
     
     struct Headers {
@@ -51,6 +58,7 @@ private struct Constants {
 
 enum DigitalProductRouter {
     case getProducts(startingAfterId: String? = nil)
+    case searchProducts(name: String, startingAfterId: String? = nil)
     case createProduct(product: Product)
     case updateProductStatus(id: String, isFavourite: Bool)
     case deleteProduct(id: String)
@@ -62,13 +70,25 @@ extension DigitalProductRouter: TargetType {
         switch self {
             case .getProducts(let productId):
                 var parameters: [String: Any] = [
-                    Constants.Parameters.productsLimit : Constants.Values.perPage
+                    Constants.Parameters.productsLimit: Constants.Values.perPage
                 ]
                 
                 if let productId {
                     parameters[Constants.Parameters.startingAfter] = productId
                 }
                 return parameters
+                
+            case .searchProducts(let query, let page):
+                var parameters: [String: Any] = [
+                        Constants.Parameters.productsLimit: Constants.Values.perPage,
+                        Constants.Parameters.query: Constants.Parameters.queryValue(for: query)
+                    ]
+                
+                if let page {
+                    parameters[Constants.Parameters.page] = page
+                }
+                return parameters
+                
             case .createProduct(let product):
                 var parameters: [String: Any] = [
                     Constants.Parameters.productName: product.name,
@@ -89,11 +109,10 @@ extension DigitalProductRouter: TargetType {
                     parameters[Constants.Parameters.price] = product.price
                 }
                 return parameters
+                
             case .updateProductStatus(_, let isFavourite):
                 let parameters: [String: Any] = [
-                    Constants.Parameters.isFavorite: Constants.Values.BoolString.from(isFavourite).rawValue
-                ]
-
+                    Constants.Parameters.isFavorite: Constants.Values.BoolString.from(isFavourite).rawValue]
                 return parameters
             default:
                 return [:]
@@ -109,16 +128,20 @@ extension DigitalProductRouter: TargetType {
     
     var path: String {
         switch self {
-            case .getProducts, .createProduct:
-                return Constants.API.path
+            case .getProducts,.createProduct:
+                return Constants.API.basePath
+            case .searchProducts:
+                return Constants.API.searchPath
             case .updateProductStatus(let id, _), .deleteProduct(let id):
-                return "\(Constants.API.path)/\(id)"
+                return "\(Constants.API.basePath)/\(id)"
         }
     }
     
     var method: Moya.Method {
         switch self {
             case .getProducts:
+                return .get
+            case .searchProducts:
                 return .get
             case .createProduct:
                 return .post
@@ -132,6 +155,8 @@ extension DigitalProductRouter: TargetType {
     var task: Moya.Task {
         switch self {
             case .getProducts:
+                return .requestParameters(parameters: params, encoding: URLEncoding.default)
+            case .searchProducts:
                 return .requestParameters(parameters: params, encoding: URLEncoding.default)
             case .createProduct(_):
                 return .requestParameters(parameters: params, encoding: URLEncoding.default)

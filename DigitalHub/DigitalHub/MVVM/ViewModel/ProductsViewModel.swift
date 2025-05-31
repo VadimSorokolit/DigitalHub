@@ -47,11 +47,14 @@ class ProductsViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Properties
+    // MARK: - Properties. Public
     
     @Published var sections: [ProductsSection] = []
+    @Published var searchResults: [Product] = []
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
+    
+    // MARK: - Properties. Private
     
     private(set) var hasMoreData: Bool = false
     private let sectionConstants = SectionConstants()
@@ -65,7 +68,7 @@ class ProductsViewModel: ObservableObject {
         self.apiClient = apiClient
     }
     
-    // MARK: - Methods
+    // MARK: - Methods. Private
     
     private func handleCompletion(_ completion: Subscribers.Completion<APIError>) {
         self.isLoading = false
@@ -116,11 +119,9 @@ class ProductsViewModel: ObservableObject {
         self.addProduct(product)
     }
     
-    func updateSectionProductsStatus(sectionId: UUID) {
-        if let section = self.section(withId: sectionId) {
-            for product in section.products {
-                self.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
-            }
+    private func updateSearchResults(_ updatedProduct: Product) {
+        if let index = self.searchResults.firstIndex(where: { $0.id == updatedProduct.id }) {
+            self.searchResults[index] = updatedProduct
         }
     }
     
@@ -130,11 +131,6 @@ class ProductsViewModel: ObservableObject {
         }) {
             self.sections[sectionIndex].products.removeAll { $0.id == id }
         }
-    }
-    
-    func section(withId id: UUID) -> ProductsSection? {
-        let section = self.sections.first { $0.id == id }
-        return section
     }
     
     // MARK: - For test
@@ -150,6 +146,8 @@ class ProductsViewModel: ObservableObject {
         }
         self.createSections(with: products)
     }
+    
+    // MARK: - Methods. Public
     
     func loadFirstPage() {
         self.isLoading = true
@@ -194,6 +192,32 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
+    func searchProducts(query: String) {
+        guard query.count > 2 else {
+            self.searchResults.removeAll()
+            return
+        }
+        self.isLoading = true
+        
+        self.apiClient.searchProducts(name: query, startingAfterId: nil)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] productList in
+                guard let self else { return }
+                
+                let products = productList.products
+                self.searchResults = products
+                
+                self.lastProductId = products.last?.id
+                
+                if self.hasMoreData != productList.hasMore {
+                    self.hasMoreData = productList.hasMore
+                }
+            }
+            .store(in: &self.subscriptions)
+    }
+    
     func createProduct(_ newProduct: Product) {
         self.isLoading = true
         
@@ -207,6 +231,19 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
+    func section(withId id: UUID) -> ProductsSection? {
+        let section = self.sections.first { $0.id == id }
+        return section
+    }
+    
+    func updateSectionProductsStatus(sectionId: UUID) {
+        if let section = self.section(withId: sectionId) {
+            for product in section.products {
+                self.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+            }
+        }
+    }
+    
     func updateProductStatus(id: String, isFavourite: Bool)  {
         self.isLoading = true
         
@@ -216,6 +253,7 @@ class ProductsViewModel: ObservableObject {
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] updatedProduct in
                 self?.updateProduct(updatedProduct)
+                self?.updateSearchResults(updatedProduct)
             }
             .store(in: &self.subscriptions)
     }

@@ -14,6 +14,7 @@ struct ProductsView: View {
     private struct Constants {
         static let headerTitleName: String = "Products"
         static let headerImageName: String = "headerImage"
+        static let cancelButtonImageName: String = "cancelButton"
         static let headerButtonImageName: String = "headerButtonImage"
         static let searchBarImageName: String = "magnifyingglass"
         static let searchBarPlaceholder: String = "Search"
@@ -40,28 +41,35 @@ struct ProductsView: View {
     
     @ObservedObject var viewModel: ProductsViewModel
     @State private var path: NavigationPath = NavigationPath()
+    @State var searchText: String = ""
     
     // MARK: - Main body
     
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 28.0) {
-                HeaderView()
-                ProductListView(viewModel: viewModel, path: $path)
+                HeaderView(searchText: $searchText)
+                if searchText.count > 2 {
+                    FilteredListView(viewModel: viewModel, searchText: $searchText)
+                } else {
+                    ProductsListView(viewModel: viewModel, path: $path)
+                }
             }
             .modifier(ScreenBackgroundModifier())
             .modifier(SectionNavigationModifier(viewModel: viewModel))
+            .modifier(LoadViewModifer(viewModel: viewModel, searchText: searchText))
         }
     }
     
     // MARK: - Subviews
     
     private struct HeaderView: View {
+        @Binding var searchText: String
         
         var body: some View {
             VStack(spacing: 18.0) {
                 TitleView()
-                SearchBarView()
+                SearchBarView(searchText: $searchText)
             }
             .padding(.top, 34.0)
             .padding(.horizontal, 18.0)
@@ -118,7 +126,7 @@ struct ProductsView: View {
         }
         
         private struct SearchBarView: View {
-            @State private var searchText: String = ""
+            @Binding var searchText: String
             
             var body: some View {
                 HStack {
@@ -127,10 +135,23 @@ struct ProductsView: View {
                         .padding(.leading, 11.0)
                     
                     TextField(Constants.searchBarPlaceholder, text: $searchText)
-                        .font(.custom(GlobalConstants.regularFont, size: 12.0))
-                        .foregroundColor(Color(hex: Constants.searchBarPlaceholderColor))
+                        .font(.custom(GlobalConstants.regularFont, size: 16.0))
+                        .foregroundColor(.black)
                         .textFieldStyle(PlainTextFieldStyle())
                         .padding(.leading, 7.0)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        searchText.removeAll()
+                    }) {
+                        Image(Constants.cancelButtonImageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20.0, height: 20.0)
+                            .opacity(0.5)
+                    }
+                    .padding(.trailing, 8.0)
                 }
                 .frame(height: 36.0)
                 .background(Color(hex: Constants.searchBarColor))
@@ -141,7 +162,7 @@ struct ProductsView: View {
         
     }
     
-    private struct ProductListView: View {
+    private struct ProductsListView: View {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var path: NavigationPath
         
@@ -156,7 +177,6 @@ struct ProductsView: View {
                     }
                 }
             }
-            
         }
         
         private struct SectionFavorites: View {
@@ -345,86 +365,106 @@ struct ProductsView: View {
             
         }
         
-    }
-    
-    private struct SectionUnfavorites: View {
-        @ObservedObject var viewModel: ProductsViewModel
-        @Binding var path: NavigationPath
-        let sectionId: UUID
-        
-        var body: some View {
-            VStack(alignment: .leading, spacing: 16.0) {
-                HeaderView(viewModel: viewModel, path: $path, sectionId: sectionId)
-                ListView(viewModel: viewModel, sectionId: sectionId)
-            }
-        }
-        
-        private struct HeaderView: View {
+        private struct SectionUnfavorites: View {
             @ObservedObject var viewModel: ProductsViewModel
             @Binding var path: NavigationPath
             let sectionId: UUID
             
             var body: some View {
-                if let section = viewModel.section(withId: sectionId) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: Constants.productsHeaderTextSpacing) {
-                            Text(section.title)
-                                .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                                .foregroundColor(Color(hex: Constants.sectionTitleColor))
-                            
-                            Text(section.subtitle)
-                                .font(.custom(GlobalConstants.mediumFont, size: 12.0))
-                                .foregroundColor(Color(hex: Constants.sectionSubtitleColor))
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            path.append(section.id)
-                        }) {
-                            HStack(spacing: 6.0) {
-                                Text(section.buttonTitle)
-                                    .font(.custom(GlobalConstants.mediumFont, size: 12.0))
-                                    .foregroundColor(Color(hex: Constants.sectionButtonTitleColor))
+                VStack(alignment: .leading, spacing: 16.0) {
+                    HeaderView(viewModel: viewModel, path: $path, sectionId: sectionId)
+                    ListView(viewModel: viewModel, sectionId: sectionId)
+                }
+            }
+            
+            private struct HeaderView: View {
+                @ObservedObject var viewModel: ProductsViewModel
+                @Binding var path: NavigationPath
+                let sectionId: UUID
+                
+                var body: some View {
+                    if let section = viewModel.section(withId: sectionId) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: Constants.productsHeaderTextSpacing) {
+                                Text(section.title)
+                                    .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
+                                    .foregroundColor(Color(hex: Constants.sectionTitleColor))
                                 
-                                Image(systemName: section.buttonImageName)
-                                    .resizable()
-                                    .frame(width: 5.0, height: 8.75)
-                                    .foregroundColor(Color(hex: Constants.sectionButtonImageColor))
+                                Text(section.subtitle)
+                                    .font(.custom(GlobalConstants.mediumFont, size: 12.0))
+                                    .foregroundColor(Color(hex: Constants.sectionSubtitleColor))
+                            }
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                path.append(section.id)
+                            }) {
+                                HStack(spacing: 6.0) {
+                                    Text(section.buttonTitle)
+                                        .font(.custom(GlobalConstants.mediumFont, size: 12.0))
+                                        .foregroundColor(Color(hex: Constants.sectionButtonTitleColor))
+                                    
+                                    Image(systemName: section.buttonImageName)
+                                        .resizable()
+                                        .frame(width: 5.0, height: 8.75)
+                                        .foregroundColor(Color(hex: Constants.sectionButtonImageColor))
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 18.0)
+                    }
+                }
+                
+            }
+            
+            private struct ListView: View {
+                @ObservedObject var viewModel: ProductsViewModel
+                let sectionId: UUID
+                
+                var body: some View {
+                    ScrollView(.vertical, showsIndicators: false) {
+                        if let section = viewModel.section(withId: sectionId) {
+                            VStack(spacing: 6.0) {
+                                ForEach(section.products, id: \.id) { product in
+                                    CellView(product: product, searchText: nil, onLikeToggle: {
+                                        viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+                                    })
+                                }
                             }
                         }
                     }
-                    .padding(.horizontal, 18.0)
                 }
+                
             }
             
         }
         
-        private struct ListView: View {
-            @ObservedObject var viewModel: ProductsViewModel
-            let sectionId: UUID
-            
-            var body: some View {
-                ScrollView(.vertical, showsIndicators: false) {
-                    if let section = viewModel.section(withId: sectionId) {
-                        VStack(spacing: 6.0) {
-                            ForEach(section.products, id: \.id) { product in
-                                CellView(product: product, onLikeToggle: {
-                                    viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
-                                })
-                            }
+    }
+    
+    private struct FilteredListView: View {
+        @ObservedObject var viewModel: ProductsViewModel
+        @Binding var searchText: String
+        
+        var body: some View {
+            ScrollView(.vertical, showsIndicators: false) {
+                if !viewModel.searchResults.isEmpty {
+                    VStack(spacing: 6.0) {
+                        ForEach(viewModel.searchResults, id: \.id) { product in
+                            CellView(product: product, searchText: searchText, onLikeToggle: {
+                                viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+                            })
                         }
                     }
                 }
             }
-            
         }
         
     }
     
     // MARK: - Modifiers
     
-    struct ScreenBackgroundModifier: ViewModifier {
+    private struct ScreenBackgroundModifier: ViewModifier {
         
         func body(content: Content) -> some View {
             content
@@ -434,7 +474,7 @@ struct ProductsView: View {
         
     }
     
-    struct SectionNavigationModifier: ViewModifier {
+    private struct SectionNavigationModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
         
         func body(content: Content) -> some View {
@@ -446,10 +486,23 @@ struct ProductsView: View {
         
     }
     
+    private struct LoadViewModifer: ViewModifier {
+        @ObservedObject var viewModel: ProductsViewModel
+        let searchText: String
+        
+        func body(content: Content) -> some View {
+            content
+                .onChange(of: searchText) {
+                    viewModel.searchProducts(query: searchText)
+                }
+        }
+        
+    }
+    
 }
 
 //#Preview {
 //    let viewModel = ProductsViewModel(apiClient: MoyaClient())
-//    
+//
 //    ProductsView(viewModel: viewModel)
 //}
