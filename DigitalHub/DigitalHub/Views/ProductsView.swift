@@ -14,7 +14,7 @@ struct ProductsView: View {
     private struct Constants {
         static let headerTitleName: String = "Products"
         static let headerImageName: String = "headerImage"
-        static let cancelButtonImageName: String = "cancelButton"
+        static let cancelButtonImageName: String = "xmark.circle.fill"
         static let headerButtonImageName: String = "headerButtonImage"
         static let searchBarImageName: String = "magnifyingglass"
         static let searchBarPlaceholder: String = "Search"
@@ -41,14 +41,15 @@ struct ProductsView: View {
     
     @ObservedObject var viewModel: ProductsViewModel
     @State private var path: NavigationPath = NavigationPath()
+    @State private var searchQuery: String = ""
     
     // MARK: - Main body
     
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 28.0) {
-                HeaderView(viewModel: viewModel)
-                if viewModel.searchQuery.isEmpty {
+                HeaderView(searchQuery: $searchQuery)
+                if searchQuery.isEmpty {
                     ProductsListView(viewModel: viewModel, path: $path)
                 } else {
                     FilteredListView(viewModel: viewModel)
@@ -56,18 +57,19 @@ struct ProductsView: View {
             }
             .modifier(ScreenBackgroundModifier())
             .modifier(SectionNavigationModifier(viewModel: viewModel))
+            .modifier(LoadViewModifire(viewModel: viewModel, searchQuery: $searchQuery))
         }
     }
     
     // MARK: - Subviews
     
     private struct HeaderView: View {
-        @ObservedObject var viewModel: ProductsViewModel
+        @Binding var searchQuery: String
         
         var body: some View {
             VStack(spacing: 18.0) {
                 TitleView()
-                SearchBarView(viewModel: viewModel)
+                SearchBarView(searchQuery: $searchQuery)
             }
             .padding(.top, 34.0)
             .padding(.horizontal, 18.0)
@@ -93,7 +95,6 @@ struct ProductsView: View {
                                 .resizable()
                                 .frame(width: Constants.headerTitleImageSize, height: Constants.headerTitleImageSize)
                                 .scaledToFit()
-                                .opacity(0.8)
                                 .offset(x: -50.0),
                             alignment: .leading
                         )
@@ -114,7 +115,6 @@ struct ProductsView: View {
                                 .resizable()
                                 .frame(width: Constants.headerTitleImageSize, height: Constants.headerTitleImageSize)
                                 .scaledToFit()
-                                .opacity(0.8)
                         }
                     }
                 }
@@ -124,7 +124,8 @@ struct ProductsView: View {
         }
         
         private struct SearchBarView: View {
-            @ObservedObject var viewModel: ProductsViewModel
+            
+            @Binding var searchQuery: String
             
             var body: some View {
                 HStack {
@@ -132,7 +133,7 @@ struct ProductsView: View {
                         .foregroundColor(Color(hex: Constants.searchBarImageColor))
                         .padding(.leading, 11.0)
                     
-                    TextField(Constants.searchBarPlaceholder, text: $viewModel.searchQuery)
+                    TextField(Constants.searchBarPlaceholder, text: $searchQuery)
                         .font(.custom(GlobalConstants.regularFont, size: 16.0))
                         .foregroundColor(.black)
                         .textFieldStyle(PlainTextFieldStyle())
@@ -140,18 +141,15 @@ struct ProductsView: View {
                     
                     Spacer()
                     
+                        
                     Button(action: {
-                        viewModel.searchQuery.removeAll()
+                        searchQuery.removeAll()
                     }) {
-                        if viewModel.searchQuery.isEmpty {
-                            EmptyView()
-                        }
-                        else {
-                            Image(Constants.cancelButtonImageName)
-                                .resizable()
+                        if !searchQuery.isEmpty {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(Color(hex: "737475"))
                                 .scaledToFit()
                                 .frame(width: 20.0, height: 20.0)
-                                .opacity(0.5)
                         }
                     }
                     .padding(.trailing, 8.0)
@@ -430,9 +428,8 @@ struct ProductsView: View {
                         if let section = viewModel.section(withId: sectionId) {
                             VStack(spacing: 6.0) {
                                 ForEach(section.products, id: \.id) { product in
-                                    CellView(product: product, searchQuery: nil, onLikeToggle: {
-                                        viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
-                                    })
+                                    CellView(product: product, onLikeToggle: {
+                                        viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)})
                                 }
                             }
                         }
@@ -484,6 +481,18 @@ struct ProductsView: View {
                 }
         }
         
+    }
+    
+    private struct LoadViewModifire: ViewModifier {
+        @ObservedObject var viewModel: ProductsViewModel
+        @Binding var searchQuery: String
+        
+        func body(content: Content) -> some View {
+            content
+                .onChange(of: searchQuery) {
+                    viewModel.searchQuery = searchQuery
+                }
+        }
     }
     
 }

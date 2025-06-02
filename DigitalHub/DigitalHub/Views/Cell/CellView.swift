@@ -15,6 +15,14 @@ struct CellView: View {
     let searchQuery: String?
     let onLikeToggle: () -> Void
     
+    // Initializer
+    
+    init(product: Product, searchQuery: String? = nil, onLikeToggle: @escaping () -> Void) {
+        self.product = product
+        self.searchQuery = searchQuery
+        self.onLikeToggle = onLikeToggle
+    }
+    
     // MARK: - Main body
     
     var body: some View {
@@ -63,15 +71,15 @@ struct CellView: View {
         
         var body: some View {
             HStack {
-                TitleWithlight(productName: product.name, searchText: searchText)
+                TitleHeighLighted(productName: product.name, searchText: searchText)
                 
                 Spacer()
                 
                 LikeButtonWithImage(product: product, onLikeToggle: onLikeToggle)
             }
         }
-        
-        private struct TitleWithlight: View {
+       
+        private struct TitleHeighLighted: View {
             let productName: String
             let searchText: String?
             
@@ -80,50 +88,33 @@ struct CellView: View {
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                     .lowercased() ?? ""
                 
-                if query.count < 3 || productName.lowercased().range(of: query) == nil {
-                    return AnyView(
-                        Text(productName)
-                            .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                            .foregroundColor(Color(hex: "1F2937"))
-                            .lineLimit(3)
-                    )
-                }
                 let lowercasedName = productName.lowercased()
-                guard let range = lowercasedName.range(of: query) else {
-                    return AnyView(
-                        Text(productName)
-                            .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                            .foregroundColor(Color(hex: "1F2937"))
-                            .lineLimit(3)
-                    )
-                }
-                let startIndex = productName.distance(from: productName.startIndex,
-                                                      to: range.lowerBound)
-                let matchLength = query.count
                 
-                let prefix = String(productName.prefix(startIndex))
-                let match  = String(productName.dropFirst(startIndex).prefix(matchLength))
-                let suffix = String(productName.dropFirst(startIndex + matchLength))
-                
-                return AnyView(
-                    HStack(spacing: 0) {
-                        Text(prefix)
-                            .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                            .foregroundColor(Color(hex: "1F2937"))
-                        
-                        Text(match)
-                            .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                            .foregroundColor(Color(hex: "1F2937"))
-                            .background(Color(hex: "FCFAA6"))
-                        
-                        Text(suffix)
-                            .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                            .foregroundColor(Color(hex: "1F2937"))
+                if query.count > 2, let range = lowercasedName.range(of: query) {
+                    let start = productName.distance(from: productName.startIndex, to: range.lowerBound)
+                    let matchLength = query.count
+                    
+                    let prefix = String(productName.prefix(start))
+                    let match = String(productName.dropFirst(start).prefix(matchLength))
+                    let suffix = String(productName.dropFirst(start + matchLength))
+                    
+                    HStack(spacing: 0.0) {
+                        styledText(prefix)
+                        styledText(match, highlight: true)
+                        styledText(suffix)
                     }
-                        .lineLimit(3)
-                )
+                } else {
+                    styledText(productName)
+                }
             }
             
+            private func styledText(_ text: String, highlight: Bool = false) -> some View {
+                Text(text)
+                    .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
+                    .foregroundColor(Color(hex: "1F2937"))
+                    .background(highlight ? Color(hex: "FCFAA6") : .clear)
+                    .lineLimit(3)
+            }
         }
         
         private struct LikeButtonWithImage: View {
@@ -191,5 +182,6 @@ struct CellView: View {
     }
     
 }
+
 
 
