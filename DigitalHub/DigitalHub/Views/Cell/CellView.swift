@@ -12,7 +12,7 @@ struct CellView: View {
     // MARK: - Properties
     
     let product: Product
-    let searchText: String?
+    let searchQuery: String?
     let onLikeToggle: () -> Void
     
     // MARK: - Main body
@@ -22,7 +22,7 @@ struct CellView: View {
             ImageView(product: product)
             
             VStack(alignment: .leading, spacing: 8.0) {
-                TitleWithLike(product: product, searchText: searchText, onLikeToggle: onLikeToggle)
+                TitleWithLike(product: product, searchText: searchQuery, onLikeToggle: onLikeToggle)
                 SubtitleWithPrice(product: product)
             }
         }

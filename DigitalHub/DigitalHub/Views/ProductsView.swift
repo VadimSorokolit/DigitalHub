@@ -41,35 +41,33 @@ struct ProductsView: View {
     
     @ObservedObject var viewModel: ProductsViewModel
     @State private var path: NavigationPath = NavigationPath()
-    @State var searchText: String = ""
     
     // MARK: - Main body
     
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 28.0) {
-                HeaderView(searchText: $searchText)
-                if searchText.count > 2 {
-                    FilteredListView(viewModel: viewModel, searchText: $searchText)
-                } else {
+                HeaderView(viewModel: viewModel)
+                if viewModel.searchQuery.isEmpty {
                     ProductsListView(viewModel: viewModel, path: $path)
+                } else {
+                    FilteredListView(viewModel: viewModel)
                 }
             }
             .modifier(ScreenBackgroundModifier())
             .modifier(SectionNavigationModifier(viewModel: viewModel))
-            .modifier(LoadViewModifer(viewModel: viewModel, searchText: searchText))
         }
     }
     
     // MARK: - Subviews
     
     private struct HeaderView: View {
-        @Binding var searchText: String
+        @ObservedObject var viewModel: ProductsViewModel
         
         var body: some View {
             VStack(spacing: 18.0) {
                 TitleView()
-                SearchBarView(searchText: $searchText)
+                SearchBarView(viewModel: viewModel)
             }
             .padding(.top, 34.0)
             .padding(.horizontal, 18.0)
@@ -126,7 +124,7 @@ struct ProductsView: View {
         }
         
         private struct SearchBarView: View {
-            @Binding var searchText: String
+            @ObservedObject var viewModel: ProductsViewModel
             
             var body: some View {
                 HStack {
@@ -134,7 +132,7 @@ struct ProductsView: View {
                         .foregroundColor(Color(hex: Constants.searchBarImageColor))
                         .padding(.leading, 11.0)
                     
-                    TextField(Constants.searchBarPlaceholder, text: $searchText)
+                    TextField(Constants.searchBarPlaceholder, text: $viewModel.searchQuery)
                         .font(.custom(GlobalConstants.regularFont, size: 16.0))
                         .foregroundColor(.black)
                         .textFieldStyle(PlainTextFieldStyle())
@@ -143,13 +141,18 @@ struct ProductsView: View {
                     Spacer()
                     
                     Button(action: {
-                        searchText.removeAll()
+                        viewModel.searchQuery.removeAll()
                     }) {
-                        Image(Constants.cancelButtonImageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 20.0, height: 20.0)
-                            .opacity(0.5)
+                        if viewModel.searchQuery.isEmpty {
+                            EmptyView()
+                        }
+                        else {
+                            Image(Constants.cancelButtonImageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20.0, height: 20.0)
+                                .opacity(0.5)
+                        }
                     }
                     .padding(.trailing, 8.0)
                 }
@@ -427,7 +430,7 @@ struct ProductsView: View {
                         if let section = viewModel.section(withId: sectionId) {
                             VStack(spacing: 6.0) {
                                 ForEach(section.products, id: \.id) { product in
-                                    CellView(product: product, searchText: nil, onLikeToggle: {
+                                    CellView(product: product, searchQuery: nil, onLikeToggle: {
                                         viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
                                     })
                                 }
@@ -444,17 +447,14 @@ struct ProductsView: View {
     
     private struct FilteredListView: View {
         @ObservedObject var viewModel: ProductsViewModel
-        @Binding var searchText: String
         
         var body: some View {
             ScrollView(.vertical, showsIndicators: false) {
-                if !viewModel.searchResults.isEmpty {
-                    VStack(spacing: 6.0) {
-                        ForEach(viewModel.searchResults, id: \.id) { product in
-                            CellView(product: product, searchText: searchText, onLikeToggle: {
-                                viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
-                            })
-                        }
+                VStack(spacing: 6.0) {
+                    ForEach(viewModel.searchResults, id: \.id) { product in
+                        CellView(product: product, searchQuery: viewModel.searchQuery, onLikeToggle: {
+                            viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+                        })
                     }
                 }
             }
@@ -481,19 +481,6 @@ struct ProductsView: View {
             content
                 .navigationDestination(for: UUID.self) { id in
                     FilteredProductsView(viewModel: viewModel, sectionId: id)
-                }
-        }
-        
-    }
-    
-    private struct LoadViewModifer: ViewModifier {
-        @ObservedObject var viewModel: ProductsViewModel
-        let searchText: String
-        
-        func body(content: Content) -> some View {
-            content
-                .onChange(of: searchText) {
-                    viewModel.searchProducts(query: searchText)
                 }
         }
         

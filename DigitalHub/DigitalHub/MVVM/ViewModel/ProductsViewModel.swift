@@ -51,6 +51,7 @@ class ProductsViewModel: ObservableObject {
     
     @Published var sections: [ProductsSection] = []
     @Published var searchResults: [Product] = []
+    @Published var searchQuery: String = ""
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
     
@@ -66,6 +67,8 @@ class ProductsViewModel: ObservableObject {
     
     init(apiClient: ProductApiClientProtocol) {
         self.apiClient = apiClient
+        
+        self.setupPublishers()
     }
     
     // MARK: - Methods. Private
@@ -76,6 +79,15 @@ class ProductsViewModel: ObservableObject {
         if case let .failure(error) = completion {
             self.errorMessage = error.errorDescription
         }
+    }
+    
+    private func setupPublishers() {
+        $searchQuery
+            .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
+            .sink { [weak self] query in
+                self?.searchProducts(query: query)
+            }
+            .store(in: &subscriptions)
     }
     
     private func createSections(with products: [Product]) {
