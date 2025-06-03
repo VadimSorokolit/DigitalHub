@@ -249,6 +249,8 @@ struct ProductsView: View {
                                         viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
                                     })
                                 }
+                                Color.clear
+                                    .frame(width: 6.0)
                             }
                             .padding(.leading, 18.0)
                         }
