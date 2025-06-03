@@ -9,6 +9,12 @@ import SwiftUI
 
 struct CellView: View {
     
+    // MARK: - Objects
+    
+    private struct Constants {
+        static let cellImageWidth: CGFloat = 64.0
+    }
+    
     // MARK: - Properties
     
     let product: Product
@@ -51,14 +57,19 @@ struct CellView: View {
                    !url.isEmpty,
                    UIImage(named: url) != nil {
                     Image(url).resizable()
-                } else {
-                    Image(systemName: GlobalConstants.systemImageName)
-                        .resizable()
-                        .foregroundColor(.gray)
+                }  else {
+                    Rectangle()
+                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
+                        .overlay(
+                            Image(systemName: GlobalConstants.systemImageName)
+                                .resizable()
+                                .foregroundColor(.gray)
+                                .frame(width: Constants.cellImageWidth / 2.0, height: Constants.cellImageWidth / 2.0)
+                        )
                 }
             }
             .aspectRatio(contentMode: .fill)
-            .frame(width: 64.0, height: 64.0)
+            .frame(width: Constants.cellImageWidth, height: Constants.cellImageWidth)
             .cornerRadius(8.0)
         }
         

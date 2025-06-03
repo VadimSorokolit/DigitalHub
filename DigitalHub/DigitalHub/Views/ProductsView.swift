@@ -34,7 +34,8 @@ struct ProductsView: View {
         static let headerTitleFontSize: CGFloat = 20.0
         static let productsListInterSectionSpacing: CGFloat = 36.0
         static let productsHeaderTextSpacing: CGFloat = 4.0
-        static let favoriteImageWidth: CGFloat = 128.0
+        static let favoriteProductImageWidth: CGFloat = 128.0
+        static let favoriteProductImageHeight: CGFloat = 100.0
     }
     
     // MARK: - Properties
@@ -242,7 +243,7 @@ struct ProductsView: View {
                 var body: some View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         if let section = viewModel.section(withId: sectionId) {
-                            HStack(spacing: 12.0) {
+                            HStack(alignment: .top,  spacing: 12.0) {
                                 ForEach(section.products, id: \.id) { product in
                                     CellView(product: product, onLikeToogle: {
                                         viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
@@ -281,13 +282,18 @@ struct ProductsView: View {
                                     Image(productImage)
                                         .resizable()
                                 } else {
-                                    Image(systemName: GlobalConstants.systemImageName)
-                                        .resizable()
-                                        .foregroundColor(.gray)
+                                    Rectangle()
+                                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
+                                        .overlay(
+                                            Image(systemName: GlobalConstants.systemImageName)
+                                                .resizable()
+                                                .foregroundColor(.gray)
+                                                .frame(width: Constants.favoriteProductImageWidth / 2.0, height: Constants.favoriteProductImageHeight / 2.0)
+                                        )
                                 }
                             }
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: 128.0, height: 100.0)
+                            .frame(width: Constants.favoriteProductImageWidth, height: Constants.favoriteProductImageHeight)
                             .clipped()
                             .cornerRadius(8.0, corners: [.topLeft, .topRight])
                         }
@@ -309,7 +315,7 @@ struct ProductsView: View {
                             }
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(Constants.textLineCount)
-                            .frame(width: Constants.favoriteImageWidth, alignment: .leading)
+                            .frame(width: Constants.favoriteProductImageWidth, alignment: .leading)
                         }
                         
                     }
@@ -355,7 +361,7 @@ struct ProductsView: View {
                                         .frame(width: 20.0, height: 20.0)
                                 }
                             }
-                            .frame(width: Constants.favoriteImageWidth)
+                            .frame(width: Constants.favoriteProductImageWidth)
                         }
                         
                     }

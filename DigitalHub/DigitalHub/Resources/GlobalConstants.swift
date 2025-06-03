@@ -16,4 +16,5 @@ struct GlobalConstants {
     static let systemImageName: String = "photo"
     static let backgroundColor: String = "F6F6F6"
     static let grayHeartName: String = "grayHeart"
+    static let cellImagePlaceholderBackgroundColor: String = "E6E7E9"
 }
