@@ -195,6 +195,7 @@ struct ProductsView: View {
                 }
             }
             
+            
             private struct HeaderView: View {
                 @ObservedObject var viewModel: ProductsViewModel
                 @Binding var path: NavigationPath
@@ -250,7 +251,7 @@ struct ProductsView: View {
                                     })
                                 }
                                 Color.clear
-                                    .frame(width: 6.0)
+                                    .frame(width: 6.0, height: 0.1)
                             }
                             .padding(.leading, 18.0)
                         }
