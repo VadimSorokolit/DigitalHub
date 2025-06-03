@@ -63,6 +63,7 @@ struct CellView: View {
                         .overlay(
                             Image(systemName: GlobalConstants.systemImageName)
                                 .resizable()
+                                .scaledToFit()
                                 .foregroundColor(.gray)
                                 .frame(width: Constants.cellImageWidth / 2.0, height: Constants.cellImageWidth / 2.0)
                         )
