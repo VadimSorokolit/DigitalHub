@@ -41,7 +41,7 @@ struct CellView: View {
             }
         }
         .padding(12.0)
-        .background(Color.white)
+        .background(Color(hex: GlobalConstants.productCellColor))
         .cornerRadius(10.0)
         .padding(.horizontal, 18.0)
     }

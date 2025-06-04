@@ -28,7 +28,6 @@ struct ProductsView: View {
         static let sectionButtonImageColor: String = "89909E"
         static let priceValueColor: String = "FFFFFF"
         static let discountValueColor: String = "FFFFFF"
-        static let productCellColor: String = "FFFFFF"
         static let textLineCount: Int = 3
         static let headerTitleImageSize: CGFloat = 30.0
         static let headerTitleFontSize: CGFloat = 20.0
@@ -36,6 +35,13 @@ struct ProductsView: View {
         static let productsHeaderTextSpacing: CGFloat = 4.0
         static let favoriteProductImageWidth: CGFloat = 128.0
         static let favoriteProductImageHeight: CGFloat = 100.0
+        static let favoriteCellCornerRadius: CGFloat = 16.0
+    }
+    
+    enum AlertState {
+        case none
+        case showing
+        case didShow
     }
     
     // MARK: - Properties
@@ -43,6 +49,7 @@ struct ProductsView: View {
     @ObservedObject var viewModel: ProductsViewModel
     @State private var path: NavigationPath = NavigationPath()
     @State private var searchQuery: String = ""
+    @State private var alertState: AlertState = .none
     
     // MARK: - Main body
     
@@ -51,7 +58,17 @@ struct ProductsView: View {
             VStack(spacing: 28.0) {
                 HeaderView(searchQuery: $searchQuery)
                 if searchQuery.isEmpty {
-                    ProductsListView(viewModel: viewModel, path: $path)
+                    ProductsListView(viewModel: viewModel, path: $path, alertState: $alertState, showAlert: {
+                        guard alertState == .none else { return }
+                        
+                        alertState = .showing
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            withAnimation {
+                                alertState = .didShow
+                            }
+                        }
+                    })
                 } else {
                     FilteredListView(viewModel: viewModel)
                 }
@@ -142,7 +159,6 @@ struct ProductsView: View {
                     
                     Spacer()
                     
-                        
                     Button(action: {
                         searchQuery.removeAll()
                     }) {
@@ -167,12 +183,14 @@ struct ProductsView: View {
     private struct ProductsListView: View {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var path: NavigationPath
+        @Binding var alertState: AlertState
+        let showAlert: () -> Void
         
         var body: some View {
             VStack(spacing: Constants.productsListInterSectionSpacing) {
                 ForEach(viewModel.sections, id: \.id) { section in
                     if section.type == .favorite, !section.products.isEmpty {
-                        SectionFavorites(viewModel: viewModel, path: $path, sectionId: section.id)
+                        SectionFavorites(viewModel: viewModel, path: $path, alertState: $alertState, showAlert: showAlert, sectionId: section.id)
                     }
                     if section.type == .unfavorite, !section.products.isEmpty {
                         SectionUnfavorites(viewModel: viewModel, path: $path, sectionId: section.id)
@@ -184,13 +202,15 @@ struct ProductsView: View {
         private struct SectionFavorites: View {
             @ObservedObject var viewModel: ProductsViewModel
             @Binding var path: NavigationPath
+            @Binding var alertState: AlertState
+            let showAlert: () -> Void
             let sectionId: UUID
             
             var body: some View {
                 if let section = viewModel.section(withId: sectionId) {
                     VStack(alignment: .leading, spacing: 16.0) {
                         HeaderView(viewModel: viewModel, path: $path, sectionId: sectionId)
-                        ListView(viewModel: viewModel, sectionId: section.id)
+                        ListView(viewModel: viewModel, alertState: $alertState, showAlert: showAlert, sectionId: section.id)
                     }
                 }
             }
@@ -239,21 +259,84 @@ struct ProductsView: View {
             
             private struct ListView: View {
                 @ObservedObject var viewModel: ProductsViewModel
+                @Binding var alertState: AlertState
+                let showAlert: () -> Void
                 let sectionId: UUID
                 
                 var body: some View {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        if let section = viewModel.section(withId: sectionId) {
-                            HStack(alignment: .top,  spacing: 12.0) {
-                                ForEach(section.products, id: \.id) { product in
-                                    CellView(product: product, onLikeToogle: {
-                                        viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
-                                    })
+                    ZStack {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            if let section = viewModel.section(withId: sectionId) {
+                                HStack(alignment: .top, spacing: 12) {
+                                    ForEach(section.products, id: \..id) { product in
+                                        CellView(
+                                            product: product,
+                                            onLikeToogle: {
+                                                viewModel.updateProductStatus(
+                                                    id: product.id,
+                                                    isFavourite: !product.isFavorite
+                                                )
+                                            }
+                                        )
+                                        .background(
+                                            GeometryReader { geo in
+                                                Color.clear
+                                                    .onChange(of: geo.frame(in: .global)) {
+                                                        let screen = UIScreen.main.bounds
+                                                        let currentFrame = geo.frame(in: .global)
+                                                        let isFullyVisible = currentFrame.minX >= screen.minX && currentFrame.maxX <= screen.maxX
+                                                        
+                                                        if product.id == section.products.last?.id {
+                                                            if viewModel.hasMoreData && !viewModel.isPagination {
+                                                                viewModel.loadNextPage()
+                                                            } else if !viewModel.hasMoreData && isFullyVisible {
+                                                                showAlert()
+                                                            }
+                                                        }
+                                                    }
+                                            }
+                                        )
+                                    }
+                                    if viewModel.hasMoreData {
+                                        if !viewModel.isPagination {
+                                            Color.clear
+                                                .frame(
+                                                    width: Constants.favoriteProductImageWidth,
+                                                    height: 1.5 * Constants.favoriteProductImageWidth
+                                                )
+                                                .background(Color(hex: GlobalConstants.productCellColor))
+                                                .cornerRadius(Constants.favoriteCellCornerRadius)
+                                                .shadow(radius: 1, x: 0, y: 1)
+                                                .onAppear {
+                                                    viewModel.loadNextPage()
+                                                }
+                                        }
+                                        
+                                        if viewModel.isPagination {
+                                            ZStack {
+                                                Color.white
+                                                ProgressView().tint(Color(hex: Constants.searchBarPlaceholderColor))
+                                            }
+                                            .frame(
+                                                width: Constants.favoriteProductImageWidth,
+                                                height: 1.5 * Constants.favoriteProductImageWidth
+                                            )
+                                            .cornerRadius(Constants.favoriteCellCornerRadius)
+                                        }
+                                    }
+                                    Color.clear.frame(width: 6.0, height: 0.1)
                                 }
-                                Color.clear
-                                    .frame(width: 6.0, height: 0.1)
+                                .padding(.leading, 18.0)
                             }
-                            .padding(.leading, 18.0)
+                        }
+                    }
+                    .overlay {
+                        if alertState == .showing {
+                            Text("No more data for loading")
+                                .font(.system(size: 14.0, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(width: 250.0, height: 250.0)
+                                .background(Color.black.opacity(0.8).cornerRadius(10.0))
                         }
                     }
                 }
@@ -272,8 +355,8 @@ struct ProductsView: View {
                             }
                         }
                         .padding([.top, .bottom, .horizontal], 10.0)
-                        .background(Color(hex: Constants.productCellColor))
-                        .cornerRadius(16.0)
+                        .background(Color(hex: GlobalConstants.productCellColor))
+                        .cornerRadius(Constants.favoriteCellCornerRadius)
                     }
                     
                     private struct ImageView: View {
@@ -446,7 +529,6 @@ struct ProductsView: View {
                 }
                 
             }
-            
         }
         
     }

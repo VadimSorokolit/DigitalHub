@@ -54,6 +54,7 @@ class ProductsViewModel: ObservableObject {
     @Published var searchQuery: String = ""
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
+    @Published var isPagination: Bool = false
     
     // MARK: - Properties. Private
     
@@ -75,6 +76,7 @@ class ProductsViewModel: ObservableObject {
     
     private func handleCompletion(_ completion: Subscribers.Completion<APIError>) {
         self.isLoading = false
+        self.isPagination = false
         
         if case let .failure(error) = completion {
             self.errorMessage = error.errorDescription
@@ -183,7 +185,7 @@ class ProductsViewModel: ObservableObject {
     }
     
     func loadNextPage() {
-        self.isLoading = true
+        self.isPagination = true
         
         self.apiClient.getProducts(startingAfterId: self.lastProductId)
             .receive(on: DispatchQueue.main)
