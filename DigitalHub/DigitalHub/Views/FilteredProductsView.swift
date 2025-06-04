@@ -103,7 +103,7 @@ struct FilteredProductsView: View {
         let sectionId: UUID
         
         var body: some View {
-            ScrollView {
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 6.0) {
                     if let section = viewModel.section(withId: sectionId) {
                         ForEach(section.products) { product in
@@ -128,14 +128,13 @@ struct FilteredProductsView: View {
         
         private struct SwipeCell<Content: View>: View {
             @State private var offsetX: CGFloat = 0.0
-            @GestureState private var dragX: CGFloat = 0.0
+            @GestureState private var dragX: CGFloat = 0
             let onDelete: () -> Void
             let content: () -> Content
             private let width: CGFloat = 66.0
             
             var body: some View {
                 let totalOffset = offsetX + dragX
-                
                 ZStack(alignment: .trailing) {
                     HStack {
                         Spacer()
@@ -157,19 +156,25 @@ struct FilteredProductsView: View {
                         }
                     }
                     .opacity(totalOffset < 0.0 ? 1.0 : 0.0)
-                    
                     content()
                         .offset(x: totalOffset)
-                        .gesture(
-                            DragGesture(minimumDistance: 1.0, coordinateSpace: .local)
+                        .contentShape(Rectangle())
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 5.0, coordinateSpace: .local)
                                 .updating($dragX) { value, state, _ in
-                                    if value.translation.width < 0.0 {
-                                        state = value.translation.width
+                                    let dx = value.translation.width
+                                    let dy = value.translation.height
+                                    if abs(dx) > abs(dy), dx < 0.0 {
+                                        state = dx
                                     }
                                 }
                                 .onEnded { value in
+                                    let dx = value.translation.width
+                                    let dy = value.translation.height
+                                    guard abs(dx) > abs(dy) else { return }
+                                    
                                     withAnimation(.easeOut) {
-                                        if (offsetX + value.translation.width) < (-width / 2.0) {
+                                        if offsetX + dx < -width / 2.0 {
                                             offsetX = -width
                                         } else {
                                             offsetX = 0.0
@@ -180,9 +185,7 @@ struct FilteredProductsView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
-            
         }
-        
     }
     
     // MARK: - Modifiers
