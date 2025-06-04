@@ -21,7 +21,7 @@ struct CellView: View {
     let searchQuery: String?
     let onLikeToggle: () -> Void
     
-    // Initializer
+    // MARK: - Initializer
     
     init(product: Product, searchQuery: String? = nil, onLikeToggle: @escaping () -> Void) {
         self.product = product
@@ -61,7 +61,7 @@ struct CellView: View {
                     Rectangle()
                         .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
                         .overlay(
-                            Image(systemName: GlobalConstants.systemImageName)
+                            Image(systemName: GlobalConstants.PlaceholderImageName)
                                 .resizable()
                                 .scaledToFit()
                                 .foregroundColor(.gray)
@@ -83,7 +83,7 @@ struct CellView: View {
         
         var body: some View {
             HStack {
-                TitleHeighLighted(productName: product.name, searchText: searchText)
+                TitleHeighlighted(productName: product.name, searchText: searchText)
                 
                 Spacer()
                 
@@ -91,7 +91,7 @@ struct CellView: View {
             }
         }
        
-        private struct TitleHeighLighted: View {
+        private struct TitleHeighlighted: View {
             let productName: String
             let searchText: String?
             
@@ -111,9 +111,9 @@ struct CellView: View {
                     let suffix = String(productName.dropFirst(start + matchLength))
                     
                     HStack(spacing: 0.0) {
-                        styledText(prefix)
+                        styledText(prefix, highlight: false)
                         styledText(match, highlight: true)
-                        styledText(suffix)
+                        styledText(suffix, highlight: false)
                     }
                 } else {
                     styledText(productName)
@@ -123,8 +123,8 @@ struct CellView: View {
             private func styledText(_ text: String, highlight: Bool = false) -> some View {
                 Text(text)
                     .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                    .foregroundColor(Color(hex: "1F2937"))
-                    .background(highlight ? Color(hex: "FCFAA6") : .clear)
+                    .foregroundColor(Color(hex: 0x1F2937))
+                    .background(highlight ? Color(hex: 0xFCFAA6) : .clear)
                     .lineLimit(3)
             }
         }
@@ -159,7 +159,7 @@ struct CellView: View {
             HStack(alignment: .top) {
                 Text(product.brandName ?? "")
                     .font(.custom(GlobalConstants.regularFont, size: 10.0))
-                    .foregroundColor(Color(hex: "6B7280"))
+                    .foregroundColor(Color(hex: 0x6B7280))
                     .lineLimit(3)
                 
                 Spacer()

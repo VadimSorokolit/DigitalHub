@@ -70,7 +70,7 @@ struct FilteredProductsView: View {
                         HStack(spacing: 6.0) {
                             Text(section.type == .favorite ? "Remove" : "Add")
                                 .font(.custom(GlobalConstants.semiBoldFont, size: 10.0))
-                                .foregroundColor(Color(hex: "3C79E6"))
+                                .foregroundColor(Color(hex: 0x3C79E6))
                             
                             Button(action: {
                                 isShowAlert = true
@@ -91,7 +91,7 @@ struct FilteredProductsView: View {
                 
                 Text(Constants.headerTitleName)
                     .font(.custom(GlobalConstants.regularFont, size: 20.0))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: 0x1F2937))
             }
             .padding(.top, 26.0)
         }
@@ -144,7 +144,7 @@ struct FilteredProductsView: View {
                             onDelete()
                         }) {
                             Rectangle()
-                                .fill(Color(hex: "EB4132"))
+                                .fill(Color(hex: 0xEB4132))
                                 .frame(width: 92.0)
                                 .frame(maxHeight: .infinity)
                                 .overlay(

@@ -18,16 +18,16 @@ struct ProductsView: View {
         static let headerButtonImageName: String = "headerButtonImage"
         static let searchBarImageName: String = "magnifyingglass"
         static let searchBarPlaceholder: String = "Search"
-        static let headerTitleFontColor: String = "1F2937"
-        static let searchBarImageColor: String = "9CA3AF"
-        static let searchBarPlaceholderColor: String = "9CA3AF"
-        static let searchBarColor: String = "E6E7E9"
-        static let sectionTitleColor: String = "1F2937"
-        static let sectionSubtitleColor: String = "6B7280"
-        static let sectionButtonTitleColor: String = "6B7280"
-        static let sectionButtonImageColor: String = "89909E"
-        static let priceValueColor: String = "FFFFFF"
-        static let discountValueColor: String = "FFFFFF"
+        static let headerTitleFontColor: Int = 0x1F2937
+        static let searchBarImageColor: Int = 0x9CA3AF
+        static let searchBarPlaceholderColor: Int = 0x9CA3AF
+        static let searchBarColor: Int = 0xE6E7E9
+        static let sectionTitleColor: Int = 0x1F2937
+        static let sectionSubtitleColor: Int = 0x6B7280
+        static let sectionButtonTitleColor: Int = 0x6B7280
+        static let sectionButtonImageColor: Int = 0x89909E
+        static let priceValueColor: Int = 0xFFFFFF
+        static let discountValueColor: Int = 0xFFFFFF
         static let textLineCount: Int = 3
         static let headerTitleImageSize: CGFloat = 30.0
         static let headerTitleFontSize: CGFloat = 20.0
@@ -164,7 +164,7 @@ struct ProductsView: View {
                     }) {
                         if !searchQuery.isEmpty {
                             Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(Color(hex: "737475"))
+                                .foregroundColor(Color(hex: 0x737475))
                                 .scaledToFit()
                                 .frame(width: 20.0, height: 20.0)
                         }
@@ -214,7 +214,6 @@ struct ProductsView: View {
                     }
                 }
             }
-            
             
             private struct HeaderView: View {
                 @ObservedObject var viewModel: ProductsViewModel
@@ -287,9 +286,9 @@ struct ProductsView: View {
                                                         let isFullyVisible = currentFrame.minX >= screen.minX && currentFrame.maxX <= screen.maxX
                                                         
                                                         if product.id == section.products.last?.id {
-                                                            if viewModel.hasMoreData && !viewModel.isPagination {
+                                                            if viewModel.hasMoreData, !viewModel.isPagination {
                                                                 viewModel.loadNextPage()
-                                                            } else if !viewModel.hasMoreData && isFullyVisible {
+                                                            } else if !viewModel.hasMoreData, isFullyVisible {
                                                                 showAlert()
                                                             }
                                                         }
@@ -306,7 +305,7 @@ struct ProductsView: View {
                                                 )
                                                 .background(Color(hex: GlobalConstants.productCellColor))
                                                 .cornerRadius(Constants.favoriteCellCornerRadius)
-                                                .shadow(radius: 1, x: 0, y: 1)
+                                                .shadow(radius: 1.0, x: 0.0, y: 1.0)
                                                 .onAppear {
                                                     viewModel.loadNextPage()
                                                 }
@@ -323,7 +322,9 @@ struct ProductsView: View {
                                             .cornerRadius(Constants.favoriteCellCornerRadius)
                                         }
                                     }
-                                    Color.clear.frame(width: 6.0, height: 0.1)
+                                    
+                                    Spacer()
+                                        .frame(width: 6.0, height: 0.1)
                                 }
                                 .padding(.leading, 18.0)
                             }
@@ -370,7 +371,7 @@ struct ProductsView: View {
                                     Rectangle()
                                         .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
                                         .overlay(
-                                            Image(systemName: GlobalConstants.systemImageName)
+                                            Image(systemName: GlobalConstants.PlaceholderImageName)
                                                 .resizable()
                                                 .foregroundColor(.gray)
                                                 .frame(width: Constants.favoriteProductImageWidth / 2.0, height: Constants.favoriteProductImageHeight / 2.0)
@@ -392,11 +393,11 @@ struct ProductsView: View {
                             VStack(alignment: .leading, spacing: 4.0) {
                                 Text(product.name)
                                     .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                                    .foregroundColor(Color(hex: "1F2937"))
+                                    .foregroundColor(Color(hex: 0x1F2937))
                                 
                                 Text(product.brandName ?? "")
                                     .font(.custom(GlobalConstants.regularFont, size: 10.0))
-                                    .foregroundColor(Color(hex: "6B7280"))
+                                    .foregroundColor(Color(hex: 0x6B7280))
                             }
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(Constants.textLineCount)
@@ -548,12 +549,12 @@ struct ProductsView: View {
                                     if !viewModel.isPagination {
                                         Color.clear
                                             .frame(
-                                                width: Constants.favoriteProductImageWidth,
-                                                height: 1.5 * Constants.favoriteProductImageWidth
+                                                width: 340.0,
+                                                height: 1.5 * 88.0
                                             )
                                             .background(Color(hex: GlobalConstants.productCellColor))
-                                            .cornerRadius(Constants.favoriteCellCornerRadius)
-                                            .shadow(radius: 1, x: 0, y: 1)
+                                            .cornerRadius(10.0)
+                                            .shadow(radius: 1.0, x: 0.0, y: 1.0)
                                             .onAppear {
                                                 viewModel.loadNextPage()
                                             }
@@ -564,8 +565,8 @@ struct ProductsView: View {
                                             ProgressView().tint(Color(hex: Constants.searchBarPlaceholderColor))
                                         }
                                         .frame(
-                                            width: Constants.favoriteProductImageWidth,
-                                            height: 1.5 * Constants.favoriteProductImageWidth
+                                            width: 340.0,
+                                            height: 1.5 * 88.0
                                         )
                                         .cornerRadius(Constants.favoriteCellCornerRadius)
                                     }
