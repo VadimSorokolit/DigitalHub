@@ -193,7 +193,7 @@ struct ProductsView: View {
                         SectionFavorites(viewModel: viewModel, path: $path, alertState: $alertState, showAlert: showAlert, sectionId: section.id)
                     }
                     if section.type == .unfavorite, !section.products.isEmpty {
-                        SectionUnfavorites(viewModel: viewModel, path: $path, sectionId: section.id)
+                        SectionUnfavorites(viewModel: viewModel, path: $path, alertState: $alertState, showAlert: showAlert, sectionId: section.id)
                     }
                 }
             }
@@ -311,7 +311,6 @@ struct ProductsView: View {
                                                     viewModel.loadNextPage()
                                                 }
                                         }
-                                        
                                         if viewModel.isPagination {
                                             ZStack {
                                                 Color.white
@@ -461,12 +460,14 @@ struct ProductsView: View {
         private struct SectionUnfavorites: View {
             @ObservedObject var viewModel: ProductsViewModel
             @Binding var path: NavigationPath
+            @Binding var alertState: AlertState
+            let showAlert: () -> Void
             let sectionId: UUID
             
             var body: some View {
                 VStack(alignment: .leading, spacing: 16.0) {
                     HeaderView(viewModel: viewModel, path: $path, sectionId: sectionId)
-                    ListView(viewModel: viewModel, sectionId: sectionId)
+                    ListView(viewModel: viewModel, alertState: $alertState, showAlert: showAlert, sectionId: sectionId)
                 }
             }
             
@@ -513,6 +514,8 @@ struct ProductsView: View {
             
             private struct ListView: View {
                 @ObservedObject var viewModel: ProductsViewModel
+                @Binding var alertState: AlertState
+                let showAlert: () -> Void
                 let sectionId: UUID
                 
                 var body: some View {
@@ -522,6 +525,50 @@ struct ProductsView: View {
                                 ForEach(section.products, id: \.id) { product in
                                     CellView(product: product, onLikeToggle: {
                                         viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)})
+                                    .background(
+                                        GeometryReader { geo in
+                                            Color.clear
+                                                .onChange(of: geo.frame(in: .global)) {
+                                                    let screen = UIScreen.main.bounds
+                                                    let currentFrame = geo.frame(in: .global)
+                                                    let isFullyVisible = currentFrame.minY >= screen.minY && currentFrame.maxY <= screen.maxY
+                                                    
+                                                    if product.id == section.products.last?.id {
+                                                        if viewModel.hasMoreData && !viewModel.isPagination {
+                                                            viewModel.loadNextPage()
+                                                        } else if !viewModel.hasMoreData && isFullyVisible {
+                                                            showAlert()
+                                                        }
+                                                    }
+                                                }
+                                        }
+                                    )
+                                }
+                                if viewModel.hasMoreData {
+                                    if !viewModel.isPagination {
+                                        Color.clear
+                                            .frame(
+                                                width: Constants.favoriteProductImageWidth,
+                                                height: 1.5 * Constants.favoriteProductImageWidth
+                                            )
+                                            .background(Color(hex: GlobalConstants.productCellColor))
+                                            .cornerRadius(Constants.favoriteCellCornerRadius)
+                                            .shadow(radius: 1, x: 0, y: 1)
+                                            .onAppear {
+                                                viewModel.loadNextPage()
+                                            }
+                                    }
+                                    if viewModel.isPagination {
+                                        ZStack {
+                                            Color.white
+                                            ProgressView().tint(Color(hex: Constants.searchBarPlaceholderColor))
+                                        }
+                                        .frame(
+                                            width: Constants.favoriteProductImageWidth,
+                                            height: 1.5 * Constants.favoriteProductImageWidth
+                                        )
+                                        .cornerRadius(Constants.favoriteCellCornerRadius)
+                                    }
                                 }
                             }
                         }
