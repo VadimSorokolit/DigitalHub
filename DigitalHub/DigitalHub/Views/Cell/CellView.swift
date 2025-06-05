@@ -61,7 +61,7 @@ struct CellView: View {
                     Rectangle()
                         .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
                         .overlay(
-                            Image(systemName: GlobalConstants.PlaceholderImageName)
+                            Image(systemName: GlobalConstants.placeholderImageName)
                                 .resizable()
                                 .scaledToFit()
                                 .foregroundColor(.gray)
@@ -83,7 +83,7 @@ struct CellView: View {
         
         var body: some View {
             HStack {
-                TitleHeighlighted(productName: product.name, searchText: searchText)
+                TitleHighlighted(productName: product.name, searchText: searchText)
                 
                 Spacer()
                 
@@ -91,7 +91,7 @@ struct CellView: View {
             }
         }
        
-        private struct TitleHeighlighted: View {
+        private struct TitleHighlighted: View {
             let productName: String
             let searchText: String?
             

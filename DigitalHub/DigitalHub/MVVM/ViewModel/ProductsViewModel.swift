@@ -147,20 +147,6 @@ class ProductsViewModel: ObservableObject {
         }
     }
     
-    // MARK: - For test
-    
-    func getMockData() {
-        var products: [Product] = []
-        
-        for i in 1...10 {
-            let unfavoriteProduct = Product(name: "iPhoneXS", brandName: "Apple(\(i))", imageURL: "mockImage", id: "", isFavorite: false, price: "100", discount: "20")
-            let favoriteProduct = Product(name: "iPhone16ProMax iPhone16ProMax iPhone16ProMax", brandName: "iPhone16ProMax iPhone16ProMax Apple Apple Apple Apple Apple(\(i))", imageURL: "mockImage", id: "", isFavorite: true, price: "100", discount: "30")
-            products.append(unfavoriteProduct)
-            products.append(favoriteProduct)
-        }
-        self.createSections(with: products)
-    }
-    
     // MARK: - Methods. Public
     
     func loadFirstPage() {

@@ -37,8 +37,8 @@ struct FilteredProductsView: View {
             ListView(viewModel: viewModel,
                      sectionId: sectionId)
         }
-        .modifier(ScreenBackgroundModifier())
-        .modifier(AlertModifier(viewModel: viewModel,
+        .modifier(ScreenBackgroundViewModifier())
+        .modifier(AlertViewModifier(viewModel: viewModel,
                                 isShowAlert: $isShowAlert,
                                 actionText: actionText,
                                 sectionId: sectionId))
@@ -131,13 +131,13 @@ struct FilteredProductsView: View {
         private struct SwipeCell<Content: View>: View {
             @State private var offsetX: CGFloat = 0.0
             @GestureState private var dragX: CGFloat = 0.0
-            private let SwipeButtonWidth: CGFloat = 66.0
+            private let swipeButtonWidth: CGFloat = 66.0
             let onDelete: () -> Void
             let content: () -> Content
             
             var body: some View {
                 let totalOffset = offsetX + dragX
-                let bgOpacity = abs(totalOffset) / SwipeButtonWidth
+                let bgOpacity = abs(totalOffset) / swipeButtonWidth
                 
                 ZStack(alignment: .trailing) {
                     Rectangle()
@@ -180,8 +180,8 @@ struct FilteredProductsView: View {
                                     guard abs(dx) > abs(dy) else { return }
                                     
                                     withAnimation(.easeOut) {
-                                        if offsetX + dx < -SwipeButtonWidth / 2.0 {
-                                            offsetX = -SwipeButtonWidth
+                                        if offsetX + dx < -swipeButtonWidth / 2.0 {
+                                            offsetX = -swipeButtonWidth
                                         } else {
                                             offsetX = 0.0
                                         }
@@ -197,7 +197,7 @@ struct FilteredProductsView: View {
     
     // MARK: - Modifiers
     
-    private struct ScreenBackgroundModifier: ViewModifier {
+    private struct ScreenBackgroundViewModifier: ViewModifier {
         
         func body(content: Content) -> some View {
             content
@@ -207,7 +207,7 @@ struct FilteredProductsView: View {
         
     }
     
-    private struct AlertModifier: ViewModifier {
+    private struct AlertViewModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var isShowAlert: Bool
         let actionText: String

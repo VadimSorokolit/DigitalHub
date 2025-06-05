@@ -60,8 +60,8 @@ struct ProductsView: View {
             }
             .modifier(ScreenBackgroundModifier())
             .modifier(SectionNavigationModifier(viewModel: viewModel))
-            .modifier(LoadViewModifire(viewModel: viewModel, searchQuery: $searchQuery))
-            .modifier(AlertViewModifire(isShowingAlert: $isShowingAlert, canShowAlert: $canShowAlert))
+            .modifier(LoadViewModifier(viewModel: viewModel, searchQuery: $searchQuery))
+            .modifier(AlertViewModifier(isShowingAlert: $isShowingAlert, canShowAlert: $canShowAlert))
         }
     }
     
@@ -269,8 +269,8 @@ struct ProductsView: View {
                                                 .onChange(of: frame) { oldFrame, newFrame in
                                                     let screen = UIScreen.main.bounds
                                                     let isFullyVisible =
-                                                    newFrame.minX >= screen.minX &&
-                                                    newFrame.maxX <= screen.maxX
+                                                    newFrame.minX >= screen.minX
+                                                    && newFrame.maxX <= screen.maxX
                                                     
                                                     if product.id == section.products.last?.id {
                                                         if viewModel.hasMoreData, !viewModel.isPagination {
@@ -353,7 +353,7 @@ struct ProductsView: View {
                                     Rectangle()
                                         .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
                                         .overlay(
-                                            Image(systemName: GlobalConstants.PlaceholderImageName)
+                                            Image(systemName: GlobalConstants.placeholderImageName)
                                                 .resizable()
                                                 .foregroundColor(.gray)
                                                 .frame(width: Constants.favoriteProductImageWidth / 2.0, height: Constants.favoriteProductImageHeight / 2.0)
@@ -588,7 +588,7 @@ struct ProductsView: View {
         
         var body: some View {
             Text("No more data for loading")
-                .font(.system(size: 14.0, weight: .medium))
+                .font(.custom(GlobalConstants.regularFont, size: 18.0))
                 .foregroundColor(.white)
                 .frame(width: 250.0, height: 250.0)
                 .background(Color.black.opacity(0.8).cornerRadius(10.0))
@@ -620,7 +620,7 @@ struct ProductsView: View {
         
     }
     
-    private struct LoadViewModifire: ViewModifier {
+    private struct LoadViewModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var searchQuery: String
         
@@ -632,7 +632,7 @@ struct ProductsView: View {
         }
     }
     
-    private struct AlertViewModifire: ViewModifier {
+    private struct AlertViewModifier: ViewModifier {
         @Binding var isShowingAlert: Bool
         @Binding var canShowAlert: Bool
         
@@ -647,8 +647,4 @@ struct ProductsView: View {
     }
 }
 
-//#Preview {
-//    let viewModel = ProductsViewModel(apiClient: MoyaClient())
-//
-//    ProductsView(viewModel: viewModel)
-//}
+
