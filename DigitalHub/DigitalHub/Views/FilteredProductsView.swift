@@ -34,13 +34,14 @@ struct FilteredProductsView: View {
                        isSelectedAll: $isAllFavoriteSelected,
                        isShowAlert: $isShowAlert,
                        sectionId: sectionId)
-            ListView(viewModel: viewModel, sectionId: sectionId)
+            ListView(viewModel: viewModel,
+                     sectionId: sectionId)
         }
         .modifier(ScreenBackgroundModifier())
         .modifier(AlertModifier(viewModel: viewModel,
-                                  isShowAlert: $isShowAlert,
-                                  actionText: actionText,
-                                  sectionId: sectionId))
+                                isShowAlert: $isShowAlert,
+                                actionText: actionText,
+                                sectionId: sectionId))
         .modifier(LoadViewModifier(viewModel: viewModel,
                                    isAllFavoriteSelected: $isAllFavoriteSelected,
                                    sectionId: sectionId))
@@ -54,7 +55,7 @@ struct FilteredProductsView: View {
         @Binding var isSelectedAll: Bool
         @Binding var isShowAlert: Bool
         let sectionId: UUID
-
+        
         var body: some View {
             ZStack {
                 HStack {
@@ -64,6 +65,7 @@ struct FilteredProductsView: View {
                         Image(GlobalConstants.backButtonImageName)
                             .frame(width: 26.0, height: 24.0)
                     }
+                    
                     Spacer()
                     
                     if let section = viewModel.section(withId: sectionId) {
@@ -97,7 +99,7 @@ struct FilteredProductsView: View {
         }
         
     }
-
+    
     private struct ListView: View {
         @ObservedObject var viewModel: ProductsViewModel
         let sectionId: UUID
@@ -128,37 +130,40 @@ struct FilteredProductsView: View {
         
         private struct SwipeCell<Content: View>: View {
             @State private var offsetX: CGFloat = 0.0
-            @GestureState private var dragX: CGFloat = 0
+            @GestureState private var dragX: CGFloat = 0.0
+            private let SwipeButtonWidth: CGFloat = 66.0
             let onDelete: () -> Void
             let content: () -> Content
-            private let width: CGFloat = 66.0
             
             var body: some View {
                 let totalOffset = offsetX + dragX
+                let bgOpacity = abs(totalOffset) / SwipeButtonWidth
+                
                 ZStack(alignment: .trailing) {
-                    HStack {
-                        Spacer()
-                        
-                        Button(action: {
-                            onDelete()
-                        }) {
-                            Rectangle()
-                                .fill(Color(hex: 0xEB4132))
-                                .frame(width: 92.0)
-                                .frame(maxHeight: .infinity)
-                                .overlay(
-                                    Text("Delete")
-                                        .font(.custom(GlobalConstants.regularFont, size: 12.0))
-                                        .foregroundColor(.white)
-                                        .offset(x: 4.0),
-                                    alignment: .center
-                                )
-                        }
+                    Rectangle()
+                        .fill(Color(hex: 0xEB4132))
+                        .frame(width: 250.0)
+                        .frame(maxHeight: .infinity)
+                        .padding(.trailing, 92.0)
+                    
+                    Button(action: {
+                        onDelete()
+                    }) {
+                        Rectangle()
+                            .fill(Color(hex: 0xEB4132).opacity(bgOpacity))
+                            .frame(width: 92.0)
+                            .frame(maxHeight: .infinity)
+                            .overlay(
+                                Text("Delete")
+                                    .font(.custom(GlobalConstants.regularFont, size: 12.0))
+                                    .foregroundColor(.white)
+                                    .offset(x: 4.0),
+                                alignment: .center
+                            )
                     }
-                    .opacity(totalOffset < 0.0 ? 1.0 : 0.0)
+                    
                     content()
                         .offset(x: totalOffset)
-                        .contentShape(Rectangle())
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 5.0, coordinateSpace: .local)
                                 .updating($dragX) { value, state, _ in
@@ -166,6 +171,7 @@ struct FilteredProductsView: View {
                                     let dy = value.translation.height
                                     if abs(dx) > abs(dy), dx < 0.0 {
                                         state = dx
+                                        print(offsetX, dragX, totalOffset, state)
                                     }
                                 }
                                 .onEnded { value in
@@ -174,8 +180,8 @@ struct FilteredProductsView: View {
                                     guard abs(dx) > abs(dy) else { return }
                                     
                                     withAnimation(.easeOut) {
-                                        if offsetX + dx < -width / 2.0 {
-                                            offsetX = -width
+                                        if offsetX + dx < -SwipeButtonWidth / 2.0 {
+                                            offsetX = -SwipeButtonWidth
                                         } else {
                                             offsetX = 0.0
                                         }
@@ -185,6 +191,7 @@ struct FilteredProductsView: View {
                 }
                 .frame(maxWidth: .infinity)
             }
+            
         }
     }
     
