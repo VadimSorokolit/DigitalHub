@@ -32,6 +32,7 @@
 		DD7779A82DE5F57700EDC278 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A72DE5F57600EDC278 /* AlertView.swift */; };
 		DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A92DE7182900EDC278 /* View+loadAlert.swift */; };
 		DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */; };
+		DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF841F12DF1AA7700DFE099 /* AddProductView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +78,7 @@
 		DD7779A72DE5F57600EDC278 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		DD7779A92DE7182900EDC278 /* View+loadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+loadAlert.swift"; sourceTree = "<group>"; };
 		DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+cornerRadius.swift"; sourceTree = "<group>"; };
+		DDF841F12DF1AA7700DFE099 /* AddProductView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProductView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -146,6 +148,7 @@
 				DD7779A22DE5B39C00EDC278 /* HUD */,
 				DD77799D2DE4AF7000EDC278 /* Cell */,
 				DD7779992DE47D1600EDC278 /* FilteredProductsView.swift */,
+				DDF841F12DF1AA7700DFE099 /* AddProductView.swift */,
 				DD70B6AE2D8380D6003B9A05 /* ProductsView.swift */,
 			);
 			path = Views;
@@ -430,6 +433,7 @@
 				DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */,
 				DD77799C2DE4AF6200EDC278 /* CellView.swift in Sources */,
 				DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */,
+				DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */,
 				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,
 				DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */,
 				DD70B6B92D8380EF003B9A05 /* DigitalProductRouter.swift in Sources */,

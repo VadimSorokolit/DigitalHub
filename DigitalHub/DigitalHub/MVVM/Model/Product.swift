@@ -8,13 +8,23 @@
 import Foundation
 
 struct Product: Decodable, Identifiable {
-    let name: String
-    let brandName: String?
-    let imageURL: String?
+    var name: String
+    var brandName: String?
+    var imageURL: String?
     let id: String
-    let isFavorite: Bool
-    let price: String?
-    let discount: String?
+    var isFavorite: Bool
+    var price: String?
+    var discount: String?
+    
+    var isValid: Bool {
+        !name.isEmpty
+    }
+    
+    init() {
+        self.name = ""
+        self.id = UUID().uuidString
+        self.isFavorite = false
+    }
     
     enum CodingKeys: String, CodingKey {
         case name = "name"

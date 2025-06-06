@@ -51,7 +51,7 @@ struct ProductsView: View {
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 28.0) {
-                HeaderView(searchQuery: $searchQuery)
+                HeaderView(path: $path, searchQuery: $searchQuery)
                 if searchQuery.isEmpty {
                     ProductsListView(viewModel: viewModel, path: $path, canShowAlert: $canShowAlert, isShowingAlert: $isShowingAlert)
                 } else {
@@ -68,11 +68,12 @@ struct ProductsView: View {
     // MARK: - Subviews
     
     private struct HeaderView: View {
+        @Binding var path: NavigationPath
         @Binding var searchQuery: String
         
         var body: some View {
             VStack(spacing: 18.0) {
-                TitleView()
+                TitleView(path: $path)
                 SearchBarView(searchQuery: $searchQuery)
             }
             .padding(.top, 34.0)
@@ -80,11 +81,12 @@ struct ProductsView: View {
         }
         
         private struct TitleView: View {
+            @Binding var path: NavigationPath
             
             var body: some View {
                 ZStack {
                     TitleWithImage()
-                    ImageButton()
+                    ImageButton(path: $path)
                 }
             }
             
@@ -107,13 +109,14 @@ struct ProductsView: View {
             }
             
             private struct ImageButton: View {
+                @Binding var path: NavigationPath
                 
                 var body: some View {
                     HStack {
                         Spacer()
                         
                         Button(action: {
-                            // TODO: - Implement navigation to "Add Product" screen
+                            path.append("goToAddProductScreen")
                         }) {
                             Image(Constants.headerButtonImageName)
                                 .resizable()
@@ -616,7 +619,10 @@ struct ProductsView: View {
                 .navigationDestination(for: UUID.self) { id in
                     FilteredProductsView(viewModel: viewModel, sectionId: id)
                 }
-        }
+                .navigationDestination(for: String.self) { _ in
+                    AddProductView(viewModel: viewModel)
+                }
+         }
         
     }
     

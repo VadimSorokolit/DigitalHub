@@ -39,9 +39,9 @@ struct FilteredProductsView: View {
         }
         .modifier(ScreenBackgroundViewModifier())
         .modifier(AlertViewModifier(viewModel: viewModel,
-                                isShowAlert: $isShowAlert,
-                                actionText: actionText,
-                                sectionId: sectionId))
+                                    isShowAlert: $isShowAlert,
+                                    actionText: actionText,
+                                    sectionId: sectionId))
         .modifier(LoadViewModifier(viewModel: viewModel,
                                    isAllFavoriteSelected: $isAllFavoriteSelected,
                                    sectionId: sectionId))
@@ -202,7 +202,7 @@ struct FilteredProductsView: View {
         func body(content: Content) -> some View {
             content
                 .background(Color(hex: GlobalConstants.backgroundColor))
-                .navigationBarBackButtonHidden(true)
+                .navigationBarBackButtonHidden()
         }
         
     }
