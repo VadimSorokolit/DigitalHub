@@ -233,8 +233,8 @@ struct AddProductView: View {
                     isFavorite.toggle()
                 }) {
                     (isFavorite
-                        ? Image(GlobalConstants.redHeartImageName)
-                        : Image(GlobalConstants.grayHeartImageName))
+                     ? Image(GlobalConstants.redHeartImageName)
+                     : Image(GlobalConstants.grayHeartImageName))
                     .resizable()
                     .scaledToFit()
                     .frame(width: 50.0, height: 45.0)
@@ -423,14 +423,14 @@ struct AddProductView: View {
                     if !viewModel.isLoading, viewModel.errorMessage == nil {
                         didSaveProduct.toggle()
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
-                                producName = ""
-                                brandName = nil
-                                imageURL = nil
-                                isFavorite = false
-                                price = nil
-                                discount = nil
-                                pickedImage = nil
-                                didSaveProduct = false
+                            producName = ""
+                            brandName = nil
+                            imageURL = nil
+                            isFavorite = false
+                            price = nil
+                            discount = nil
+                            pickedImage = nil
+                            didSaveProduct = false
                         }
                     }
                 }
