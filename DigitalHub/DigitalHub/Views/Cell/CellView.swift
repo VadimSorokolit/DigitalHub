@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct CellView: View {
     
@@ -53,10 +54,12 @@ struct CellView: View {
         
         var body: some View {
             Group {
-                if let url = product.imageURL,
-                   !url.isEmpty,
-                   UIImage(named: url) != nil {
-                    Image(url).resizable()
+                if
+                    let urlString = product.imageURL, !urlString.isEmpty,
+                    let url = URL(string: urlString)
+                {
+                    KFImage(url)
+                        .resizable()
                 }  else {
                     Rectangle()
                         .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
@@ -140,7 +143,7 @@ struct CellView: View {
                     Image(
                         product.isFavorite
                         ? GlobalConstants.redHeartImageName
-                        : GlobalConstants.grayHeartName
+                        : GlobalConstants.grayHeartImageName
                     )
                     .resizable()
                     .scaledToFit()

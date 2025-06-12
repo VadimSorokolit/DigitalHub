@@ -6,6 +6,7 @@
 //
     
 import SwiftUI
+import Kingfisher
 
 struct ProductsView: View {
     
@@ -50,12 +51,14 @@ struct ProductsView: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-            VStack(spacing: 28.0) {
-                HeaderView(path: $path, searchQuery: $searchQuery)
-                if searchQuery.isEmpty {
-                    ProductsListView(viewModel: viewModel, path: $path, canShowAlert: $canShowAlert, isShowingAlert: $isShowingAlert)
-                } else {
-                    FilteredListView(viewModel: viewModel)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 28.0) {
+                    HeaderView(path: $path, searchQuery: $searchQuery)
+                    if searchQuery.isEmpty {
+                        ProductsListView(viewModel: viewModel, path: $path, canShowAlert: $canShowAlert, isShowingAlert: $isShowingAlert)
+                    } else {
+                        FilteredListView(viewModel: viewModel)
+                    }
                 }
             }
             .modifier(ScreenBackgroundModifier())
@@ -349,8 +352,11 @@ struct ProductsView: View {
                         
                         var body: some View {
                             Group {
-                                if let productImage = product.imageURL, !productImage.isEmpty, UIImage(named: productImage) != nil {
-                                    Image(productImage)
+                                if
+                                    let urlString = product.imageURL, !urlString.isEmpty,
+                                    let url = URL(string: urlString)
+                                {
+                                    KFImage(url)
                                         .resizable()
                                 } else {
                                     Rectangle()

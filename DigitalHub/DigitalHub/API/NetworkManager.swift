@@ -14,6 +14,8 @@ protocol ProductApiClientProtocol: AnyObject {
     func getProducts(startingAfterId: String?) -> AnyPublisher<ProductList, APIError>
     func searchProducts(name: String, startingAfterId: String?) -> AnyPublisher<ProductList, APIError>
     func createProduct(_ product: Product) -> AnyPublisher<Product, APIError>
+    func createFile(_ data: Data) -> AnyPublisher<ImageFile, APIError>
+    func createFileLink(_ fileId: String) -> AnyPublisher<ImageFileLink, APIError>
     func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
     func deleteProduct(id: String) -> AnyPublisher<Void, APIError>
 }
@@ -40,6 +42,28 @@ class MoyaClient: ProductApiClientProtocol {
             .requestPublisher(.getProducts(startingAfterId: startingAfterId))
             .map(\.data)
             .decode(type: ProductList.self, decoder: JSONDecoder())
+            .mapError { APIError.from($0) }
+            .eraseToAnyPublisher()
+    }
+    
+    // API: - https://docs.stripe.com/api/files/create
+    
+    func createFile(_ data: Data) -> AnyPublisher<ImageFile, APIError> {
+        return provider
+            .requestPublisher(.createFile(data: data))
+            .map(\.data)
+            .decode(type: ImageFile.self, decoder: JSONDecoder())
+            .mapError { APIError.from($0) }
+            .eraseToAnyPublisher()
+    }
+
+    // API: - https://docs.stripe.com/api/file_links/create
+    
+    func createFileLink(_ fileId: String) -> AnyPublisher<ImageFileLink, APIError> {
+        return provider
+            .requestPublisher(.createFileLink(fileId))
+            .map(\.data)
+            .decode(type: ImageFileLink.self, decoder: JSONDecoder())
             .mapError { APIError.from($0) }
             .eraseToAnyPublisher()
     }

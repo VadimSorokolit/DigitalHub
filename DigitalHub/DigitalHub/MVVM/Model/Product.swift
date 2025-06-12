@@ -47,4 +47,25 @@ struct ProductList: Decodable {
     }
 }
 
+struct ImageFile: Decodable {
+    let id: String
+    let fileName: String
+    let purpose: String
+    let size: Int
+    let type: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case fileName = "filename"
+        case purpose
+        case size
+        case type
+    }
+}
+
+struct ImageFileLink: Decodable {
+    let id: String
+    let file: String
+    let url: String
+}
 

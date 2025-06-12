@@ -80,7 +80,7 @@ struct FilteredProductsView: View {
                                 Image(
                                     isSelectedAll
                                     ? GlobalConstants.redHeartImageName
-                                    : GlobalConstants.grayHeartName
+                                    : GlobalConstants.grayHeartImageName
                                 )
                                 .resizable()
                                 .frame(width: 20.0, height: 16.0)

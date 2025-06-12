@@ -55,6 +55,7 @@ class ProductsViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     @Published var isLoading: Bool = false
     @Published var isPagination: Bool = false
+    @Published var fileLinkURL: String? = nil
     
     // MARK: - Properties. Private
     
@@ -227,6 +228,22 @@ class ProductsViewModel: ObservableObject {
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] product in
                 self?.addProduct(product)
+            }
+            .store(in: &self.subscriptions)
+    }
+    
+    func createFile(_ file: Data) {
+        self.isLoading = true
+
+        self.apiClient.createFile(file)
+            .flatMap { [weak self] file in
+                self?.apiClient.createFileLink(file.id)
+                ?? Fail(error: APIError.unknown).eraseToAnyPublisher()
+            }
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] fileLink in
+                self?.fileLinkURL = fileLink.url
             }
             .store(in: &self.subscriptions)
     }

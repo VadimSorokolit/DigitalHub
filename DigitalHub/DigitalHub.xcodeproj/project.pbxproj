@@ -11,6 +11,7 @@
 		DD27CA012DDCD7640034A127 /* Inter-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = DD27C9FE2DDCD7640034A127 /* Inter-Regular.otf */; };
 		DD27CA022DDCD7640034A127 /* Inter-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = DD27C9FF2DDCD7640034A127 /* Inter-SemiBold.otf */; };
 		DD27CA052DDCD7900034A127 /* GlobalConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD27CA042DDCD7900034A127 /* GlobalConstants.swift */; };
+		DD2A57C32DF5B1080048A3F5 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = DD2A57C22DF5B1080048A3F5 /* Kingfisher */; };
 		DD3C3D2B2D838FAC00EEC37E /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2A2D838FAC00EEC37E /* CombineMoya */; };
 		DD3C3D2D2D838FAC00EEC37E /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2C2D838FAC00EEC37E /* Moya */; };
 		DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */; };
@@ -103,6 +104,7 @@
 				DD3C3D2B2D838FAC00EEC37E /* CombineMoya in Frameworks */,
 				DD3C3D312D838FAC00EEC37E /* RxMoya in Frameworks */,
 				DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */,
+				DD2A57C32DF5B1080048A3F5 /* Kingfisher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +156,13 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		DD2A57BD2DF57F650048A3F5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		DD3C3D5A2D85ABA100EEC37E /* MVVM */ = {
 			isa = PBXGroup;
 			children = (
@@ -185,6 +194,7 @@
 				DD70B6B12D8380D6003B9A05 /* DigitalHub */,
 				DD70B6802D8376E1003B9A05 /* DigitalHubTests */,
 				DD70B68A2D8376E1003B9A05 /* DigitalHubUITests */,
+				DD2A57BD2DF57F650048A3F5 /* Frameworks */,
 				DD70B66C2D8376DF003B9A05 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -217,8 +227,8 @@
 				DD70B6AC2D8380D6003B9A05 /* Preview Content */,
 				DD755D822DDB80B200B142FA /* Extensions */,
 				DD27CA032DDCD7770034A127 /* Resources */,
-				DD70B6B02D8380D6003B9A05 /* DigitalProduct.swift */,
 				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
+				DD70B6B02D8380D6003B9A05 /* DigitalProduct.swift */,
 				DD27CA062DDCD8BE0034A127 /* Info.plist */,
 			);
 			path = DigitalHub;
@@ -290,6 +300,7 @@
 				DD3C3D2C2D838FAC00EEC37E /* Moya */,
 				DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */,
 				DD3C3D302D838FAC00EEC37E /* RxMoya */,
+				DD2A57C22DF5B1080048A3F5 /* Kingfisher */,
 			);
 			productName = DigitalHub;
 			productReference = DD70B66B2D8376DF003B9A05 /* DigitalHub.app */;
@@ -375,6 +386,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */,
+				DD2A57C12DF5B1080048A3F5 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DD70B66C2D8376DF003B9A05 /* Products */;
@@ -775,6 +787,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		DD2A57C12DF5B1080048A3F5 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.3.2;
+			};
+		};
 		DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Moya/Moya.git";
@@ -786,6 +806,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		DD2A57C22DF5B1080048A3F5 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DD2A57C12DF5B1080048A3F5 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		DD3C3D2A2D838FAC00EEC37E /* CombineMoya */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DD3C3D292D838FAC00EEC37E /* XCRemoteSwiftPackageReference "Moya" */;
