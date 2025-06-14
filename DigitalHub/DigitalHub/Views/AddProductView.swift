@@ -29,7 +29,6 @@ struct AddProductView: View {
     @State var pickerItem: PhotosPickerItem? = nil
     @State var pickedImage: UIImage?
     @State var didSaveProduct: Bool = false
-    @State var isPlaceholder: Bool = true
     
     // MARK: - Main body
     
@@ -78,7 +77,7 @@ struct AddProductView: View {
         
     }
     
-    private struct CellView: View, Identifiable {
+    private struct CellView: View {
         @Binding var producName: String
         @Binding var brandName: String?
         @Binding var imageURL: String?
@@ -88,8 +87,40 @@ struct AddProductView: View {
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
         @Binding var didSaveProduct: Bool
-        let id = UUID()
-        var isPlaceholder: Bool
+        
+        init() {
+            _producName = .constant("")
+            _brandName = .constant(nil)
+            _imageURL = .constant(nil)
+            _isFavorite = .constant(false)
+            _price = .constant(nil)
+            _discount = .constant(nil)
+            _pickerItem = .constant(nil)
+            _pickedImage = .constant(nil)
+            _didSaveProduct = .constant(false)
+        }
+        
+        init(
+            producName: Binding<String>,
+            brandName: Binding<String?>,
+            imageURL: Binding<String?>,
+            isFavorite: Binding<Bool>,
+            price: Binding<String?>,
+            discount: Binding<String?>,
+            pickerItem: Binding<PhotosPickerItem?>,
+            pickedImage: Binding<UIImage?>,
+            didSaveProduct: Binding<Bool>,
+        ) {
+            _producName = producName
+            _brandName = brandName
+            _imageURL = imageURL
+            _isFavorite = isFavorite
+            _price = price
+            _discount = discount
+            _pickerItem = pickerItem
+            _pickedImage = pickedImage
+            _didSaveProduct = didSaveProduct
+        }
         
         var body: some View {
             VStack(spacing: 29.0) {
@@ -232,12 +263,10 @@ struct AddProductView: View {
                 Button(action: {
                     isFavorite.toggle()
                 }) {
-                    (isFavorite
-                     ? Image(GlobalConstants.redHeartImageName)
-                     : Image(GlobalConstants.grayHeartImageName))
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 50.0, height: 45.0)
+                    Image(isFavorite ? GlobalConstants.fillHeartImageName : GlobalConstants.emptyHeartImageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50.0, height: 45.0)
                 }
             }
             
@@ -325,18 +354,7 @@ struct AddProductView: View {
         
         var body: some View {
             ZStack {
-                CellView(
-                    producName: .constant(""),
-                    brandName: .constant(nil),
-                    imageURL: .constant(nil),
-                    isFavorite: .constant(false),
-                    price: .constant(nil),
-                    discount: .constant(nil),
-                    pickerItem: .constant(nil),
-                    pickedImage: .constant(nil),
-                    didSaveProduct: .constant(false),
-                    isPlaceholder: true
-                )
+                CellView()
                 .allowsHitTesting(false)
                 .redacted(reason: .invalidated)
                 
@@ -350,7 +368,6 @@ struct AddProductView: View {
                     pickerItem: $pickerItem,
                     pickedImage: $pickedImage,
                     didSaveProduct: $didSaveProduct,
-                    isPlaceholder: false
                 )
                 .rotationEffect(.degrees(didSaveProduct ? 100.0 : 0.0), anchor: .bottomTrailing)
                 .offset(x: didSaveProduct ? 30.0 : 0.0)

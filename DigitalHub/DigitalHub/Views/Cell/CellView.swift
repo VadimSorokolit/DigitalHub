@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import Kingfisher
+import SDWebImageSwiftUI
 
 struct CellView: View {
     
@@ -53,28 +53,31 @@ struct CellView: View {
         let product: Product
         
         var body: some View {
-            Group {
-                if
-                    let urlString = product.imageURL, !urlString.isEmpty,
-                    let url = URL(string: urlString)
-                {
-                    KFImage(url)
-                        .resizable()
-                }  else {
-                    Rectangle()
-                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
-                        .overlay(
-                            Image(systemName: GlobalConstants.placeholderImageName)
-                                .resizable()
-                                .scaledToFit()
-                                .foregroundColor(.gray)
-                                .frame(width: Constants.cellImageWidth / 2.0, height: Constants.cellImageWidth / 2.0)
-                        )
+            ZStack {
+                Rectangle()
+                    .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
+                    .frame(width: Constants.cellImageWidth, height: Constants.cellImageWidth)
+                    .cornerRadius(8.0)
+                
+                Group {
+                    if let urlString = product.imageURL, !urlString.isEmpty, let url = URL(string: urlString) {
+                        WebImage(url: url) { image in
+                            image.resizable()
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(width: Constants.cellImageWidth, height: Constants.cellImageWidth)
+                        .clipped()
+                        .cornerRadius(8.0)
+                    }  else {
+                        Image(systemName: GlobalConstants.placeholderImageName)
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(.gray)
+                            .frame(width: Constants.cellImageWidth / 2.0, height: Constants.cellImageWidth / 2.0)
+                    }
                 }
             }
-            .aspectRatio(contentMode: .fill)
-            .frame(width: Constants.cellImageWidth, height: Constants.cellImageWidth)
-            .cornerRadius(8.0)
         }
         
     }
@@ -142,8 +145,8 @@ struct CellView: View {
                 }) {
                     Image(
                         product.isFavorite
-                        ? GlobalConstants.redHeartImageName
-                        : GlobalConstants.grayHeartImageName
+                        ? GlobalConstants.fillHeartImageName
+                        : GlobalConstants.emptyHeartImageName
                     )
                     .resizable()
                     .scaledToFit()

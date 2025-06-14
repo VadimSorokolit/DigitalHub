@@ -6,7 +6,7 @@
 //
     
 import SwiftUI
-import Kingfisher
+import SDWebImageSwiftUI
 
 struct ProductsView: View {
     
@@ -258,7 +258,7 @@ struct ProductsView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         if let section = viewModel.section(withId: sectionId) {
                             HStack(alignment: .top, spacing: 12.0) {
-                                ForEach(section.products, id: \..id) { product in
+                                ForEach(section.products, id: \.id) { product in
                                     CellView(
                                         product: product,
                                         onLikeToogle: {
@@ -351,28 +351,30 @@ struct ProductsView: View {
                         let product: Product
                         
                         var body: some View {
-                            Group {
-                                if
-                                    let urlString = product.imageURL, !urlString.isEmpty,
-                                    let url = URL(string: urlString)
-                                {
-                                    KFImage(url)
-                                        .resizable()
-                                } else {
-                                    Rectangle()
-                                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
-                                        .overlay(
-                                            Image(systemName: GlobalConstants.placeholderImageName)
-                                                .resizable()
-                                                .foregroundColor(.gray)
-                                                .frame(width: Constants.favoriteProductImageWidth / 2.0, height: Constants.favoriteProductImageHeight / 2.0)
-                                        )
+                            ZStack {
+                                Rectangle()
+                                    .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
+                                    .frame(width: Constants.favoriteProductImageWidth, height: Constants.favoriteProductImageHeight)
+                                    .clipped()
+                                    .cornerRadius(8.0, corners: [.topLeft, .topRight])
+                                Group {
+                                    if let urlString = product.imageURL, !urlString.isEmpty, let url = URL(string: urlString) {
+                                        WebImage(url: url) { image in
+                                            image.resizable()
+                                        } placeholder: {
+                                            ProgressView()
+                                        }
+                                        .frame(width: Constants.favoriteProductImageWidth, height: Constants.favoriteProductImageHeight)
+                                        .clipped()
+                                        .cornerRadius(8.0, corners: [.topLeft, .topRight])
+                                    } else {
+                                        Image(systemName: GlobalConstants.placeholderImageName)
+                                            .resizable()
+                                            .foregroundColor(.gray)
+                                            .frame(width: Constants.favoriteProductImageWidth / 2.0, height: Constants.favoriteProductImageHeight / 2.0)
+                                    }
                                 }
                             }
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: Constants.favoriteProductImageWidth, height: Constants.favoriteProductImageHeight)
-                            .clipped()
-                            .cornerRadius(8.0, corners: [.topLeft, .topRight])
                         }
                         
                     }
@@ -433,7 +435,7 @@ struct ProductsView: View {
                                 
                                 Button(action: {
                                     onLikeToogle()
-                                }) { Image(GlobalConstants.redHeartImageName)
+                                }) { Image(GlobalConstants.fillHeartImageName)
                                         .resizable()
                                         .frame(width: 20.0, height: 20.0)
                                 }
