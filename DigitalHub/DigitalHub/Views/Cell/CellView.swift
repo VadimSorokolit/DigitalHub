@@ -96,7 +96,7 @@ struct CellView: View {
                 LikeButtonWithImage(product: product, onLikeToggle: onLikeToggle)
             }
         }
-       
+        
         private struct TitleHighlighted: View {
             let productName: String
             let searchText: String?
@@ -143,14 +143,10 @@ struct CellView: View {
                 Button(action: {
                     onLikeToggle()
                 }) {
-                    Image(
-                        product.isFavorite
-                        ? GlobalConstants.fillHeartImageName
-                        : GlobalConstants.emptyHeartImageName
-                    )
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 20.0, height: 20.0)
+                    Image(product.isFavorite ? GlobalConstants.fillHeartImageName : GlobalConstants.emptyHeartImageName)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20.0, height: 20.0)
                 }
             }
             
@@ -176,7 +172,6 @@ struct CellView: View {
                         .frame(width: 88.0, height: 28.0)
                         .cornerRadius(8.0)
                         .overlay(
-                            
                             Text(product.price ?? "--")
                                 .font(.custom(GlobalConstants.semiBoldFont, size: 12.0))
                                 .foregroundColor(.white)

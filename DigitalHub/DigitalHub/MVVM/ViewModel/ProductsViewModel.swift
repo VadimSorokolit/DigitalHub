@@ -254,17 +254,35 @@ class ProductsViewModel: ObservableObject {
     }
     
     func updateSectionProductsStatus(sectionId: UUID) {
-        guard let section = self.section(withId: sectionId) else { return }
+        guard let section = section(withId: sectionId) else { return }
         
         let makeFavorite = !section.products.first!.isFavorite
-        let batches = section.products.chunked(into: 25)
+        let batches = section.products.chunked(into: 8)
+        let totalBatches = batches.count
+        
+        isLoading = true
         
         for (batchIndex, batch) in batches.enumerated() {
-            let delay = Double(batchIndex) + 1.0
+            let delay = Double(batchIndex) + 2.0
+            let isLastBatch = (batchIndex == totalBatches - 1)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                for product in batch {
-                    self.updateProductStatus(id: product.id, isFavourite: makeFavorite)
+                for (idx, product) in batch.enumerated() {
+                    let isLastInLastBatch = isLastBatch && (idx == batch.count - 1)
+                    
+                    self.apiClient.updateProductStatus(id: product.id, isFavourite: makeFavorite)
+                        .receive(on: DispatchQueue.main)
+                        .sink { [weak self] completion in
+                            if isLastInLastBatch {
+                                self?.isLoading = false
+                            }
+                            if case let .failure(error) = completion {
+                                self?.errorMessage = error.errorDescription
+                            }
+                        } receiveValue: { [weak self] updatedProduct in
+                            self?.updateProduct(updatedProduct)
+                        }
+                        .store(in: &self.subscriptions)
                 }
             }
         }
