@@ -254,9 +254,18 @@ class ProductsViewModel: ObservableObject {
     }
     
     func updateSectionProductsStatus(sectionId: UUID) {
-        if let section = self.section(withId: sectionId) {
-            for product in section.products {
-                self.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+        guard let section = self.section(withId: sectionId) else { return }
+        
+        let makeFavorite = !section.products.first!.isFavorite
+        let batches = section.products.chunked(into: 25)
+        
+        for (batchIndex, batch) in batches.enumerated() {
+            let delay = Double(batchIndex) + 1.0
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                for product in batch {
+                    self.updateProductStatus(id: product.id, isFavourite: makeFavorite)
+                }
             }
         }
     }
@@ -289,5 +298,3 @@ class ProductsViewModel: ObservableObject {
     }
     
 }
-
-

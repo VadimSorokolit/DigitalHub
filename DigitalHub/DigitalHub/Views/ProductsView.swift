@@ -357,6 +357,7 @@ struct ProductsView: View {
                                     .frame(width: Constants.favoriteProductImageWidth, height: Constants.favoriteProductImageHeight)
                                     .clipped()
                                     .cornerRadius(8.0, corners: [.topLeft, .topRight])
+                                
                                 Group {
                                     if let urlString = product.imageURL, !urlString.isEmpty, let url = URL(string: urlString) {
                                         WebImage(url: url) { image in
