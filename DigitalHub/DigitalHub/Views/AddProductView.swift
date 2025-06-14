@@ -20,15 +20,16 @@ struct AddProductView: View {
     
     @ObservedObject var viewModel: ProductsViewModel
     @State var product = Product()
-    @State var producName: String = ""
-    @State var brandName: String? = nil
-    @State var imageURL: String? = nil
-    @State var isFavorite: Bool = false
-    @State var price: String? = nil
-    @State var discount: String? = nil
-    @State var pickerItem: PhotosPickerItem? = nil
-    @State var pickedImage: UIImage?
-    @State var didSaveProduct: Bool = false
+    @State private var producName: String = ""
+    @State private var brandName: String? = nil
+    @State private var imageURL: String? = nil
+    @State private var isFavorite: Bool = false
+    @State private var price: String? = nil
+    @State private var discount: String? = nil
+    @State private var pickerItem: PhotosPickerItem? = nil
+    @State private var pickedImage: UIImage?
+    @State private var didSaveProduct: Bool = false
+    @State private var hideCell = false
     
     // MARK: - Main body
     
@@ -37,13 +38,13 @@ struct AddProductView: View {
             VStack(spacing: 150.0) {
                 VStack(spacing: 36.0) {
                     HeaderView(viewModel: viewModel)
-                    ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSaveProduct: $didSaveProduct)
+                    ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSaveProduct: $didSaveProduct, hideCell: $hideCell)
                 }
                 
-                AddProductButtonView(viewModel: viewModel, pickedImage: $pickedImage, product: $product)
+                AddProductButtonView(viewModel: viewModel, pickedImage: $pickedImage, product: $product, hideCell: $hideCell)
             }
         }
-        .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSaveProduct: $didSaveProduct))
+        .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSaveProduct: $didSaveProduct, hideCell: $hideCell))
         .modifier(ScreenBackgroundModifier())
     }
     
@@ -148,8 +149,8 @@ struct AddProductView: View {
                         .frame(width: width, height: height)
                         .cornerRadius(cornerRadius, corners: [.topLeft, .topRight])
                     
-                    if let uiImage = pickedImage {
-                        Image(uiImage: uiImage)
+                    if let image = pickedImage {
+                        Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
                             .frame(width: width, height: height)
@@ -351,12 +352,13 @@ struct AddProductView: View {
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
         @Binding var didSaveProduct: Bool
+        @Binding var hideCell: Bool
         
         var body: some View {
             ZStack {
                 CellView()
-                .allowsHitTesting(false)
-                .redacted(reason: .invalidated)
+                    .allowsHitTesting(false)
+                    .redacted(reason: .invalidated)
                 
                 CellView(
                     producName: $producName,
@@ -369,9 +371,10 @@ struct AddProductView: View {
                     pickedImage: $pickedImage,
                     didSaveProduct: $didSaveProduct,
                 )
-                .rotationEffect(.degrees(didSaveProduct ? 100.0 : 0.0), anchor: .bottomTrailing)
-                .offset(x: didSaveProduct ? 30.0 : 0.0)
-                .animation(didSaveProduct ? .easeOut(duration: 0.35) : .easeIn(duration: 0.001), value: didSaveProduct)
+                .offset(y: hideCell ? -500 : 0)
+                .rotationEffect(.degrees(hideCell ? 180 : 0), anchor: .bottom)
+                .opacity(hideCell ? 0 : 1)
+                .animation(hideCell ? .easeOut(duration: 0.35) : .none, value: hideCell)
             }
         }
         
@@ -381,6 +384,7 @@ struct AddProductView: View {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var pickedImage: UIImage?
         @Binding var  product: Product
+        @Binding var hideCell: Bool
         
         var body: some View {
             ZStack {
@@ -393,8 +397,13 @@ struct AddProductView: View {
                     .foregroundColor(.white)
                     .font(.custom(GlobalConstants.semiBoldFont, size: 26.0))
             }
-            .contentShape(Rectangle())
             .onTapGesture {
+                hideCell = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation(.none) {
+                        hideCell = false
+                    }
+                }
                 if product.isValid {
                     if let imageData = pickedImage?.jpegData(compressionQuality: 1.0) {
                         viewModel.createFile(imageData)
@@ -403,7 +412,7 @@ struct AddProductView: View {
                     }
                 }
             }
-            .opacity(product.isValid ? 1.0 : 0.5)
+            .opacity(product.isValid ? 1.0 : 0.5) 
         }
         
     }
@@ -433,22 +442,20 @@ struct AddProductView: View {
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
         @Binding var didSaveProduct: Bool
+        @Binding var hideCell: Bool
         
         func body(content: Content) -> some View {
             content
-                .onChange(of: viewModel.isLoading) {
-                    if !viewModel.isLoading, viewModel.errorMessage == nil {
-                        didSaveProduct.toggle()
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.36) {
-                            producName = ""
-                            brandName = nil
-                            imageURL = nil
-                            isFavorite = false
-                            price = nil
-                            discount = nil
-                            pickedImage = nil
-                            didSaveProduct = false
-                        }
+                .onChange(of: hideCell) {
+                    if !hideCell {
+                        producName = ""
+                        brandName = nil
+                        imageURL = nil
+                        isFavorite = false
+                        price = nil
+                        discount = nil
+                        pickedImage = nil
+                        didSaveProduct = false
                     }
                 }
                 .onChange(of: producName) {
