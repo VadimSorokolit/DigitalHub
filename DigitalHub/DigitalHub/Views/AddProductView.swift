@@ -14,6 +14,7 @@ struct AddProductView: View {
     
     private struct Constants {
         static let headerViewTitle: String = "Add Product"
+        static let animationDuration: Double = 0.35
     }
     
     // MARK: - Properties
@@ -371,10 +372,10 @@ struct AddProductView: View {
                     pickedImage: $pickedImage,
                     didSaveProduct: $didSaveProduct,
                 )
-                .offset(y: hideCell ? -500 : 0)
-                .rotationEffect(.degrees(hideCell ? 180 : 0), anchor: .bottom)
-                .opacity(hideCell ? 0 : 1)
-                .animation(hideCell ? .easeOut(duration: 0.35) : .none, value: hideCell)
+                .offset(y: hideCell ? -500.0 : 0.0)
+                .rotationEffect(.degrees(hideCell ? 180.0 : 0.0), anchor: .bottom)
+                .opacity(hideCell ? 0.0 : 1.0)
+                .animation(hideCell ? .easeOut(duration: Constants.animationDuration) : .none, value: hideCell)
             }
         }
         
@@ -399,20 +400,18 @@ struct AddProductView: View {
             }
             .onTapGesture {
                 hideCell = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    withAnimation(.none) {
-                        hideCell = false
-                    }
-                }
-                if product.isValid {
-                    if let imageData = pickedImage?.jpegData(compressionQuality: 1.0) {
-                        viewModel.createFile(imageData)
-                    } else {
-                        viewModel.createProduct(product)
+                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.animationDuration) {
+                    hideCell = false
+                    if product.isValid {
+                        if let imageData = pickedImage?.jpegData(compressionQuality: 1.0) {
+                            viewModel.createFile(imageData)
+                        } else {
+                            viewModel.createProduct(product)
+                        }
                     }
                 }
             }
-            .opacity(product.isValid ? 1.0 : 0.5) 
+            .opacity((product.isValid) ? 1.0 : 0.5)
         }
         
     }
