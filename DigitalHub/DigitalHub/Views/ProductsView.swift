@@ -294,19 +294,6 @@ struct ProductsView: View {
                                     )
                                 }
                                 if viewModel.hasMoreData {
-                                    if !viewModel.isPagination {
-                                        Color.clear
-                                            .frame(
-                                                width: Constants.favoriteProductImageWidth,
-                                                height: 1.5 * Constants.favoriteProductImageWidth
-                                            )
-                                            .background(Color(hex: GlobalConstants.productCellColor))
-                                            .cornerRadius(Constants.favoriteCellCornerRadius)
-                                            .shadow(radius: 1.0, x: 0.0, y: 1.0)
-                                            .onAppear {
-                                                viewModel.loadNextPage()
-                                            }
-                                    }
                                     if viewModel.isPagination {
                                         ZStack {
                                             Color.white
@@ -544,19 +531,6 @@ struct ProductsView: View {
                                     )
                                 }
                                 if viewModel.hasMoreData {
-                                    if !viewModel.isPagination {
-                                        Color.clear
-                                            .frame(
-                                                width: 340.0,
-                                                height: 1.5 * 88.0
-                                            )
-                                            .background(Color(hex: GlobalConstants.productCellColor))
-                                            .cornerRadius(10.0)
-                                            .shadow(radius: 1.0, x: 0.0, y: 1.0)
-                                            .onAppear {
-                                                viewModel.loadNextPage()
-                                            }
-                                    }
                                     if viewModel.isPagination {
                                         ZStack {
                                             Color.white
@@ -631,8 +605,7 @@ struct ProductsView: View {
                 .navigationDestination(for: String.self) { _ in
                     AddProductView(viewModel: viewModel)
                 }
-         }
-        
+        }
     }
     
     private struct LoadViewModifier: ViewModifier {

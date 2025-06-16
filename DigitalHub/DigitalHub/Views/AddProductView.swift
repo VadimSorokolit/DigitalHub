@@ -29,8 +29,7 @@ struct AddProductView: View {
     @State private var discount: String? = nil
     @State private var pickerItem: PhotosPickerItem? = nil
     @State private var pickedImage: UIImage?
-    @State private var didSaveProduct: Bool = false
-    @State private var hideCell = false
+    @State private var didSwipe = false
     
     // MARK: - Main body
     
@@ -39,13 +38,13 @@ struct AddProductView: View {
             VStack(spacing: 150.0) {
                 VStack(spacing: 36.0) {
                     HeaderView(viewModel: viewModel)
-                    ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSaveProduct: $didSaveProduct, hideCell: $hideCell)
+                    ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe)
                 }
                 
-                AddProductButtonView(viewModel: viewModel, pickedImage: $pickedImage, product: $product, hideCell: $hideCell)
+                AddProductButtonView(viewModel: viewModel, pickedImage: $pickedImage, product: $product, didSwipe: $didSwipe)
             }
         }
-        .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSaveProduct: $didSaveProduct, hideCell: $hideCell))
+        .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe))
         .modifier(ScreenBackgroundModifier())
     }
     
@@ -88,7 +87,6 @@ struct AddProductView: View {
         @Binding var discount: String?
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
-        @Binding var didSaveProduct: Bool
         
         init() {
             _producName = .constant("")
@@ -99,7 +97,6 @@ struct AddProductView: View {
             _discount = .constant(nil)
             _pickerItem = .constant(nil)
             _pickedImage = .constant(nil)
-            _didSaveProduct = .constant(false)
         }
         
         init(
@@ -110,8 +107,7 @@ struct AddProductView: View {
             price: Binding<String?>,
             discount: Binding<String?>,
             pickerItem: Binding<PhotosPickerItem?>,
-            pickedImage: Binding<UIImage?>,
-            didSaveProduct: Binding<Bool>,
+            pickedImage: Binding<UIImage?>
         ) {
             _producName = producName
             _brandName = brandName
@@ -121,7 +117,6 @@ struct AddProductView: View {
             _discount = discount
             _pickerItem = pickerItem
             _pickedImage = pickedImage
-            _didSaveProduct = didSaveProduct
         }
         
         var body: some View {
@@ -276,12 +271,12 @@ struct AddProductView: View {
         
         private struct CustomTextField: View {
             @Binding var rawText: String?
-            let placeholder: String
-            let padding: CGFloat
-            let width: CGFloat
-            let height: CGFloat
-            let fontSize: CGFloat
-            let cornerRadius: CGFloat
+            private let placeholder: String
+            private let padding: CGFloat
+            private let width: CGFloat
+            private let height: CGFloat
+            private let fontSize: CGFloat
+            private let cornerRadius: CGFloat
             
             init(
                 text: Binding<String>,
@@ -340,6 +335,7 @@ struct AddProductView: View {
                 .background(Color(hex: 0xE6E7E9))
                 .cornerRadius(cornerRadius)
             }
+            
         }
     }
     
@@ -352,8 +348,7 @@ struct AddProductView: View {
         @Binding var discount: String?
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
-        @Binding var didSaveProduct: Bool
-        @Binding var hideCell: Bool
+        @Binding var didSwipe: Bool
         
         var body: some View {
             ZStack {
@@ -370,12 +365,9 @@ struct AddProductView: View {
                     discount: $discount,
                     pickerItem: $pickerItem,
                     pickedImage: $pickedImage,
-                    didSaveProduct: $didSaveProduct,
                 )
-                .offset(y: hideCell ? -500.0 : 0.0)
-                .rotationEffect(.degrees(hideCell ? 180.0 : 0.0), anchor: .bottom)
-                .opacity(hideCell ? 0.0 : 1.0)
-                .animation(hideCell ? .easeOut(duration: Constants.animationDuration) : .none, value: hideCell)
+                .rotationEffect(.degrees(didSwipe ? 20.0 : 0.0), anchor: UnitPoint(x: 2.0, y: 5.0))
+                .animation(didSwipe ? Animation.easeInOut(duration: Constants.animationDuration) : nil, value: didSwipe)
             }
         }
         
@@ -384,8 +376,8 @@ struct AddProductView: View {
     private struct AddProductButtonView: View {
         @ObservedObject var viewModel: ProductsViewModel
         @Binding var pickedImage: UIImage?
-        @Binding var  product: Product
-        @Binding var hideCell: Bool
+        @Binding var product: Product
+        @Binding var didSwipe: Bool
         
         var body: some View {
             ZStack {
@@ -399,9 +391,9 @@ struct AddProductView: View {
                     .font(.custom(GlobalConstants.semiBoldFont, size: 26.0))
             }
             .onTapGesture {
-                hideCell = true
+                didSwipe = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + Constants.animationDuration) {
-                    hideCell = false
+                    didSwipe = false
                     if product.isValid {
                         if let imageData = pickedImage?.jpegData(compressionQuality: 1.0) {
                             viewModel.createFile(imageData)
@@ -440,13 +432,12 @@ struct AddProductView: View {
         @Binding var discount: String?
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
-        @Binding var didSaveProduct: Bool
-        @Binding var hideCell: Bool
+        @Binding var didSwipe: Bool
         
         func body(content: Content) -> some View {
             content
-                .onChange(of: hideCell) {
-                    if !hideCell {
+                .onChange(of: didSwipe) {
+                    if !didSwipe {
                         producName = ""
                         brandName = nil
                         imageURL = nil
@@ -454,7 +445,6 @@ struct AddProductView: View {
                         price = nil
                         discount = nil
                         pickedImage = nil
-                        didSaveProduct = false
                     }
                 }
                 .onChange(of: producName) {
