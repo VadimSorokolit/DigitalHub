@@ -258,54 +258,48 @@ struct ProductsView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         if let section = viewModel.section(withId: sectionId) {
                             HStack(alignment: .top, spacing: 12.0) {
-                                ForEach(section.products, id: \.id) { product in
-                                    CellView(
-                                        product: product,
-                                        onLikeToogle: {
-                                            viewModel.updateProductStatus(
-                                                id: product.id,
-                                                isFavourite: !product.isFavorite
-                                            )
-                                        }
-                                    )
+                                ForEach(Array(section.products.enumerated()), id: \.element.id) { index, product in
+                                    CellView(product: product) {
+                                        viewModel.updateProductStatus(
+                                            id: product.id,
+                                            isFavourite: !product.isFavorite
+                                        )
+                                    }
                                     .background(
-                                        GeometryReader { geo in
-                                            let frame = geo.frame(in: .global)
-                                            Color.clear
-                                                .onChange(of: frame) { oldFrame, newFrame in
-                                                    let screen = UIScreen.main.bounds
-                                                    let isFullyVisible =
-                                                    newFrame.minX >= screen.minX
-                                                    && newFrame.maxX <= screen.maxX
-                                                    
-                                                    if product.id == section.products.last?.id {
-                                                        if viewModel.hasMoreData, !viewModel.isPagination {
-                                                            viewModel.loadNextPage()
-                                                        } else if !viewModel.hasMoreData, isFullyVisible {
-                                                            canShowAlert = true
-                                                            DispatchQueue.main.asyncAfter(deadline: .now() + 6.0) {
-                                                                isShowingAlert = true
-                                                                canShowAlert = false
+                                        Group {
+                                            if index == section.products.count - 1 {
+                                                GeometryReader { proxy in
+                                                    Color.clear
+                                                        .onChange(of: proxy.frame(in: .global)) { oldFrame, newFrame in
+                                                            let screenWidth = UIScreen.main.bounds.width
+                                                            if newFrame.maxX <= screenWidth {
+                                                                if viewModel.hasMoreData && !viewModel.isPagination {
+                                                                    viewModel.loadNextPage()
+                                                                } else if !viewModel.hasMoreData && !viewModel.isPagination {
+                                                                    canShowAlert = true
+                                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                                                        isShowingAlert = true
+                                                                    }
+                                                                }
                                                             }
                                                         }
-                                                    }
                                                 }
+                                                .frame(width: 0.0, height: 0.0)
+                                            }
                                         }
                                     )
                                 }
-                                if viewModel.hasMoreData {
-                                    if viewModel.isPagination {
-                                        ZStack {
-                                            Color.white
-                                            ProgressView()
-                                                .tint(Color(hex: Constants.searchBarPlaceholderColor))
-                                        }
-                                        .frame(
-                                            width: Constants.favoriteProductImageWidth,
-                                            height: 1.5 * Constants.favoriteProductImageWidth
-                                        )
-                                        .cornerRadius(Constants.favoriteCellCornerRadius)
+                                if viewModel.isPagination {
+                                    ZStack {
+                                        Color.white
+                                        ProgressView()
+                                            .tint(Color(hex: Constants.searchBarPlaceholderColor))
                                     }
+                                    .frame(
+                                        width: Constants.favoriteProductImageWidth,
+                                        height: 1.5 * Constants.favoriteProductImageWidth
+                                    )
+                                    .cornerRadius(Constants.favoriteCellCornerRadius)
                                 }
                                 
                                 Spacer()
@@ -505,43 +499,43 @@ struct ProductsView: View {
                     ScrollView(.vertical, showsIndicators: false) {
                         if let section = viewModel.section(withId: sectionId) {
                             VStack(spacing: 6.0) {
-                                ForEach(section.products, id: \.id) { product in
+                                ForEach(Array(section.products.enumerated()), id: \.element.id) { index, product in
                                     CellView(product: product, onLikeToggle: {
                                         viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)})
                                     .background(
-                                        GeometryReader { geo in
-                                            Color.clear
-                                                .onChange(of: geo.frame(in: .global)) {
-                                                    let screen = UIScreen.main.bounds
-                                                    let currentFrame = geo.frame(in: .global)
-                                                    let isFullyVisible = currentFrame.minY >= screen.minY && currentFrame.maxY <= screen.maxY
-                                                    
-                                                    if product.id == section.products.last?.id {
-                                                        if viewModel.hasMoreData, !viewModel.isPagination {
-                                                            viewModel.loadNextPage()
-                                                        } else if !viewModel.hasMoreData && isFullyVisible {
-                                                            canShowAlert = true
-                                                            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                                                                isShowingAlert = true
+                                        Group {
+                                            if index == section.products.count - 1 {
+                                                GeometryReader { proxy in
+                                                    Color.clear
+                                                        .onChange(of: proxy.frame(in: .global)) { oldFrame, newFrame in
+                                                            let screenHeight = UIScreen.main.bounds.height
+                                                            if newFrame.maxY <= screenHeight {
+                                                                if viewModel.hasMoreData && !viewModel.isPagination {
+                                                                    viewModel.loadNextPage()
+                                                                } else if !viewModel.hasMoreData && !viewModel.isPagination {
+                                                                    canShowAlert = true
+                                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                                                                        isShowingAlert = true
+                                                                    }
+                                                                }
                                                             }
                                                         }
-                                                    }
                                                 }
+                                                .frame(height: 0.0)
+                                            }
                                         }
                                     )
                                 }
-                                if viewModel.hasMoreData {
-                                    if viewModel.isPagination {
-                                        ZStack {
-                                            Color.white
-                                            ProgressView().tint(Color(hex: Constants.searchBarPlaceholderColor))
-                                        }
-                                        .frame(
-                                            width: 364.0,
-                                            height: 88.0
-                                        )
-                                        .cornerRadius(Constants.favoriteCellCornerRadius)
+                                if viewModel.isPagination {
+                                    ZStack {
+                                        Color.white
+                                        ProgressView().tint(Color(hex: Constants.searchBarPlaceholderColor))
                                     }
+                                    .frame(
+                                        width: 364.0,
+                                        height: 88.0
+                                    )
+                                    .cornerRadius(Constants.favoriteCellCornerRadius)
                                 }
                             }
                         }
