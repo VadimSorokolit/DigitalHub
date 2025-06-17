@@ -12,6 +12,7 @@
 		DD27CA022DDCD7640034A127 /* Inter-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = DD27C9FF2DDCD7640034A127 /* Inter-SemiBold.otf */; };
 		DD27CA052DDCD7900034A127 /* GlobalConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD27CA042DDCD7900034A127 /* GlobalConstants.swift */; };
 		DD2A57F52DFD8F360048A3F5 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = DD2A57F42DFD8F360048A3F5 /* SDWebImageSwiftUI */; };
+		DD2A59382E013D490048A3F5 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2A59372E013D480048A3F5 /* NetworkMonitor.swift */; };
 		DD3C3D2B2D838FAC00EEC37E /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2A2D838FAC00EEC37E /* CombineMoya */; };
 		DD3C3D2D2D838FAC00EEC37E /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2C2D838FAC00EEC37E /* Moya */; };
 		DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */; };
@@ -59,6 +60,7 @@
 		DD27C9FF2DDCD7640034A127 /* Inter-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.otf"; sourceTree = "<group>"; };
 		DD27CA042DDCD7900034A127 /* GlobalConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalConstants.swift; sourceTree = "<group>"; };
 		DD27CA062DDCD8BE0034A127 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DD2A59372E013D480048A3F5 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		DD3C3D632D85AE3E00EEC37E /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		DD3C3D772D85B06500EEC37E /* ProductsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsViewModel.swift; sourceTree = "<group>"; };
 		DD3C3DD92D87FF8D00EEC37E /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
@@ -163,6 +165,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		DD2A59362E013C3A0048A3F5 /* Sevices */ = {
+			isa = PBXGroup;
+			children = (
+				DD2A59372E013D480048A3F5 /* NetworkMonitor.swift */,
+			);
+			path = Sevices;
+			sourceTree = "<group>";
+		};
 		DD3C3D5A2D85ABA100EEC37E /* MVVM */ = {
 			isa = PBXGroup;
 			children = (
@@ -227,8 +237,9 @@
 				DD70B6AC2D8380D6003B9A05 /* Preview Content */,
 				DD755D822DDB80B200B142FA /* Extensions */,
 				DD27CA032DDCD7770034A127 /* Resources */,
-				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
+				DD2A59362E013C3A0048A3F5 /* Sevices */,
 				DD70B6B02D8380D6003B9A05 /* DigitalProduct.swift */,
+				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
 				DD27CA062DDCD8BE0034A127 /* Info.plist */,
 			);
 			path = DigitalHub;
@@ -446,6 +457,7 @@
 				DD77799C2DE4AF6200EDC278 /* CellView.swift in Sources */,
 				DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */,
 				DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */,
+				DD2A59382E013D490048A3F5 /* NetworkMonitor.swift in Sources */,
 				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,
 				DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */,
 				DD70B6B92D8380EF003B9A05 /* DigitalProductRouter.swift in Sources */,
