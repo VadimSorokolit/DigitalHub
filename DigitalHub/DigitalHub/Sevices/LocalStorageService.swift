@@ -11,6 +11,7 @@ import SwiftData
 
 protocol ProductApiStorageProtocol: AnyObject {
     func fetchAll() -> AnyPublisher<[StorageProduct], APIError>
+    func searchProducts(query: String) -> AnyPublisher<[StorageProduct], APIError>
     func create(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError>
     func update(ids: [String], newState: ProductState, isFavorite: Bool?) -> AnyPublisher<[StorageProduct], APIError>
     func delete(id: String) -> AnyPublisher<String, APIError>
@@ -45,6 +46,28 @@ class LocalStorageService: ProductApiStorageProtocol {
             .publisher
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
+    }
+    
+    func searchProducts(query: String) -> AnyPublisher<[StorageProduct], APIError> {
+        Future { [weak self] promise in
+            guard let self else {
+                promise(.failure(.unknown))
+                return
+            }
+            
+            do {
+                let descriptor = FetchDescriptor<StorageProduct>(
+                    predicate: #Predicate { $0.name.localizedStandardContains(query) }
+                )
+                let results = try self.context.fetch(descriptor)
+                promise(.success(results))
+                return
+            } catch {
+                promise(.failure(.storage(error)))
+                return
+            }
+        }
+        .eraseToAnyPublisher()
     }
     
     func create(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError> {

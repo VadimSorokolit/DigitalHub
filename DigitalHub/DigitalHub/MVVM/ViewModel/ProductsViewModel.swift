@@ -50,7 +50,7 @@ class ProductsViewModel: ObservableObject {
     // MARK: - Properties. Public
     
     @Published var sections: [ProductsSection] = []
-    @Published var searchResults: [Product] = []
+    @Published var searchResults: [StorageProduct] = []
     @Published var storageProducts: [StorageProduct] = []
     @Published var searchQuery: String = ""
     @Published var errorMessage: String? = nil
@@ -132,7 +132,7 @@ class ProductsViewModel: ObservableObject {
     
     private func addProduct(_ product: StorageProduct) {
         let type: ProductsSection.SectionType = product.isFavorite ? .favorite : .unfavorite
-
+        
         if let index = self.sections.firstIndex(where: { $0.type == type }) {
             self.sections[index].products.append(product)
         }
@@ -145,12 +145,6 @@ class ProductsViewModel: ObservableObject {
               product.state != ProductState.deletedOffline.rawValue else { return }
         
         self.addProduct(product)
-    }
-    
-    private func updateSearchResults(_ updatedProduct: Product) {
-        if let index = self.searchResults.firstIndex(where: { $0.id == updatedProduct.id }) {
-            self.searchResults[index] = updatedProduct
-        }
     }
     
     private func removeProduct(id: String) {
@@ -291,6 +285,7 @@ class ProductsViewModel: ObservableObject {
         let deleted = self.storageProducts
             .filter { $0.state == ProductState.deleted.rawValue }
             .map { convert($0) }
+
         if !created.isEmpty {
             self.createProducts(created)
         }
@@ -352,23 +347,14 @@ class ProductsViewModel: ObservableObject {
         }
         self.isLoading = true
         
-        self.apiClient.searchProducts(name: query, startingAfterId: nil)
+        self.dataStorage.searchProducts(query: query)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
-            } receiveValue: { [weak self] productList in
-                guard let self else { return }
-                
-                let products = productList.products
-                self.searchResults = products
-                
-                self.lastProductId = products.last?.id
-                
-                if self.hasMoreData != productList.hasMore {
-                    self.hasMoreData = productList.hasMore
-                }
+            } receiveValue: { [weak self] results in
+                self?.searchResults = results
             }
-            .store(in: &self.subscriptions)
+            .store(in: &subscriptions)
     }
     
     func createProducts(_ newProducts: [Product]) {
@@ -402,7 +388,7 @@ class ProductsViewModel: ObservableObject {
     func updateProductsStatus(_ products: [Product]) {
         let delayPerRequest = 1.0
         self.isLoading = true
-    
+        
         let sequence = Publishers.Sequence(sequence: products)
             .flatMap(maxPublishers: .max(25)) { product in
                 self.apiClient.updateProductStatus(id: product.id, isFavourite: product.isFavorite)
@@ -488,7 +474,7 @@ class ProductsViewModel: ObservableObject {
     
     func createFile(_ file: Data) {
         self.isLoading = true
-
+        
         self.apiClient.createFile(file)
             .flatMap { [weak self] file in
                 self?.apiClient.createFileLink(file.id)
@@ -506,55 +492,5 @@ class ProductsViewModel: ObservableObject {
         let section = self.sections.first { $0.id == id }
         return section
     }
-    
-//    func updateSectionProductsStatus(sectionId: UUID) {
-//        guard let section = section(withId: sectionId) else { return }
-//        
-//        let makeFavorite = !section.products.first!.isFavorite
-//        let delayPerRequest = 1.0
-//        self.isLoading = true
-//        
-//        let sequence = Publishers.Sequence(sequence: section.products)
-//            .flatMap(maxPublishers: .max(25)) { product in
-//                self.apiClient.updateProductStatus(id: product.id, isFavourite: makeFavorite)
-//                    .receive(on: DispatchQueue.main)
-//                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
-//            }
-//        sequence
-//            .sink { [weak self] completion in
-//                self?.handleCompletion(completion)
-//            } receiveValue: { updatedProduct in
-////                self.updateProduct(updatedProduct)
-//            }
-//            .store(in: &subscriptions)
-//    }
-    
-    func updateProductStatus(id: String, isFavourite: Bool)  {
-        self.isLoading = true
-        
-        self.apiClient.updateProductStatus(id: id, isFavourite: isFavourite)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.handleCompletion(completion)
-            } receiveValue: { [weak self] updatedProduct in
-//                 self?.updateProduct(updatedProduct)
-                self?.updateSearchResults(updatedProduct)
-            }
-            .store(in: &self.subscriptions)
-    }
-    
-//    func deleteProduct(id: String) {
-//        self.isLoading = true
-//        
-//        self.apiClient.deleteProduct(id: id)
-//            .receive(on: DispatchQueue.main)
-//            .sink { [weak self] completion in
-//                self?.handleCompletion(completion)
-//            } receiveValue: { [weak self] productId in
-//                print(productId)
-//                self?.removeProduct(id: productId)
-//            }
-//            .store(in: &self.subscriptions)
-//    }
     
 }

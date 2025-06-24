@@ -58,7 +58,7 @@ struct ProductsView: View {
                     if searchQuery.isEmpty {
                         ProductsListView(viewModel: viewModel, path: $path, canShowAlert: $canShowAlert, isShowingAlert: $isShowingAlert)
                     } else {
-                        //                        FilteredListView(viewModel: viewModel)
+                        FilteredListView(viewModel: viewModel)
                     }
                 }
             }
@@ -550,15 +550,15 @@ struct ProductsView: View {
         @ObservedObject var viewModel: ProductsViewModel
         
         var body: some View {
-            //            ScrollView(.vertical, showsIndicators: false) {
-            //                VStack(spacing: 6.0) {
-            //                    ForEach(viewModel.searchResults, id: \.id) { product in
-            //                        CellView(product: product, searchQuery: viewModel.searchQuery, onLikeToggle: {
-            //                            viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
-            //                        })
-            //                    }
-            //                }
-            //            }
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 6.0) {
+                    ForEach(viewModel.searchResults, id: \.id) { product in
+                        CellView(product: product, searchQuery: viewModel.searchQuery, onLikeToggle: {
+                            viewModel.updateStorageProductStatus(product, newState: .updated)
+                        })
+                    }
+                }
+            }
         }
         
     }
