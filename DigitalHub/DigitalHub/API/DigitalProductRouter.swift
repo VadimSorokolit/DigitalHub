@@ -45,7 +45,7 @@ private struct Constants {
     }
     
     struct Values {
-        static let perPage: Int = 20
+        static let perPage: Int = 15
         
         enum BoolString: String {
             case boolTrue = "true"
@@ -110,6 +110,7 @@ extension DigitalProductRouter: TargetType {
             case .createProduct(let product):
                 var parameters: [String: Any] = [
                     Constants.Parameters.productName: product.name,
+                    Constants.Parameters.id: product.id,
                     Constants.Parameters.isFavorite: Constants.Values.BoolString.from(product.isFavorite).rawValue
                 ]
                 

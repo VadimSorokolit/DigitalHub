@@ -18,13 +18,13 @@ struct CellView: View {
     
     // MARK: - Properties
     
-    let product: Product
+    let product: StorageProduct
     let searchQuery: String?
     let onLikeToggle: () -> Void
     
     // MARK: - Initializer
     
-    init(product: Product, searchQuery: String? = nil, onLikeToggle: @escaping () -> Void) {
+    init(product: StorageProduct, searchQuery: String? = nil, onLikeToggle: @escaping () -> Void) {
         self.product = product
         self.searchQuery = searchQuery
         self.onLikeToggle = onLikeToggle
@@ -50,7 +50,7 @@ struct CellView: View {
     // MARK: - Subviews
     
     private struct ImageView: View {
-        let product: Product
+        let product: StorageProduct
         
         var body: some View {
             ZStack {
@@ -83,7 +83,7 @@ struct CellView: View {
     }
     
     private struct TitleWithLike: View {
-        let product: Product
+        let product: StorageProduct
         let searchText: String?
         let onLikeToggle: () -> Void
         
@@ -136,7 +136,7 @@ struct CellView: View {
         }
         
         private struct LikeButtonWithImage: View {
-            let product: Product
+            let product: StorageProduct
             let onLikeToggle: () -> Void
             
             var body: some View {
@@ -155,7 +155,7 @@ struct CellView: View {
     }
     
     private struct SubtitleWithPrice: View {
-        let product: Product
+        let product: StorageProduct
         
         var body: some View {
             HStack(alignment: .top) {

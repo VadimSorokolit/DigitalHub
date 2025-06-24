@@ -13,50 +13,89 @@ struct DigitalHubApp: App {
     
     // MARK: - Properties
     
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            DigitalProduct.self,
-        ])
+    @Environment(\.scenePhase) private var scenePhase
+    @StateObject private var viewModel: ProductsViewModel
+    @StateObject var networkMonitor: NetworkMonitor
+    @State private var showSpinner: Bool = false
+    private let sharedModelContainer: ModelContainer
+
+    // MARK: - Initializer
+
+    init() {
+#if DEBUG
+//        Self.resetStorageIfNeeded()
+#endif
+        let schema = Schema([StorageProduct.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            self.sharedModelContainer = container
+            
+            let context = container.mainContext
+            let dataStorage = LocalStorageService(context: context)
+            let viewModel = ProductsViewModel(dataStorage: dataStorage, apiClient: MoyaClient())
+            let monitor = NetworkMonitor.shared
+            
+            _viewModel = StateObject(wrappedValue: viewModel)
+            _networkMonitor = StateObject(wrappedValue: monitor)
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }()
+    }
     
-    @StateObject private var viewModel: ProductsViewModel = ProductsViewModel(apiClient: MoyaClient())
-    @State private var showSpinner: Bool = false
+    private static func resetStorageIfNeeded() {
+        let fileManager = FileManager.default
+
+        let baseURL = FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            .first!
+
+        let storeURL = baseURL.appendingPathComponent("default.store")
+
+        if fileManager.fileExists(atPath: storeURL.path) {
+            do {
+                try fileManager.removeItem(at: storeURL)
+                print("SwiftData cleaned: \(storeURL.path)")
+            } catch {
+                print(error)
+            }
+        } else {
+            print(storeURL.path)
+        }
+    }
     
     // MARK: - Root Scene
     
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                ProductsView(viewModel: viewModel)
-                    .modifier(LoadViewModifier(viewModel: viewModel, showSpinner: $showSpinner))
-            }
+            ProductsView(viewModel: viewModel, networkMonitor: networkMonitor)
+                .modifier(LoadViewModifier(viewModel: viewModel, networkMonitor: networkMonitor, showSpinner: $showSpinner))
         }
         .modelContainer(sharedModelContainer)
     }
     
     struct LoadViewModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
+        @ObservedObject var networkMonitor: NetworkMonitor
         @Binding var showSpinner: Bool
         
         func body(content: Content) -> some View {
-            content
             ZStack {
+                content
+                
                 if showSpinner {
                     SpinnerView()
                 }
             }
             .onAppear {
-                viewModel.loadFirstPage()
+                viewModel.loadStorageProducts()
             }
             .onReceive(viewModel.$isLoading) { isLoading in
                 showSpinner = isLoading
+            }
+            .onReceive(viewModel.$isStorageSaveInProgress) { isStorageSaveInProgress in
+                showSpinner = isStorageSaveInProgress
             }
         }
     }

@@ -17,7 +17,7 @@ protocol ProductApiClientProtocol: AnyObject {
     func createFile(_ data: Data) -> AnyPublisher<ImageFile, APIError>
     func createFileLink(_ fileId: String) -> AnyPublisher<ImageFileLink, APIError>
     func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
-    func deleteProduct(id: String) -> AnyPublisher<Void, APIError>
+    func deleteProduct(id: String) -> AnyPublisher<String, APIError>
 }
 
 class MoyaClient: ProductApiClientProtocol {
@@ -96,11 +96,14 @@ class MoyaClient: ProductApiClientProtocol {
     
     // API: - https://docs.stripe.com/api/products/delete
     
-    func deleteProduct(id: String) -> AnyPublisher<Void, APIError> {
+    func deleteProduct(id: String) -> AnyPublisher<String, APIError> {
         return self.provider
             .requestPublisher(.deleteProduct(id: id))
-            .map { _ in
-                return ()
+            .map{ $0.data }
+            .decode(type: DeletionProductResponse.self, decoder: JSONDecoder())
+            .tryMap { resp in
+                guard resp.deleted else { throw APIError.deleteFailed }
+                return resp.id
             }
             .mapError { APIError.from($0) }
             .eraseToAnyPublisher()

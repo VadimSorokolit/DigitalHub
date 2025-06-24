@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Product: Decodable, Identifiable {
+struct Product: Codable, Identifiable {
     var name: String
     var brandName: String?
     var imageURL: String?
@@ -24,6 +24,24 @@ struct Product: Decodable, Identifiable {
         self.name = ""
         self.id = UUID().uuidString
         self.isFavorite = false
+    }
+    
+    init(
+        name: String,
+        brandName: String? = nil,
+        imageURL: String? = nil,
+        id: String = UUID().uuidString,
+        isFavorite: Bool = false,
+        price: String? = nil,
+        discount: String? = nil
+    ) {
+        self.name = name
+        self.brandName = brandName
+        self.imageURL = imageURL
+        self.id = id
+        self.isFavorite = isFavorite
+        self.price = price
+        self.discount = discount
     }
     
     enum CodingKeys: String, CodingKey {
@@ -45,6 +63,11 @@ struct ProductList: Decodable {
         case products = "data"
         case hasMore = "has_more"
     }
+}
+
+struct DeletionProductResponse: Decodable {
+    let id: String
+    let deleted: Bool
 }
 
 struct ImageFile: Decodable {

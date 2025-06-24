@@ -110,15 +110,12 @@ struct FilteredProductsView: View {
                     if let section = viewModel.section(withId: sectionId) {
                         ForEach(section.products) { product in
                             SwipeCell(onDelete: {
-                                viewModel.deleteProduct(id: product.id) },
+                                viewModel.updateStorageProductStatus(product, newState: .deleted) },
                                       content: {
                                 CellView(
                                     product: product,
                                     onLikeToggle: {
-                                        viewModel.updateProductStatus(
-                                            id: product.id,
-                                            isFavourite: !product.isFavorite
-                                        )
+                                        viewModel.updateStorageProductStatus(product, newState: .updated)
                                     }
                                 )
                             })
@@ -171,7 +168,6 @@ struct FilteredProductsView: View {
                                     let dy = value.translation.height
                                     if abs(dx) > abs(dy), dx < 0.0 {
                                         state = dx
-                                        print(offsetX, dragX, totalOffset, state)
                                     }
                                 }
                                 .onEnded { value in

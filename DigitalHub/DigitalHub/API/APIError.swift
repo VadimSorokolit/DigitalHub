@@ -17,7 +17,11 @@ enum APIError: LocalizedError {
     case emptyProductName
     case serverStatusCode(_ code: Int)
     case invalidURL
+    case storage(Error)
     case unknown
+    case deleteFailed
+    case notFound
+    case createProductFailed
     
     var errorDescription: String? {
         switch self {
@@ -35,6 +39,14 @@ enum APIError: LocalizedError {
                 return "An unknown error occurred"
             case .emptyProductName:
                 return "Error: Product name cannot be empty"
+            case .storage(let error):
+                return "Storage error: \(error.localizedDescription)"
+            case .notFound:
+                return "Error: Product not found"
+            case .createProductFailed:
+                return "Error: Failed to create product"
+            case .deleteFailed:
+                return "Error: Failed to delete product"
         }
     }
     

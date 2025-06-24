@@ -20,7 +20,8 @@ struct AddProductView: View {
     // MARK: - Properties
     
     @ObservedObject var viewModel: ProductsViewModel
-    @State var product = Product()
+    @State var product = StorageProduct()
+    @ObservedObject var networMonitor: NetworkMonitor
     @State private var producName: String = ""
     @State private var brandName: String? = nil
     @State private var imageURL: String? = nil
@@ -41,7 +42,7 @@ struct AddProductView: View {
                     ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe)
                 }
                 
-                AddProductButtonView(viewModel: viewModel, pickedImage: $pickedImage, product: $product, didSwipe: $didSwipe)
+                AddProductButtonView(viewModel: viewModel, networKMonitor: networMonitor, pickedImage: $pickedImage, product: $product, didSwipe: $didSwipe)
             }
         }
         .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe))
@@ -375,8 +376,9 @@ struct AddProductView: View {
     
     private struct AddProductButtonView: View {
         @ObservedObject var viewModel: ProductsViewModel
+        @ObservedObject var networKMonitor: NetworkMonitor
         @Binding var pickedImage: UIImage?
-        @Binding var product: Product
+        @Binding var product: StorageProduct
         @Binding var didSwipe: Bool
         
         var body: some View {
@@ -391,14 +393,14 @@ struct AddProductView: View {
                     .font(.custom(GlobalConstants.semiBoldFont, size: 26.0))
             }
             .onTapGesture {
-                didSwipe = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + Constants.animationDuration) {
-                    didSwipe = false
-                    if product.isValid {
+                if product.isValid {
+                    didSwipe = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + Constants.animationDuration) {
+                        didSwipe = false
                         if let imageData = pickedImage?.jpegData(compressionQuality: 1.0) {
                             viewModel.createFile(imageData)
                         } else {
-                            viewModel.createProduct(product)
+                            viewModel.createStorageProduct(product)
                         }
                     }
                 }
@@ -423,7 +425,7 @@ struct AddProductView: View {
     
     struct ProductFieldsModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
-        @Binding var product: Product
+        @Binding var product: StorageProduct
         @Binding var producName: String
         @Binding var brandName: String?
         @Binding var imageURL: String?
@@ -445,6 +447,7 @@ struct AddProductView: View {
                         price = nil
                         discount = nil
                         pickedImage = nil
+                        product = StorageProduct()
                     }
                 }
                 .onChange(of: producName) {
@@ -453,7 +456,7 @@ struct AddProductView: View {
                 .onReceive(viewModel.$fileLinkURL) { newURL in
                     guard let url = newURL else { return }
                     product.imageURL = url
-                    viewModel.createProduct(product)
+                    viewModel.createStorageProduct(product)
                 }
                 .onChange(of: isFavorite) {
                     product.isFavorite = isFavorite
@@ -475,11 +478,4 @@ struct AddProductView: View {
         }
         
     }
-}
-
-#Preview {
-    let viewModel = ProductsViewModel(apiClient: MoyaClient())
-    let product = Product()
-    
-    AddProductView(viewModel: viewModel, product: product)
 }

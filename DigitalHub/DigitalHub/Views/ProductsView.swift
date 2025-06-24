@@ -42,6 +42,7 @@ struct ProductsView: View {
     // MARK: - Properties
     
     @ObservedObject var viewModel: ProductsViewModel
+    @ObservedObject var networkMonitor: NetworkMonitor
     @State private var path: NavigationPath = NavigationPath()
     @State private var searchQuery: String = ""
     @State private var canShowAlert: Bool = false
@@ -57,12 +58,12 @@ struct ProductsView: View {
                     if searchQuery.isEmpty {
                         ProductsListView(viewModel: viewModel, path: $path, canShowAlert: $canShowAlert, isShowingAlert: $isShowingAlert)
                     } else {
-                        FilteredListView(viewModel: viewModel)
+                        //                        FilteredListView(viewModel: viewModel)
                     }
                 }
             }
             .modifier(ScreenBackgroundModifier())
-            .modifier(SectionNavigationModifier(viewModel: viewModel))
+            .modifier(SectionNavigationModifier(viewModel: viewModel, networMonitor: networkMonitor))
             .modifier(LoadViewModifier(viewModel: viewModel, searchQuery: $searchQuery))
             .modifier(AlertViewModifier(isShowingAlert: $isShowingAlert, canShowAlert: $canShowAlert))
         }
@@ -259,12 +260,9 @@ struct ProductsView: View {
                         if let section = viewModel.section(withId: sectionId) {
                             HStack(alignment: .top, spacing: 12.0) {
                                 ForEach(Array(section.products.enumerated()), id: \.element.id) { index, product in
-                                    CellView(product: product) {
-                                        viewModel.updateProductStatus(
-                                            id: product.id,
-                                            isFavourite: !product.isFavorite
-                                        )
-                                    }
+                                    CellView(product: product, onLikeToogle: {
+                                        viewModel.updateStorageProductStatus(product, newState: .updated)
+                                    })
                                     .background(
                                         Group {
                                             if index == section.products.count - 1 {
@@ -311,7 +309,7 @@ struct ProductsView: View {
                 }
                 
                 private struct CellView: View {
-                    let product: Product
+                    let product: StorageProduct
                     let onLikeToogle: () -> Void
                     
                     var body: some View {
@@ -329,7 +327,7 @@ struct ProductsView: View {
                     }
                     
                     private struct ImageView: View {
-                        let product: Product
+                        let product: StorageProduct
                         
                         var body: some View {
                             ZStack {
@@ -362,7 +360,7 @@ struct ProductsView: View {
                     }
                     
                     private struct InfoView: View {
-                        let product: Product
+                        let product: StorageProduct
                         
                         var body: some View {
                             VStack(alignment: .leading, spacing: 4.0) {
@@ -382,7 +380,7 @@ struct ProductsView: View {
                     }
                     
                     private struct PriceView: View {
-                        let product: Product
+                        let product: StorageProduct
                         let onLikeToogle: () -> Void
                         
                         var body: some View {
@@ -501,7 +499,8 @@ struct ProductsView: View {
                             VStack(spacing: 6.0) {
                                 ForEach(Array(section.products.enumerated()), id: \.element.id) { index, product in
                                     CellView(product: product, onLikeToggle: {
-                                        viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)})
+                                        viewModel.updateStorageProductStatus(product, newState: .updated)
+                                    })
                                     .background(
                                         Group {
                                             if index == section.products.count - 1 {
@@ -551,15 +550,15 @@ struct ProductsView: View {
         @ObservedObject var viewModel: ProductsViewModel
         
         var body: some View {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 6.0) {
-                    ForEach(viewModel.searchResults, id: \.id) { product in
-                        CellView(product: product, searchQuery: viewModel.searchQuery, onLikeToggle: {
-                            viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
-                        })
-                    }
-                }
-            }
+            //            ScrollView(.vertical, showsIndicators: false) {
+            //                VStack(spacing: 6.0) {
+            //                    ForEach(viewModel.searchResults, id: \.id) { product in
+            //                        CellView(product: product, searchQuery: viewModel.searchQuery, onLikeToggle: {
+            //                            viewModel.updateProductStatus(id: product.id, isFavourite: !product.isFavorite)
+            //                        })
+            //                    }
+            //                }
+            //            }
         }
         
     }
@@ -590,6 +589,7 @@ struct ProductsView: View {
     
     private struct SectionNavigationModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
+        @ObservedObject var networMonitor: NetworkMonitor
         
         func body(content: Content) -> some View {
             content
@@ -597,7 +597,7 @@ struct ProductsView: View {
                     FilteredProductsView(viewModel: viewModel, sectionId: id)
                 }
                 .navigationDestination(for: String.self) { _ in
-                    AddProductView(viewModel: viewModel)
+                    AddProductView(viewModel: viewModel, networMonitor: networMonitor)
                 }
         }
     }

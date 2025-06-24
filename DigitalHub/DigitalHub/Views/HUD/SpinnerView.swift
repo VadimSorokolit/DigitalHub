@@ -22,9 +22,7 @@ struct SpinnerView: View {
                 .ignoresSafeArea()
             
             ProgressView()
-                .progressViewStyle(
-                    CircularProgressViewStyle(tint: tintColor)
-                )
+                .progressViewStyle(CircularProgressViewStyle(tint: tintColor))
                 .scaleEffect(2.0)
                 .frame(width: 40.0, height: 40.0)
         }

@@ -15,7 +15,7 @@ struct ProductsSection: Hashable, Equatable, Identifiable {
     let subtitle: String
     let buttonTitle: String
     let buttonImageName: String
-    var products: [Product]
+    var products: [StorageProduct]
     
     enum SectionType: String {
         case favorite
@@ -51,8 +51,10 @@ class ProductsViewModel: ObservableObject {
     
     @Published var sections: [ProductsSection] = []
     @Published var searchResults: [Product] = []
+    @Published var storageProducts: [StorageProduct] = []
     @Published var searchQuery: String = ""
     @Published var errorMessage: String? = nil
+    @Published var isStorageSaveInProgress: Bool = false
     @Published var isLoading: Bool = false
     @Published var isPagination: Bool = false
     @Published var fileLinkURL: String? = nil
@@ -60,15 +62,17 @@ class ProductsViewModel: ObservableObject {
     // MARK: - Properties. Private
     
     private(set) var hasMoreData: Bool = false
-    private let sectionConstants = SectionConstants()
+    private let sectionConstants: ProductsViewModel.SectionConstants = SectionConstants()
     private var lastProductId: String?
     private let apiClient: ProductApiClientProtocol
+    private let dataStorage: ProductApiStorageProtocol
     private var subscriptions: Set<AnyCancellable> = Set<AnyCancellable>()
     
     // MARK: - Initializer
     
-    init(apiClient: ProductApiClientProtocol) {
+    init(dataStorage: ProductApiStorageProtocol, apiClient: ProductApiClientProtocol) {
         self.apiClient = apiClient
+        self.dataStorage = dataStorage
         
         self.setupPublishers()
     }
@@ -78,6 +82,7 @@ class ProductsViewModel: ObservableObject {
     private func handleCompletion(_ completion: Subscribers.Completion<APIError>) {
         self.isLoading = false
         self.isPagination = false
+        self.isStorageSaveInProgress = false
         
         if case let .failure(error) = completion {
             self.errorMessage = error.errorDescription
@@ -91,16 +96,26 @@ class ProductsViewModel: ObservableObject {
                 self?.searchProducts(query: query)
             }
             .store(in: &subscriptions)
+        
+        NetworkMonitor.shared.$isConnected
+            .prepend(NetworkMonitor.shared.isConnected)
+            .removeDuplicates()
+            .sink { isConnected in
+                if isConnected {
+                    self.syncAllPendingProducts()
+                }
+            }
+            .store(in: &subscriptions)
     }
     
-    private func createSections(with products: [Product]) {
+    private func createSections(with products: [StorageProduct]) {
         let favoriteSection = ProductsSection(
             type: .favorite,
             title: ProductsSection.SectionType.favorite.rawValue.capitalized,
             subtitle: SectionConstants.Subtitles.favorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
-            products: products.filter { $0.isFavorite }
+            products: products.filter { $0.isFavorite && $0.state != ProductState.deleted.rawValue && $0.state != ProductState.deletedOffline.rawValue }
         )
         
         let unfavoriteSection = ProductsSection(
@@ -109,19 +124,13 @@ class ProductsViewModel: ObservableObject {
             subtitle: SectionConstants.Subtitles.unfavorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
-            products: products.filter { !$0.isFavorite }
+            products: products.filter { !$0.isFavorite && $0.state != ProductState.deleted.rawValue && $0.state != ProductState.deletedOffline.rawValue }
         )
         
         self.sections = [favoriteSection, unfavoriteSection]
     }
     
-    private func addProducts(_ products: [Product]) {
-        for product in products {
-            self.addProduct(product)
-        }
-    }
-    
-    private func addProduct(_ product: Product) {
+    private func addProduct(_ product: StorageProduct) {
         let type: ProductsSection.SectionType = product.isFavorite ? .favorite : .unfavorite
 
         if let index = self.sections.firstIndex(where: { $0.type == type }) {
@@ -129,8 +138,12 @@ class ProductsViewModel: ObservableObject {
         }
     }
     
-    private func updateProduct(_ product: Product) {
+    private func updateProduct(_ product: StorageProduct) {
         self.removeProduct(id: product.id)
+        
+        guard product.state != ProductState.deleted.rawValue,
+              product.state != ProductState.deletedOffline.rawValue else { return }
+        
         self.addProduct(product)
     }
     
@@ -148,7 +161,146 @@ class ProductsViewModel: ObservableObject {
         }
     }
     
+    private func convert(_ storage: StorageProduct) -> Product {
+        Product(
+            name: storage.name,
+            brandName: storage.brandName,
+            imageURL: storage.imageURL,
+            id: storage.id,
+            isFavorite: storage.isFavorite,
+            price: storage.price,
+            discount: storage.discount
+        )
+    }
+    
     // MARK: - Methods. Public
+    
+    func loadStorageProducts() {
+        self.isLoading = true
+        
+        self.dataStorage.fetchAll()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { products in
+                self.storageProducts = products
+                self.createSections(with: products)
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func createStorageProduct(_ product: StorageProduct) {
+        isStorageSaveInProgress = true
+        
+        dataStorage.create(product)
+            .handleEvents(receiveOutput: { created in
+                self.addProduct(created)
+            })
+            .flatMap { [weak self] _ in
+                self?.dataStorage.fetchAll()
+                ?? Empty(completeImmediately: true).eraseToAnyPublisher()
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] products in
+                self?.storageProducts = products
+                if NetworkMonitor.shared.isConnected {
+                    self?.syncAllPendingProducts()
+                }
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func updateStorageProductStatus(_ product: StorageProduct, newState: ProductState) {
+        self.isStorageSaveInProgress = true
+        
+        let isOffline = !NetworkMonitor.shared.isConnected
+        
+        let finalState: ProductState = {
+            if product.state == ProductState.created.rawValue, isOffline, newState != .deleted {
+                return ProductState(rawValue: product.state) ?? .created
+            } else if product.state == ProductState.created.rawValue, isOffline, newState == .deleted {
+                return ProductState.deletedOffline
+            }
+            else {
+                return newState
+            }
+        }()
+        
+        self.dataStorage.update(ids: [product.id], newState: finalState, isFavorite: product.isFavorite)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] products in
+                self?.updateProduct(product)
+                if NetworkMonitor.shared.isConnected {
+                    self?.syncAllPendingProducts()
+                }
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func updateSectionProductsStatus(sectionId: UUID) {
+        guard let section = section(withId: sectionId), !section.products.isEmpty else { return }
+        
+        let isFavorite = section.products.first?.isFavorite
+        
+        let createdIDs = section.products
+            .filter { $0.state == ProductState.created.rawValue }
+            .map { $0.id }
+        
+        let updatedIDs = section.products
+            .filter { $0.state != ProductState.created.rawValue }
+            .map { $0.id }
+        
+        var publishers: [AnyPublisher<[StorageProduct], APIError>] = []
+        
+        if !createdIDs.isEmpty {
+            let createdPublisher = dataStorage.update(ids: createdIDs, newState: .created, isFavorite: isFavorite)
+            publishers.append(createdPublisher)
+        }
+        
+        if !updatedIDs.isEmpty {
+            let updatedPublisher = dataStorage.update(ids: updatedIDs, newState: .updated, isFavorite: isFavorite)
+            publishers.append(updatedPublisher)
+        }
+        
+        guard !publishers.isEmpty else { return }
+        
+        Publishers.MergeMany(publishers)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { [weak self] products in
+                products.forEach { self?.updateProduct($0) }
+                if NetworkMonitor.shared.isConnected {
+                    self?.syncAllPendingProducts()
+                }
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func syncAllPendingProducts() {
+        let created = self.storageProducts
+            .filter { $0.state == ProductState.created.rawValue }
+            .map { convert($0) }
+        let updated = self.storageProducts
+            .filter { $0.state == ProductState.updated.rawValue }
+            .map { convert($0) }
+        let deleted = self.storageProducts
+            .filter { $0.state == ProductState.deleted.rawValue }
+            .map { convert($0) }
+        if !created.isEmpty {
+            self.createProducts(created)
+        }
+        if !updated.isEmpty {
+            self.updateProductsStatus(updated)
+        }
+        if !deleted.isEmpty {
+            self.deleteProducts(deleted)
+        }
+    }
     
     func loadFirstPage() {
         self.isLoading = true
@@ -161,7 +313,7 @@ class ProductsViewModel: ObservableObject {
                 guard let self else { return }
                 
                 let products = productList.products
-                self.createSections(with: products)
+                // self.createSections(with: products)
                 self.lastProductId = products.last?.id
                 
                 if self.hasMoreData != productList.hasMore {
@@ -182,7 +334,7 @@ class ProductsViewModel: ObservableObject {
                 guard let self else { return }
                 
                 let products = productList.products
-                self.addProducts(products)
+                // self.addProducts(products)
                 
                 self.lastProductId = products.last?.id
                 
@@ -219,17 +371,119 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
-    func createProduct(_ newProduct: Product) {
+    func createProducts(_ newProducts: [Product]) {
+        let delayPerRequest = 1.0
         self.isLoading = true
         
-        self.apiClient.createProduct(newProduct)
+        let sequence = Publishers.Sequence(sequence: newProducts)
+            .flatMap(maxPublishers: .max(25)) { product in
+                self.apiClient.createProduct(product)
+                    .receive(on: DispatchQueue.main)
+                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
+                    .flatMap { [weak self] createdProduct -> AnyPublisher<[StorageProduct], Never> in
+                        guard let self else { return Just([]).eraseToAnyPublisher() }
+                        
+                        return self.dataStorage.update(ids: [createdProduct.id], newState: .synced)
+                            .handleEvents(receiveOutput: { _ in })
+                            .catch { error in
+                                Just([StorageProduct]()).eraseToAnyPublisher()
+                            }
+                            .eraseToAnyPublisher()
+                    }
+            }
+        
+        sequence
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { _ in }
+            .store(in: &self.subscriptions)
+    }
+    
+    func updateProductsStatus(_ products: [Product]) {
+        let delayPerRequest = 1.0
+        self.isLoading = true
+    
+        let sequence = Publishers.Sequence(sequence: products)
+            .flatMap(maxPublishers: .max(25)) { product in
+                self.apiClient.updateProductStatus(id: product.id, isFavourite: product.isFavorite)
+                    .receive(on: DispatchQueue.main)
+                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
+                    .flatMap { [weak self] updateProduct -> AnyPublisher<[StorageProduct], Never> in
+                        guard let self else { return Just([]).eraseToAnyPublisher() }
+                        
+                        return self.dataStorage.update(ids: [updateProduct.id], newState: .synced)
+                            .handleEvents(receiveOutput: { updated in
+                            })
+                            .catch { error in
+                                Just([StorageProduct]()).eraseToAnyPublisher()
+                            }
+                            .eraseToAnyPublisher()
+                    }
+            }
+        
+        sequence
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { _ in }
+            .store(in: &self.subscriptions)
+    }
+    
+    func deleteProducts(_ products: [Product]) {
+        let delayPerRequest: TimeInterval = 1.0
+        isLoading = true
+        
+        let sequence = Publishers.Sequence(sequence: products)
+            .flatMap(maxPublishers: .max(25)) { product in
+                self.apiClient.deleteProduct(id: product.id)
+                    .receive(on: DispatchQueue.global())
+                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.global())
+                    .flatMap { [weak self] productId in
+                        guard let self = self else {
+                            return Fail<String, APIError>(error: .deleteFailed)
+                                .eraseToAnyPublisher()
+                        }
+                        return self.dataStorage
+                            .delete(id: productId)
+                            .handleEvents(receiveOutput: { id in
+                                self.removeProduct(id: id)
+                            })
+                            .eraseToAnyPublisher()
+                    }
+            }
+            .receive(on: DispatchQueue.main)
+        
+        sequence
+            .sink { [weak self] completion in
+                self?.handleCompletion(completion)
+            } receiveValue: { _ in
+            }
+            .store(in: &subscriptions)
+    }
+    
+    func deleteOfflineProducts() {
+        self.isLoading = true
+        
+        let products = self.storageProducts.filter { $0.state == ProductState.deletedOffline.rawValue }
+        
+        guard !products.isEmpty else {
+            self.isLoading = false
+            return
+        }
+        
+        let publishers = products.map { product in
+            self.dataStorage.delete(id: product.id)
+                .handleEvents(receiveOutput: { [weak self] id in
+                    self?.removeProduct(id: id)
+                })
+                .eraseToAnyPublisher()
+        }
+        
+        Publishers.MergeMany(publishers)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
-            } receiveValue: { [weak self] product in
-                self?.addProduct(product)
-            }
-            .store(in: &self.subscriptions)
+            } receiveValue: { _ in }
+            .store(in: &subscriptions)
     }
     
     func createFile(_ file: Data) {
@@ -253,27 +507,27 @@ class ProductsViewModel: ObservableObject {
         return section
     }
     
-    func updateSectionProductsStatus(sectionId: UUID) {
-        guard let section = section(withId: sectionId) else { return }
-        
-        let makeFavorite = !section.products.first!.isFavorite
-        let delayPerRequest = 1.0
-        self.isLoading = true
-        
-        let sequence = Publishers.Sequence(sequence: section.products)
-            .flatMap(maxPublishers: .max(25)) { product in
-                self.apiClient.updateProductStatus(id: product.id, isFavourite: makeFavorite)
-                    .receive(on: DispatchQueue.main)
-                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
-            }
-        sequence
-            .sink { [weak self] completion in
-                self?.handleCompletion(completion)
-            } receiveValue: { updatedProduct in
-                self.updateProduct(updatedProduct)
-            }
-            .store(in: &subscriptions)
-    }
+//    func updateSectionProductsStatus(sectionId: UUID) {
+//        guard let section = section(withId: sectionId) else { return }
+//        
+//        let makeFavorite = !section.products.first!.isFavorite
+//        let delayPerRequest = 1.0
+//        self.isLoading = true
+//        
+//        let sequence = Publishers.Sequence(sequence: section.products)
+//            .flatMap(maxPublishers: .max(25)) { product in
+//                self.apiClient.updateProductStatus(id: product.id, isFavourite: makeFavorite)
+//                    .receive(on: DispatchQueue.main)
+//                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
+//            }
+//        sequence
+//            .sink { [weak self] completion in
+//                self?.handleCompletion(completion)
+//            } receiveValue: { updatedProduct in
+////                self.updateProduct(updatedProduct)
+//            }
+//            .store(in: &subscriptions)
+//    }
     
     func updateProductStatus(id: String, isFavourite: Bool)  {
         self.isLoading = true
@@ -283,23 +537,24 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] updatedProduct in
-                self?.updateProduct(updatedProduct)
+//                 self?.updateProduct(updatedProduct)
                 self?.updateSearchResults(updatedProduct)
             }
             .store(in: &self.subscriptions)
     }
     
-    func deleteProduct(id: String) {
-        self.isLoading = true
-        
-        self.apiClient.deleteProduct(id: id)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.handleCompletion(completion)
-            } receiveValue: { [weak self] in
-                self?.removeProduct(id: id)
-            }
-            .store(in: &self.subscriptions)
-    }
+//    func deleteProduct(id: String) {
+//        self.isLoading = true
+//        
+//        self.apiClient.deleteProduct(id: id)
+//            .receive(on: DispatchQueue.main)
+//            .sink { [weak self] completion in
+//                self?.handleCompletion(completion)
+//            } receiveValue: { [weak self] productId in
+//                print(productId)
+//                self?.removeProduct(id: productId)
+//            }
+//            .store(in: &self.subscriptions)
+//    }
     
 }
