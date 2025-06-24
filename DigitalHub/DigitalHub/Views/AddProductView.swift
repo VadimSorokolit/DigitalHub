@@ -31,6 +31,8 @@ struct AddProductView: View {
     @State private var pickerItem: PhotosPickerItem? = nil
     @State private var pickedImage: UIImage?
     @State private var didSwipe = false
+    @State private var copyProduct = StorageProduct()
+    @State private var showNoInternetAlert = false
     
     // MARK: - Main body
     
@@ -39,13 +41,13 @@ struct AddProductView: View {
             VStack(spacing: 150.0) {
                 VStack(spacing: 36.0) {
                     HeaderView(viewModel: viewModel)
-                    ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe)
+                    ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, showNoInternetAlert: $showNoInternetAlert)
                 }
                 
                 AddProductButtonView(viewModel: viewModel, networKMonitor: networMonitor, pickedImage: $pickedImage, product: $product, didSwipe: $didSwipe)
             }
         }
-        .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe))
+        .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, copyProduct: $copyProduct))
         .modifier(ScreenBackgroundModifier())
     }
     
@@ -88,6 +90,7 @@ struct AddProductView: View {
         @Binding var discount: String?
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
+        @Binding var showNoInternetAlert: Bool
         
         init() {
             _producName = .constant("")
@@ -98,6 +101,7 @@ struct AddProductView: View {
             _discount = .constant(nil)
             _pickerItem = .constant(nil)
             _pickedImage = .constant(nil)
+            _showNoInternetAlert = .constant(false)
         }
         
         init(
@@ -108,7 +112,8 @@ struct AddProductView: View {
             price: Binding<String?>,
             discount: Binding<String?>,
             pickerItem: Binding<PhotosPickerItem?>,
-            pickedImage: Binding<UIImage?>
+            pickedImage: Binding<UIImage?>,
+            showNoInternetAlert: Binding<Bool>
         ) {
             _producName = producName
             _brandName = brandName
@@ -118,11 +123,12 @@ struct AddProductView: View {
             _discount = discount
             _pickerItem = pickerItem
             _pickedImage = pickedImage
+            _showNoInternetAlert = showNoInternetAlert
         }
         
         var body: some View {
             VStack(spacing: 29.0) {
-                ImageView(imageURL: $imageURL, pickerItem: $pickerItem, pickedImage: $pickedImage)
+                ImageView(imageURL: $imageURL, pickerItem: $pickerItem, pickedImage: $pickedImage, showNoInternetAlert: $showNoInternetAlert)
                 InfoView(producName: $producName, brandName: $brandName, imageURLString: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount)
             }
             .frame(width: 290.0)
@@ -135,6 +141,7 @@ struct AddProductView: View {
             @Binding var imageURL: String?
             @Binding var pickerItem: PhotosPickerItem?
             @Binding var pickedImage: UIImage?
+            @Binding var showNoInternetAlert: Bool
             private let width: CGFloat = 290.0
             private let height: CGFloat = 234.0
             private let cornerRadius: CGFloat = 18.0
@@ -144,26 +151,40 @@ struct AddProductView: View {
                     Rectangle()
                         .fill(Color(hex: 0xECECEC))
                         .frame(width: width, height: height)
-                        .cornerRadius(cornerRadius, corners: [.topLeft, .topRight])
-                    
+                        .cornerRadius(cornerRadius)
+
                     if let image = pickedImage {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
                             .frame(width: width, height: height)
                             .clipped()
-                            .cornerRadius(cornerRadius, corners: [.topLeft, .topRight])
+                            .cornerRadius(cornerRadius)
                     } else {
                         Image(systemName: GlobalConstants.placeholderImageName)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: width / 2.0, height: height / 2.0)
-                            .foregroundColor(Color(hex: 0xD2D4D8))
+                            .frame(width: width / 2, height: height / 2)
+                            .foregroundColor(.gray)
                     }
-                    
-                    PhotosPicker(selection: $pickerItem, matching: .images) {
-                        Color.clear.frame(width: width, height: height)
+
+                    if NetworkMonitor.shared.isConnected {
+                        PhotosPicker(selection: $pickerItem, matching: .images) {
+                            Color.clear.frame(width: width, height: height)
+                        }
+                    } else {
+                        Color.clear
+                            .frame(width: width, height: height)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                showNoInternetAlert = true
+                            }
                     }
+                }
+                .alert("No Internet Connection", isPresented: $showNoInternetAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text("You need to be connected to the internet to pick an image.")
                 }
             }
             
@@ -350,6 +371,7 @@ struct AddProductView: View {
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
         @Binding var didSwipe: Bool
+        @Binding var showNoInternetAlert: Bool
         
         var body: some View {
             ZStack {
@@ -366,6 +388,7 @@ struct AddProductView: View {
                     discount: $discount,
                     pickerItem: $pickerItem,
                     pickedImage: $pickedImage,
+                    showNoInternetAlert: $showNoInternetAlert
                 )
                 .rotationEffect(.degrees(didSwipe ? 20.0 : 0.0), anchor: UnitPoint(x: 2.0, y: 5.0))
                 .animation(didSwipe ? Animation.easeInOut(duration: Constants.animationDuration) : nil, value: didSwipe)
@@ -435,11 +458,13 @@ struct AddProductView: View {
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
         @Binding var didSwipe: Bool
+        @Binding var copyProduct: StorageProduct
         
         func body(content: Content) -> some View {
             content
                 .onChange(of: didSwipe) {
                     if !didSwipe {
+                        copyProduct = product.copy()
                         producName = ""
                         brandName = nil
                         imageURL = nil
@@ -455,8 +480,8 @@ struct AddProductView: View {
                 }
                 .onReceive(viewModel.$fileLinkURL) { newURL in
                     guard let url = newURL else { return }
-                    product.imageURL = url
-                    viewModel.createStorageProduct(product)
+                    copyProduct.imageURL = url
+                    viewModel.createStorageProduct(copyProduct)
                 }
                 .onChange(of: isFavorite) {
                     product.isFavorite = isFavorite
@@ -478,4 +503,7 @@ struct AddProductView: View {
         }
         
     }
+    
 }
+
+
