@@ -146,7 +146,7 @@ struct CellView: View {
                     Image(product.isFavorite ? GlobalConstants.fillHeartImageName : GlobalConstants.emptyHeartImageName)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 20.0, height: 20.0)
+                        .frame(width: 20.0, height: 16.0)
                 }
             }
             

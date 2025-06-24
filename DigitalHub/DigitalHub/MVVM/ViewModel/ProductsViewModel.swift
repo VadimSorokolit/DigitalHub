@@ -285,6 +285,8 @@ class ProductsViewModel: ObservableObject {
         let deleted = self.storageProducts
             .filter { $0.state == ProductState.deleted.rawValue }
             .map { convert($0) }
+        let deletedOffline = self.storageProducts
+            .filter { $0.state == ProductState.deletedOffline.rawValue }
 
         if !created.isEmpty {
             self.createProducts(created)
@@ -294,6 +296,9 @@ class ProductsViewModel: ObservableObject {
         }
         if !deleted.isEmpty {
             self.deleteProducts(deleted)
+        }
+        if !deletedOffline.isEmpty {
+            self.deleteOfflineProducts()
         }
     }
     

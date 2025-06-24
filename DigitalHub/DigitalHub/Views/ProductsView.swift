@@ -417,7 +417,8 @@ struct ProductsView: View {
                                     onLikeToogle()
                                 }) { Image(GlobalConstants.fillHeartImageName)
                                         .resizable()
-                                        .frame(width: 20.0, height: 20.0)
+                                        .scaledToFit()
+                                        .frame(width: 20.0, height: 16.0)
                                 }
                             }
                             .frame(width: Constants.favoriteProductImageWidth)

@@ -83,6 +83,7 @@ struct FilteredProductsView: View {
                                     : GlobalConstants.emptyHeartImageName
                                 )
                                 .resizable()
+                                .scaledToFit()
                                 .frame(width: 20.0, height: 16.0)
                             }
                             .disabled(section.products.isEmpty)
