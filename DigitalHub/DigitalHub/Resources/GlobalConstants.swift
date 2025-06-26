@@ -10,8 +10,8 @@ struct GlobalConstants {
     static let mediumFont: String = "Inter-Medium"
     static let regularFont: String = "Inter-Regular"
     static let backButtonImageName: String = "backButtonImage"
-    static let fillHeartImageName: String = "redHeart"
-    static let emptyHeartImageName: String = "grayHeart"
+    static let fillHeartImageName: String = "smallRedHeart"
+    static let emptyHeartImageName: String = "smallGrayHeart"
     static let placeholderImageName: String = "photo"
     static let discountLabelColor: Int = 0xEB4132
     static let priceLabelColor: Int = 0x32B768

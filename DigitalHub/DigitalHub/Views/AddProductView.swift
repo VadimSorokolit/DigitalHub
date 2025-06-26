@@ -15,6 +15,8 @@ struct AddProductView: View {
     private struct Constants {
         static let headerViewTitle: String = "Add Product"
         static let animationDuration: Double = 0.35
+        static let fillHeartImageName: String = "largeRedHeart"
+        static let emptyHeartImageName: String = "largeGrayHeart"
     }
     
     // MARK: - Properties
@@ -268,7 +270,7 @@ struct AddProductView: View {
                         .frame(width: 52.0, height: 21.0)
                         .cornerRadius(7.0)
                     
-                    CustomTextField(optionalText: $discount, placeholder: "Discount", leadinPadding: 4.0, width: 34.0, height: 12.0, fontSize: 4.0, cornerRadius: 3.0)
+                    CustomTextField(optionalText: $discount, placeholder: "Tax", leadinPadding: 4.0, width: 34.0, height: 12.0, fontSize: 10.0, cornerRadius: 3.0)
                 }
                 .offset(x: 23.0, y: -7.0)
             }
@@ -282,9 +284,10 @@ struct AddProductView: View {
                 Button(action: {
                     isFavorite.toggle()
                 }) {
-                    Image(isFavorite ? GlobalConstants.fillHeartImageName : GlobalConstants.emptyHeartImageName)
+                    Image(isFavorite ? Constants.fillHeartImageName : Constants.emptyHeartImageName)
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
+                        .clipped()
                         .frame(width: 50.0, height: 45.0)
                 }
             }

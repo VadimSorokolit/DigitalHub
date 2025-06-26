@@ -62,12 +62,13 @@ struct CellView: View {
                 Group {
                     if let urlString = product.imageURL, !urlString.isEmpty, let url = URL(string: urlString) {
                         WebImage(url: url) { image in
-                            image.resizable()
+                            image
+                                .resizable()
+                                .scaledToFill()
                         } placeholder: {
                             ProgressView()
                         }
                         .frame(width: Constants.cellImageWidth, height: Constants.cellImageWidth)
-                        .clipped()
                         .cornerRadius(8.0)
                     }  else {
                         Image(systemName: GlobalConstants.placeholderImageName)

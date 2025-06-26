@@ -340,7 +340,8 @@ struct ProductsView: View {
                                 Group {
                                     if let urlString = product.imageURL, !urlString.isEmpty, let url = URL(string: urlString) {
                                         WebImage(url: url) { image in
-                                            image.resizable()
+                                            image
+                                                .resizable()
                                         } placeholder: {
                                             ProgressView()
                                         }

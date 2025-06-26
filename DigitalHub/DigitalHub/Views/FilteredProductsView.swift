@@ -18,6 +18,7 @@ struct FilteredProductsView: View {
     // MARK: - Properties
     
     @ObservedObject var viewModel: ProductsViewModel
+    @State private var openCellId: String? = nil
     @State private var isAllFavoriteSelected: Bool = false
     @State private var isShowAlert: Bool = false
     
@@ -35,6 +36,7 @@ struct FilteredProductsView: View {
                        isShowAlert: $isShowAlert,
                        sectionId: sectionId)
             ListView(viewModel: viewModel,
+                     openCellId: $openCellId,
                      sectionId: sectionId)
         }
         .modifier(ScreenBackgroundViewModifier())
@@ -69,14 +71,13 @@ struct FilteredProductsView: View {
                     Spacer()
                     
                     if let section = viewModel.section(withId: sectionId) {
-                        HStack(spacing: 6.0) {
-                            Text(section.type == .favorite ? "Remove" : "Add")
-                                .font(.custom(GlobalConstants.semiBoldFont, size: 10.0))
-                                .foregroundColor(Color(hex: 0x3C79E6))
-                            
-                            Button(action: {
-                                isShowAlert = true
-                            }) {
+                        Button(action: {
+                            isShowAlert = true
+                        }) {
+                            HStack(spacing: 6.0) {
+                                Text(section.type == .favorite ? "Remove" : "Add")
+                                    .font(.custom(GlobalConstants.semiBoldFont, size: 10.0))
+                                    .foregroundColor(Color(hex: 0x3C79E6))
                                 Image(
                                     isSelectedAll
                                     ? GlobalConstants.fillHeartImageName
@@ -103,6 +104,7 @@ struct FilteredProductsView: View {
     
     private struct ListView: View {
         @ObservedObject var viewModel: ProductsViewModel
+        @Binding var openCellId: String?
         let sectionId: UUID
         
         var body: some View {
@@ -110,7 +112,7 @@ struct FilteredProductsView: View {
                 VStack(spacing: 6.0) {
                     if let section = viewModel.section(withId: sectionId) {
                         ForEach(section.products) { product in
-                            SwipeCell(onDelete: {
+                            SwipeCell(openCellId: $openCellId, id: product.id, onDelete: {
                                 viewModel.updateStorageProductStatus(product, newState: .deleted) },
                                       content: {
                                 CellView(
@@ -127,9 +129,11 @@ struct FilteredProductsView: View {
         }
         
         private struct SwipeCell<Content: View>: View {
+            @Binding var openCellId: String?
             @State private var offsetX: CGFloat = 0.0
             @GestureState private var dragX: CGFloat = 0.0
             private let swipeButtonWidth: CGFloat = 66.0
+            let id: String
             let onDelete: () -> Void
             let content: () -> Content
             
@@ -146,9 +150,11 @@ struct FilteredProductsView: View {
                     
                     Button(action: {
                         onDelete()
+                        openCellId = nil
                     }) {
                         Rectangle()
                             .fill(Color(hex: 0xEB4132).opacity(bgOpacity))
+                            .animation(.easeInOut(duration: 0.25), value: bgOpacity)
                             .frame(width: 92.0)
                             .frame(maxHeight: .infinity)
                             .overlay(
@@ -162,6 +168,7 @@ struct FilteredProductsView: View {
                     
                     content()
                         .offset(x: totalOffset)
+                        .animation(.interactiveSpring(response: 0.35, dampingFraction: 0.75, blendDuration: 0.25), value: totalOffset)
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 5.0, coordinateSpace: .local)
                                 .updating($dragX) { value, state, _ in
@@ -179,12 +186,21 @@ struct FilteredProductsView: View {
                                     withAnimation(.easeOut) {
                                         if offsetX + dx < -swipeButtonWidth / 2.0 {
                                             offsetX = -swipeButtonWidth
+                                            openCellId = id
                                         } else {
                                             offsetX = 0.0
+                                            openCellId = nil
                                         }
                                     }
                                 }
                         )
+                        .onChange(of: openCellId) { oldValue, newValue in
+                            if newValue != id {
+                                withAnimation {
+                                    offsetX = 0.0
+                                }
+                            }
+                        }
                 }
                 .frame(maxWidth: .infinity)
             }

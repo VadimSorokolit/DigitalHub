@@ -198,6 +198,7 @@
 		DD3C3D622D85AC8100EEC37E /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				DD70B6B02D8380D6003B9A05 /* StorageProduct.swift */,
 				DD3C3D632D85AE3E00EEC37E /* Product.swift */,
 			);
 			path = Model;
@@ -243,7 +244,6 @@
 				DD755D822DDB80B200B142FA /* Extensions */,
 				DD27CA032DDCD7770034A127 /* Resources */,
 				DD2A59362E013C3A0048A3F5 /* Sevices */,
-				DD70B6B02D8380D6003B9A05 /* StorageProduct.swift */,
 				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
 				DD27CA062DDCD8BE0034A127 /* Info.plist */,
 			);
