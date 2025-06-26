@@ -256,6 +256,7 @@ struct AddProductView: View {
                     
                     CustomTextField(optionalText: $price, placeholder: "Price", leadinPadding: 8.0, width: 60.0, height: 22.0, fontSize: 10.0, cornerRadius: 6.0)
                 }
+                .keyboardType(.numberPad)
             }
             
         }
@@ -273,6 +274,7 @@ struct AddProductView: View {
                     CustomTextField(optionalText: $discount, placeholder: "Tax", leadinPadding: 4.0, width: 34.0, height: 12.0, fontSize: 10.0, cornerRadius: 3.0)
                 }
                 .offset(x: 23.0, y: -7.0)
+                .keyboardType(.numberPad)
             }
             
         }
@@ -507,5 +509,3 @@ struct AddProductView: View {
     }
     
 }
-
-
