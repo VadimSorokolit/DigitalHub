@@ -287,7 +287,6 @@ struct AddProductView: View {
                     Image(isFavorite ? Constants.fillHeartImageName : Constants.emptyHeartImageName)
                         .resizable()
                         .scaledToFill()
-                        .clipped()
                         .frame(width: 50.0, height: 45.0)
                 }
             }
