@@ -151,7 +151,7 @@ struct AddProductView: View {
             var body: some View {
                 ZStack {
                     Rectangle()
-                        .fill(Color(hex: 0xECECEC))
+                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
                         .frame(width: width, height: height)
                         .cornerRadius(cornerRadius)
 
@@ -166,8 +166,8 @@ struct AddProductView: View {
                         Image(systemName: GlobalConstants.placeholderImageName)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: width / 2, height: height / 2)
-                            .foregroundColor(.gray)
+                            .frame(width: width / 2.0, height: height / 2.0)
+                            .foregroundColor(Color(hex: GlobalConstants.cellImagePlaceholderColor))
                     }
 
                     if NetworkMonitor.shared.isConnected {
@@ -482,6 +482,9 @@ struct AddProductView: View {
                 .onChange(of: producName) {
                     product.name = producName
                 }
+                .onChange(of: brandName) {
+                    product.brandName = brandName
+                }
                 .onReceive(viewModel.$fileLinkURL) { newURL in
                     guard let url = newURL else { return }
                     copyProduct.imageURL = url
@@ -491,10 +494,18 @@ struct AddProductView: View {
                     product.isFavorite = isFavorite
                 }
                 .onChange(of: price) {
-                    product.price = price
+                    if let price = price {
+                        product.price = "$ \(price)"
+                    } else {
+                        product.price = "--"
+                    }
                 }
                 .onChange(of: discount) {
-                    product.discount = discount
+                    if let discount = discount {
+                        product.discount = "- \(discount) %"
+                    } else {
+                        product.discount = "--"
+                    }
                 }
                 .onChange(of: pickerItem) {
                     Task {

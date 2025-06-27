@@ -71,7 +71,7 @@ enum DigitalProductRouter {
     case createProduct(product: Product)
     case createFile(data: Data)
     case createFileLink(_ fileLinkId: String?)
-    case updateProductStatus(id: String, isFavourite: Bool)
+    case updateProductStatus(id: String, isFavorite: Bool)
     case deleteProduct(id: String)
 }
 
@@ -129,9 +129,9 @@ extension DigitalProductRouter: TargetType {
                 }
                 return parameters
                 
-            case .updateProductStatus(_, let isFavourite):
+            case .updateProductStatus(_, let isFavorite):
                 let parameters: [String: Any] = [
-                    Constants.Parameters.isFavorite: Constants.Values.BoolString.from(isFavourite).rawValue]
+                    Constants.Parameters.isFavorite: Constants.Values.BoolString.from(isFavorite).rawValue]
                 return parameters
             default:
                 return [:]

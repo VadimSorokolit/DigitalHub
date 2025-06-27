@@ -9,13 +9,13 @@ import SwiftUI
 import SwiftData
 
 @main
-struct DigitalHubApp: App {
+private struct DigitalHubApp: App {
     
     // MARK: - Properties
     
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel: ProductsViewModel
-    @StateObject var networkMonitor: NetworkMonitor
+    @StateObject private var networkMonitor: NetworkMonitor
     @State private var showSpinner: Bool = false
     private let sharedModelContainer: ModelContainer
 
@@ -75,7 +75,7 @@ struct DigitalHubApp: App {
         .modelContainer(sharedModelContainer)
     }
     
-    struct LoadViewModifier: ViewModifier {
+    private struct LoadViewModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
         @ObservedObject var networkMonitor: NetworkMonitor
         @Binding var showSpinner: Bool

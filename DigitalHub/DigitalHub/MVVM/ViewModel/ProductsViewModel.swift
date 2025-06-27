@@ -18,8 +18,8 @@ struct ProductsSection: Hashable, Equatable, Identifiable {
     var products: [StorageProduct]
     
     enum SectionType: String {
-        case favorite
-        case unfavorite
+        case favorites
+        case unfavorites
     }
     
     func hash(into hasher: inout Hasher) {
@@ -122,8 +122,8 @@ class ProductsViewModel: ObservableObject {
     
     private func createSections(with products: [StorageProduct]) {
         let favoriteSection = ProductsSection(
-            type: .favorite,
-            title: ProductsSection.SectionType.favorite.rawValue.capitalized,
+            type: .favorites,
+            title: ProductsSection.SectionType.favorites.rawValue.capitalized,
             subtitle: SectionConstants.Subtitles.favorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
@@ -131,8 +131,8 @@ class ProductsViewModel: ObservableObject {
         )
         
         let unfavoriteSection = ProductsSection(
-            type: .unfavorite,
-            title: ProductsSection.SectionType.unfavorite.rawValue.capitalized,
+            type: .unfavorites,
+            title: ProductsSection.SectionType.unfavorites.rawValue.capitalized,
             subtitle: SectionConstants.Subtitles.unfavorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
@@ -171,7 +171,7 @@ class ProductsViewModel: ObservableObject {
     }
     
     private func addSectionProduct(_ product: StorageProduct) {
-        let type: ProductsSection.SectionType = product.isFavorite ? .favorite : .unfavorite
+        let type: ProductsSection.SectionType = product.isFavorite ? .favorites : .unfavorites
         
         if let index = self.sections.firstIndex(where: { $0.type == type }) {
             self.sections[index].products.append(product)
@@ -193,7 +193,7 @@ class ProductsViewModel: ObservableObject {
         
         let sequence = Publishers.Sequence(sequence: products)
             .flatMap(maxPublishers: .max(25)) { product in
-                self.apiClient.updateProductStatus(id: product.id, isFavourite: product.isFavorite)
+                self.apiClient.updateProductStatus(id: product.id, isFavorite: product.isFavorite)
                     .receive(on: DispatchQueue.main)
                     .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
                     .flatMap { [weak self] updateProduct -> AnyPublisher<[StorageProduct], Never> in
@@ -244,7 +244,7 @@ class ProductsViewModel: ObservableObject {
                                 .eraseToAnyPublisher()
                         }
                         return self.dataStorage
-                            .delete(id: productId)
+                            .deleteProduct(id: productId)
                             .handleEvents(receiveOutput: { id in
                                 self.removeSectionProduct(id: id)
                             })
@@ -272,7 +272,7 @@ class ProductsViewModel: ObservableObject {
         }
         
         let publishers = products.map { product in
-            self.dataStorage.delete(id: product.id)
+            self.dataStorage.deleteProduct(id: product.id)
                 .handleEvents(receiveOutput: { [weak self] id in
                     self?.removeSectionProduct(id: id)
                 })
@@ -292,7 +292,7 @@ class ProductsViewModel: ObservableObject {
     func loadStorageProducts() {
         self.isLoading = true
         
-        self.dataStorage.fetchAll()
+        self.dataStorage.fetchAllProducts()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
@@ -306,12 +306,12 @@ class ProductsViewModel: ObservableObject {
     func createStorageProduct(_ product: StorageProduct) {
         isStorageSaveInProgress = true
         
-        dataStorage.create(product)
+        dataStorage.createProduct(product)
             .handleEvents(receiveOutput: { created in
                 self.addSectionProduct(created)
             })
             .flatMap { [weak self] _ in
-                self?.dataStorage.fetchAll()
+                self?.dataStorage.fetchAllProducts()
                 ?? Empty(completeImmediately: true).eraseToAnyPublisher()
             }
             .receive(on: DispatchQueue.main)
@@ -342,7 +342,7 @@ class ProductsViewModel: ObservableObject {
             }
         }()
         
-        self.dataStorage.update(ids: [product.id], newState: finalState, isFavorite: product.isFavorite)
+        self.dataStorage.updateProduct(ids: [product.id], newState: finalState, isFavorite: product.isFavorite)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
@@ -372,12 +372,12 @@ class ProductsViewModel: ObservableObject {
         var publishers: [AnyPublisher<[StorageProduct], APIError>] = []
         
         if !createdIDs.isEmpty {
-            let createdPublisher = dataStorage.update(ids: createdIDs, newState: .created, isFavorite: isFavorite)
+            let createdPublisher = dataStorage.updateProduct(ids: createdIDs, newState: .created, isFavorite: isFavorite)
             publishers.append(createdPublisher)
         }
         
         if !updatedIDs.isEmpty {
-            let updatedPublisher = dataStorage.update(ids: updatedIDs, newState: .updated, isFavorite: isFavorite)
+            let updatedPublisher = dataStorage.updateProduct(ids: updatedIDs, newState: .updated, isFavorite: isFavorite)
             publishers.append(updatedPublisher)
         }
         

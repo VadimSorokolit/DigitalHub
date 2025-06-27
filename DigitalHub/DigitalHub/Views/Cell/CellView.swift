@@ -74,7 +74,7 @@ struct CellView: View {
                         Image(systemName: GlobalConstants.placeholderImageName)
                             .resizable()
                             .scaledToFit()
-                            .foregroundColor(.gray)
+                            .foregroundColor(Color(hex:GlobalConstants.cellImagePlaceholderColor))
                             .frame(width: Constants.cellImageWidth / 2.0, height: Constants.cellImageWidth / 2.0)
                     }
                 }
@@ -176,6 +176,7 @@ struct CellView: View {
                             Text(product.price ?? "--")
                                 .font(.custom(GlobalConstants.semiBoldFont, size: 12.0))
                                 .foregroundColor(.white)
+                                .padding(.horizontal, 18.0)
                         )
                     
                     Rectangle()
@@ -185,7 +186,8 @@ struct CellView: View {
                         .overlay(
                             Text(product.discount ?? "--")
                                 .font(.custom(GlobalConstants.semiBoldFont, size: 6.0))
-                                .foregroundColor(.white),
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 2.0),
                             alignment: .center
                         )
                         .offset(x: 4.0, y: -4.0)

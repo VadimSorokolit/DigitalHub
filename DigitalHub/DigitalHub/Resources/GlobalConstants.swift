@@ -16,6 +16,7 @@ struct GlobalConstants {
     static let discountLabelColor: Int = 0xEB4132
     static let priceLabelColor: Int = 0x32B768
     static let backgroundColor: Int = 0xF6F6F6
-    static let cellImagePlaceholderBackgroundColor: Int = 0xD9D9D9
+    static let cellImagePlaceholderBackgroundColor: Int = 0xECECEC
+    static let cellImagePlaceholderColor: Int = 0xd3d4d8
     static let productCellColor: Int = 0xFFFFFF
 }

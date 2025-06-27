@@ -14,9 +14,9 @@ struct ProductsView: View {
     
     private struct Constants {
         static let headerTitleName: String = "Products"
-        static let headerImageName: String = "headerImage"
+        static let headerImageName: String = "logoImage"
         static let cancelButtonImageName: String = "xmark.circle.fill"
-        static let headerButtonImageName: String = "headerButtonImage"
+        static let headerButtonImageName: String = "plusButtonImage"
         static let searchBarImageName: String = "magnifyingglass"
         static let searchBarPlaceholder: String = "Search"
         static let headerTitleFontColor: Int = 0x1F2937
@@ -98,7 +98,7 @@ struct ProductsView: View {
                 
                 var body: some View {
                     Text(Constants.headerTitleName)
-                        .font(.custom(GlobalConstants.semiBoldFont, size: Constants.headerTitleFontSize))
+                        .font(.custom(GlobalConstants.regularFont, size: Constants.headerTitleFontSize))
                         .foregroundColor(Color(hex: Constants.headerTitleFontColor))
                         .overlay(
                             Image(Constants.headerImageName)
@@ -182,10 +182,10 @@ struct ProductsView: View {
         var body: some View {
             VStack(spacing: Constants.productsListInterSectionSpacing) {
                 ForEach(viewModel.sections, id: \.id) { section in
-                    if section.type == .favorite, !section.products.isEmpty {
+                    if section.type == .favorites, !section.products.isEmpty {
                         SectionFavorites(viewModel: viewModel, path: $path, canShowAlert: $canShowAlert, isShowingAlert: $isShowingAlert, sectionId: section.id)
                     }
-                    if section.type == .unfavorite, !section.products.isEmpty {
+                    if section.type == .unfavorites, !section.products.isEmpty {
                         SectionUnfavorites(viewModel: viewModel, path: $path, canShowAlert: $canShowAlert, isShowingAlert: $isShowingAlert, sectionId: section.id)
                     }
                 }
@@ -351,7 +351,7 @@ struct ProductsView: View {
                                     } else {
                                         Image(systemName: GlobalConstants.placeholderImageName)
                                             .resizable()
-                                            .foregroundColor(.gray)
+                                            .foregroundColor(Color(hex: GlobalConstants.cellImagePlaceholderColor))
                                             .frame(width: Constants.favoriteProductImageWidth / 2.0, height: Constants.favoriteProductImageHeight / 2.0)
                                     }
                                 }

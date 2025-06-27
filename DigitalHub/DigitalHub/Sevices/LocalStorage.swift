@@ -10,11 +10,11 @@ import Combine
 import SwiftData
 
 protocol ProductStorageProtocol: AnyObject {
-    func fetchAll() -> AnyPublisher<[StorageProduct], APIError>
+    func fetchAllProducts() -> AnyPublisher<[StorageProduct], APIError>
     func searchProducts(query: String) -> AnyPublisher<[StorageProduct], APIError>
-    func create(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError>
-    func update(ids: [String], newState: ProductState, isFavorite: Bool?) -> AnyPublisher<[StorageProduct], APIError>
-    func delete(id: String) -> AnyPublisher<String, APIError>
+    func createProduct(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError>
+    func updateProduct(ids: [String], newState: ProductState, isFavorite: Bool?) -> AnyPublisher<[StorageProduct], APIError>
+    func deleteProduct(id: String) -> AnyPublisher<String, APIError>
 }
 
 class LocalStorage: ProductStorageProtocol {
@@ -31,7 +31,7 @@ class LocalStorage: ProductStorageProtocol {
 
     // MARK: - Methods
     
-    func fetchAll() -> AnyPublisher<[StorageProduct], APIError> {
+    func fetchAllProducts() -> AnyPublisher<[StorageProduct], APIError> {
         let result: Result<[StorageProduct], APIError>
 
         do {
@@ -70,17 +70,11 @@ class LocalStorage: ProductStorageProtocol {
         .eraseToAnyPublisher()
     }
     
-    func create(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError> {
+    func createProduct(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError> {
         Future { promise in
-            guard !product.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                return promise(.failure(APIError.emptyProductName))
-            }
-            if Int(product.price ?? "") == nil {
-                product.price = "--"
-            }
-
-            if Int(product.discount ?? "") == nil {
-                product.discount = "--"
+            if product.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                promise(.failure(APIError.emptyProductName))
+                return
             }
             product.state = ProductState.created.rawValue
             
@@ -98,7 +92,7 @@ class LocalStorage: ProductStorageProtocol {
         .eraseToAnyPublisher()
     }
     
-    func update(ids: [String], newState: ProductState, isFavorite: Bool?) -> AnyPublisher<[StorageProduct], APIError> {
+    func updateProduct(ids: [String], newState: ProductState, isFavorite: Bool?) -> AnyPublisher<[StorageProduct], APIError> {
         Future { [weak self] promise in
             guard let self else {
                 promise(.failure(APIError.unknown))
@@ -109,11 +103,10 @@ class LocalStorage: ProductStorageProtocol {
                 let descriptor = FetchDescriptor<StorageProduct>(predicate: #Predicate { ids.contains($0.id) })
                 let products = try self.context.fetch(descriptor)
                 
-                guard !products.isEmpty else {
+                if products.isEmpty {
                     promise(.failure(.notFound))
                     return
                 }
-                
                 for product in products {
                     if let isFavorite = isFavorite {
                         product.isFavorite = !isFavorite
@@ -135,7 +128,7 @@ class LocalStorage: ProductStorageProtocol {
         .eraseToAnyPublisher()
     }
 
-    func delete(id: String) -> AnyPublisher<String, APIError> {
+    func deleteProduct(id: String) -> AnyPublisher<String, APIError> {
         Future { [weak self] promise in
             DispatchQueue.main.async {
                 guard let self else {
@@ -171,7 +164,7 @@ class LocalStorage: ProductStorageProtocol {
 extension ProductStorageProtocol {
     
     func update(ids: [String], newState: ProductState) -> AnyPublisher<[StorageProduct], APIError> {
-        self.update(ids: ids, newState: newState, isFavorite: nil)
+        self.updateProduct(ids: ids, newState: newState, isFavorite: nil)
     }
     
 }

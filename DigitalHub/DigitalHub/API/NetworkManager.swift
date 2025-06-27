@@ -16,7 +16,7 @@ protocol ProductApiClientProtocol: AnyObject {
     func createProduct(_ product: Product) -> AnyPublisher<Product, APIError>
     func createFile(_ data: Data) -> AnyPublisher<ImageFile, APIError>
     func createFileLink(_ fileId: String) -> AnyPublisher<ImageFileLink, APIError>
-    func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError>
+    func updateProductStatus(id: String, isFavorite: Bool) -> AnyPublisher<Product, APIError>
     func deleteProduct(id: String) -> AnyPublisher<String, APIError>
 }
 
@@ -85,9 +85,9 @@ class MoyaClient: ProductApiClientProtocol {
     
     // API: - https://docs.stripe.com/api/products/update
     
-    func updateProductStatus(id: String, isFavourite: Bool) -> AnyPublisher<Product, APIError> {
+    func updateProductStatus(id: String, isFavorite: Bool) -> AnyPublisher<Product, APIError> {
         return self.provider
-            .requestPublisher(.updateProductStatus(id: id, isFavourite: isFavourite))
+            .requestPublisher(.updateProductStatus(id: id, isFavorite: isFavorite))
             .map { $0.data }
             .decode(type: Product.self, decoder: JSONDecoder())
             .mapError { APIError.from($0) }

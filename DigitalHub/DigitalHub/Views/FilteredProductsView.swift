@@ -57,6 +57,12 @@ struct FilteredProductsView: View {
         @Binding var isSelectedAll: Bool
         @Binding var isShowAlert: Bool
         let sectionId: UUID
+        private var section: ProductsSection? {
+            viewModel.section(withId: sectionId)
+        }
+        private var headerTitleName: String {
+            section?.type.rawValue.capitalized ?? ""
+        }
         
         var body: some View {
             ZStack {
@@ -70,12 +76,12 @@ struct FilteredProductsView: View {
                     
                     Spacer()
                     
-                    if let section = viewModel.section(withId: sectionId) {
+                    if let section = section {
                         Button(action: {
                             isShowAlert = true
                         }) {
                             HStack(spacing: 6.0) {
-                                Text(section.type == .favorite ? "Remove" : "Add")
+                                Text(section.type == .favorites ? "Remove" : "Add")
                                     .font(.custom(GlobalConstants.semiBoldFont, size: 10.0))
                                     .foregroundColor(Color(hex: 0x3C79E6))
                                 Image(
@@ -93,7 +99,7 @@ struct FilteredProductsView: View {
                 }
                 .padding(.horizontal, 30.0)
                 
-                Text(Constants.headerTitleName)
+                Text(headerTitleName)
                     .font(.custom(GlobalConstants.regularFont, size: 20.0))
                     .foregroundColor(Color(hex: 0x1F2937))
             }
@@ -252,14 +258,14 @@ struct FilteredProductsView: View {
             content
                 .onAppear {
                     if let section = viewModel.section(withId: sectionId) {
-                        isAllFavoriteSelected = (section.type == .favorite)
+                        isAllFavoriteSelected = (section.type == .favorites)
                     }
                 }
                 .onReceive(viewModel.$isLoading) { isLoading in
                     if !isLoading {
                         if let section = viewModel.section(withId: sectionId) {
                             if section.products.isEmpty {
-                                isAllFavoriteSelected = (section.type == .unfavorite)
+                                isAllFavoriteSelected = (section.type == .unfavorites)
                             }
                         }
                     }
