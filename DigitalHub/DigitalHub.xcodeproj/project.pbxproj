@@ -40,6 +40,7 @@
 		DDBA3CF02E0E893C0020A3D6 /* DigitalHubUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CEE2E0E893C0020A3D6 /* DigitalHubUITests.swift */; };
 		DDBA3CF32E0E8B7C0020A3D6 /* MockNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */; };
 		DDBA3CF52E0E8DFF0020A3D6 /* NetworkMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CF42E0E8DFE0020A3D6 /* NetworkMonitorTests.swift */; };
+		DDBA3CFB2E0EA6930020A3D6 /* MoyaClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CFA2E0EA6920020A3D6 /* MoyaClientTests.swift */; };
 		DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF841F12DF1AA7700DFE099 /* AddProductView.swift */; };
 /* End PBXBuildFile section */
 
@@ -93,6 +94,7 @@
 		DDBA3CEE2E0E893C0020A3D6 /* DigitalHubUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalHubUITests.swift; sourceTree = "<group>"; };
 		DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkMonitor.swift; sourceTree = "<group>"; };
 		DDBA3CF42E0E8DFE0020A3D6 /* NetworkMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorTests.swift; sourceTree = "<group>"; };
+		DDBA3CFA2E0EA6920020A3D6 /* MoyaClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoyaClientTests.swift; sourceTree = "<group>"; };
 		DDF841F12DF1AA7700DFE099 /* AddProductView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProductView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -328,6 +330,7 @@
 		DDBA3CF72E0E95C80020A3D6 /* NetworkManagersTests */ = {
 			isa = PBXGroup;
 			children = (
+				DDBA3CFA2E0EA6920020A3D6 /* MoyaClientTests.swift */,
 				DDBA3CEB2E0E89350020A3D6 /* DigitalHubTests.swift */,
 			);
 			path = NetworkManagersTests;
@@ -511,6 +514,7 @@
 			files = (
 				DDBA3CF52E0E8DFF0020A3D6 /* NetworkMonitorTests.swift in Sources */,
 				DDBA3CF32E0E8B7C0020A3D6 /* MockNetworkMonitor.swift in Sources */,
+				DDBA3CFB2E0EA6930020A3D6 /* MoyaClientTests.swift in Sources */,
 				DDBA3CED2E0E89350020A3D6 /* DigitalHubTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
