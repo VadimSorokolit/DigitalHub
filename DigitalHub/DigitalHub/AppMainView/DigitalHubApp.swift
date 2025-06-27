@@ -33,7 +33,7 @@ struct DigitalHubApp: App {
             self.sharedModelContainer = container
             
             let context = container.mainContext
-            let dataStorage = LocalStorageService(context: context)
+            let dataStorage = LocalStorage(context: context)
             let viewModel = ProductsViewModel(dataStorage: dataStorage, apiClient: MoyaClient())
             let monitor = NetworkMonitor.shared
             

@@ -1,5 +1,5 @@
 //
-//  DigitalProductService.swift
+//  LocalStorage.swift
 //  DigitalHub
 //
 //  Created by Vadim Sorokolit on 17.06.2025.
@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftData
 
-protocol ProductApiStorageProtocol: AnyObject {
+protocol ProductStorageProtocol: AnyObject {
     func fetchAll() -> AnyPublisher<[StorageProduct], APIError>
     func searchProducts(query: String) -> AnyPublisher<[StorageProduct], APIError>
     func create(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError>
@@ -17,7 +17,7 @@ protocol ProductApiStorageProtocol: AnyObject {
     func delete(id: String) -> AnyPublisher<String, APIError>
 }
 
-class LocalStorageService: ProductApiStorageProtocol {
+class LocalStorage: ProductStorageProtocol {
     
     // MARK: - Properties
     
@@ -168,7 +168,7 @@ class LocalStorageService: ProductApiStorageProtocol {
     
 }
 
-extension ProductApiStorageProtocol {
+extension ProductStorageProtocol {
     
     func update(ids: [String], newState: ProductState) -> AnyPublisher<[StorageProduct], APIError> {
         self.update(ids: ids, newState: newState, isFavorite: nil)

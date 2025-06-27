@@ -1,5 +1,5 @@
 //
-//  Untitled.swift
+//  NetworkMonitor.swift
 //  DigitalHub
 //
 //  Created by Vadim Sorokolit on 17.06.2025.

@@ -13,7 +13,7 @@
 		DD27CA052DDCD7900034A127 /* GlobalConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD27CA042DDCD7900034A127 /* GlobalConstants.swift */; };
 		DD2A57F52DFD8F360048A3F5 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = DD2A57F42DFD8F360048A3F5 /* SDWebImageSwiftUI */; };
 		DD2A59382E013D490048A3F5 /* NetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2A59372E013D480048A3F5 /* NetworkMonitor.swift */; };
-		DD2A593A2E0147FA0048A3F5 /* LocalStorageService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2A59392E0147DB0048A3F5 /* LocalStorageService.swift */; };
+		DD2A593A2E0147FA0048A3F5 /* LocalStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2A59392E0147DB0048A3F5 /* LocalStorage.swift */; };
 		DD3C3D2B2D838FAC00EEC37E /* CombineMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2A2D838FAC00EEC37E /* CombineMoya */; };
 		DD3C3D2D2D838FAC00EEC37E /* Moya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2C2D838FAC00EEC37E /* Moya */; };
 		DD3C3D2F2D838FAC00EEC37E /* ReactiveMoya in Frameworks */ = {isa = PBXBuildFile; productRef = DD3C3D2E2D838FAC00EEC37E /* ReactiveMoya */; };
@@ -67,7 +67,7 @@
 		DD27CA042DDCD7900034A127 /* GlobalConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalConstants.swift; sourceTree = "<group>"; };
 		DD27CA062DDCD8BE0034A127 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DD2A59372E013D480048A3F5 /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
-		DD2A59392E0147DB0048A3F5 /* LocalStorageService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageService.swift; sourceTree = "<group>"; };
+		DD2A59392E0147DB0048A3F5 /* LocalStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorage.swift; sourceTree = "<group>"; };
 		DD3C3D632D85AE3E00EEC37E /* Product.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Product.swift; sourceTree = "<group>"; };
 		DD3C3D772D85B06500EEC37E /* ProductsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsViewModel.swift; sourceTree = "<group>"; };
 		DD3C3DD92D87FF8D00EEC37E /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
@@ -167,7 +167,7 @@
 		DD2A59362E013C3A0048A3F5 /* Sevices */ = {
 			isa = PBXGroup;
 			children = (
-				DD2A59392E0147DB0048A3F5 /* LocalStorageService.swift */,
+				DD2A59392E0147DB0048A3F5 /* LocalStorage.swift */,
 				DD2A59372E013D480048A3F5 /* NetworkMonitor.swift */,
 			);
 			path = Sevices;
@@ -294,8 +294,9 @@
 		DDBA3CEC2E0E89350020A3D6 /* DigitalHubUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				DDBA3CF72E0E95C80020A3D6 /* NetworkManagersTests */,
 				DDBA3CF12E0E89470020A3D6 /* NetworkMonitorTests */,
-				DDBA3CEB2E0E89350020A3D6 /* DigitalHubTests.swift */,
+				DDBA3CF62E0E95470020A3D6 /* LocalStorageTests */,
 			);
 			path = DigitalHubUnitTests;
 			sourceTree = "<group>";
@@ -315,6 +316,21 @@
 				DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */,
 			);
 			path = NetworkMonitorTests;
+			sourceTree = "<group>";
+		};
+		DDBA3CF62E0E95470020A3D6 /* LocalStorageTests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = LocalStorageTests;
+			sourceTree = "<group>";
+		};
+		DDBA3CF72E0E95C80020A3D6 /* NetworkManagersTests */ = {
+			isa = PBXGroup;
+			children = (
+				DDBA3CEB2E0E89350020A3D6 /* DigitalHubTests.swift */,
+			);
+			path = NetworkManagersTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -478,7 +494,7 @@
 				DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */,
 				DD77799C2DE4AF6200EDC278 /* CellView.swift in Sources */,
 				DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */,
-				DD2A593A2E0147FA0048A3F5 /* LocalStorageService.swift in Sources */,
+				DD2A593A2E0147FA0048A3F5 /* LocalStorage.swift in Sources */,
 				DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */,
 				DD2A59382E013D490048A3F5 /* NetworkMonitor.swift in Sources */,
 				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,

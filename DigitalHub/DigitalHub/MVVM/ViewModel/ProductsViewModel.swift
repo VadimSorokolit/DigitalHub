@@ -65,12 +65,12 @@ class ProductsViewModel: ObservableObject {
     private let sectionConstants: ProductsViewModel.SectionConstants = SectionConstants()
     private var lastProductId: String?
     private let apiClient: ProductApiClientProtocol
-    private let dataStorage: ProductApiStorageProtocol
+    private let dataStorage: ProductStorageProtocol
     private var subscriptions: Set<AnyCancellable> = Set<AnyCancellable>()
     
     // MARK: - Initializer
     
-    init(dataStorage: ProductApiStorageProtocol, apiClient: ProductApiClientProtocol) {
+    init(dataStorage: ProductStorageProtocol, apiClient: ProductApiClientProtocol) {
         self.apiClient = apiClient
         self.dataStorage = dataStorage
         
