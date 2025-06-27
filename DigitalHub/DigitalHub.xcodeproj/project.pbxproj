@@ -36,6 +36,10 @@
 		DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A92DE7182900EDC278 /* View+loadAlert.swift */; };
 		DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */; };
 		DDBA3CC52E0ACFA40020A3D6 /* StorageProduct+copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */; };
+		DDBA3CED2E0E89350020A3D6 /* DigitalHubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CEB2E0E89350020A3D6 /* DigitalHubTests.swift */; };
+		DDBA3CF02E0E893C0020A3D6 /* DigitalHubUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CEE2E0E893C0020A3D6 /* DigitalHubUITests.swift */; };
+		DDBA3CF32E0E8B7C0020A3D6 /* MockNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */; };
+		DDBA3CF52E0E8DFF0020A3D6 /* NetworkMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CF42E0E8DFE0020A3D6 /* NetworkMonitorTests.swift */; };
 		DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF841F12DF1AA7700DFE099 /* AddProductView.swift */; };
 /* End PBXBuildFile section */
 
@@ -85,21 +89,12 @@
 		DD7779A92DE7182900EDC278 /* View+loadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+loadAlert.swift"; sourceTree = "<group>"; };
 		DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+cornerRadius.swift"; sourceTree = "<group>"; };
 		DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageProduct+copy.swift"; sourceTree = "<group>"; };
+		DDBA3CEB2E0E89350020A3D6 /* DigitalHubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalHubTests.swift; sourceTree = "<group>"; };
+		DDBA3CEE2E0E893C0020A3D6 /* DigitalHubUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalHubUITests.swift; sourceTree = "<group>"; };
+		DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkMonitor.swift; sourceTree = "<group>"; };
+		DDBA3CF42E0E8DFE0020A3D6 /* NetworkMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorTests.swift; sourceTree = "<group>"; };
 		DDF841F12DF1AA7700DFE099 /* AddProductView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProductView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		DD70B6802D8376E1003B9A05 /* DigitalHubTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DigitalHubTests;
-			sourceTree = "<group>";
-		};
-		DD70B68A2D8376E1003B9A05 /* DigitalHubUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DigitalHubUITests;
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		DD70B6682D8376DF003B9A05 /* Frameworks */ = {
@@ -208,8 +203,8 @@
 			isa = PBXGroup;
 			children = (
 				DD70B6B12D8380D6003B9A05 /* DigitalHub */,
-				DD70B6802D8376E1003B9A05 /* DigitalHubTests */,
-				DD70B68A2D8376E1003B9A05 /* DigitalHubUITests */,
+				DDBA3CEC2E0E89350020A3D6 /* DigitalHubUnitTests */,
+				DDBA3CEF2E0E893C0020A3D6 /* DigitalHubUITests */,
 				DD2A57BD2DF57F650048A3F5 /* Frameworks */,
 				DD70B66C2D8376DF003B9A05 /* Products */,
 			);
@@ -296,6 +291,32 @@
 			path = HUD;
 			sourceTree = "<group>";
 		};
+		DDBA3CEC2E0E89350020A3D6 /* DigitalHubUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				DDBA3CF12E0E89470020A3D6 /* NetworkMonitorTests */,
+				DDBA3CEB2E0E89350020A3D6 /* DigitalHubTests.swift */,
+			);
+			path = DigitalHubUnitTests;
+			sourceTree = "<group>";
+		};
+		DDBA3CEF2E0E893C0020A3D6 /* DigitalHubUITests */ = {
+			isa = PBXGroup;
+			children = (
+				DDBA3CEE2E0E893C0020A3D6 /* DigitalHubUITests.swift */,
+			);
+			path = DigitalHubUITests;
+			sourceTree = "<group>";
+		};
+		DDBA3CF12E0E89470020A3D6 /* NetworkMonitorTests */ = {
+			isa = PBXGroup;
+			children = (
+				DDBA3CF42E0E8DFE0020A3D6 /* NetworkMonitorTests.swift */,
+				DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */,
+			);
+			path = NetworkMonitorTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -336,9 +357,6 @@
 			dependencies = (
 				DD70B67F2D8376E1003B9A05 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				DD70B6802D8376E1003B9A05 /* DigitalHubTests */,
-			);
 			name = DigitalHubTests;
 			packageProductDependencies = (
 			);
@@ -358,9 +376,6 @@
 			);
 			dependencies = (
 				DD70B6892D8376E1003B9A05 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				DD70B68A2D8376E1003B9A05 /* DigitalHubUITests */,
 			);
 			name = DigitalHubUITests;
 			packageProductDependencies = (
@@ -478,6 +493,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDBA3CF52E0E8DFF0020A3D6 /* NetworkMonitorTests.swift in Sources */,
+				DDBA3CF32E0E8B7C0020A3D6 /* MockNetworkMonitor.swift in Sources */,
+				DDBA3CED2E0E89350020A3D6 /* DigitalHubTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -485,6 +503,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDBA3CF02E0E893C0020A3D6 /* DigitalHubUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
