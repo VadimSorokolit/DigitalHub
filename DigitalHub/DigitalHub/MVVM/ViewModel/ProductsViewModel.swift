@@ -51,7 +51,6 @@ class ProductsViewModel: ObservableObject {
     
     @Published var sections: [ProductsSection] = []
     @Published var searchResults: [StorageProduct] = []
-    @Published var storageProducts: [StorageProduct] = []
     @Published var searchQuery: String = ""
     @Published var errorMessage: String? = nil
     @Published var isStorageSaveInProgress: Bool = false
@@ -260,15 +259,8 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
-    private func deleteOfflineProducts() {
+    private func deleteOfflineProducts(_ products: [Product]) {
         self.isLoading = true
-        
-        let products = self.storageProducts.filter { $0.state == ProductState.deletedOffline.rawValue }
-        
-        guard !products.isEmpty else {
-            self.isLoading = false
-            return
-        }
         
         let publishers = products.map { product in
             self.dataStorage.deleteProduct(id: product.id)
@@ -296,7 +288,7 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { products in
-                self.storageProducts = products
+                self.dataStorage.setProducts(products)
                 self.createSections(with: products)
             }
             .store(in: &self.subscriptions)
@@ -317,7 +309,7 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] products in
-                self?.storageProducts = products
+                self?.dataStorage.setProducts(products)
                 if NetworkMonitor.shared.isConnected {
                     self?.syncAllPendingProducts()
                 }
@@ -396,17 +388,20 @@ class ProductsViewModel: ObservableObject {
     }
     
     private func syncAllPendingProducts() {
-        let created = self.storageProducts
-            .filter { $0.state == ProductState.created.rawValue }
-            .map { self.convert($0) }
-        let updated = self.storageProducts
-            .filter { $0.state == ProductState.updated.rawValue }
-            .map { self.convert($0) }
-        let deleted = self.storageProducts
-            .filter { $0.state == ProductState.deleted.rawValue }
-            .map { self.convert($0) }
-        let deletedOffline = self.storageProducts
-            .filter { $0.state == ProductState.deletedOffline.rawValue }
+        self.dataStorage.fetchAllProducts()
+            .sink(receiveCompletion: { completion in
+                self.handleCompletion(completion)
+            }, receiveValue: { [weak self] products in
+                self?.syncPending(from: products)
+            })
+            .store(in: &self.subscriptions)
+    }
+    
+    private func syncPending(from products: [StorageProduct]) {
+        let created = products.filter { $0.state == ProductState.created.rawValue }.map { self.convert($0) }
+        let updated = products.filter { $0.state == ProductState.updated.rawValue }.map { self.convert($0) }
+        let deleted = products.filter { $0.state == ProductState.deleted.rawValue }.map { self.convert($0) }
+        let deletedOffline = products.filter { $0.state == ProductState.deletedOffline.rawValue }.map { self.convert($0) }
         
         if !created.isEmpty {
             self.createProducts(created)
@@ -418,7 +413,7 @@ class ProductsViewModel: ObservableObject {
             self.deleteProducts(deleted)
         }
         if !deletedOffline.isEmpty {
-            self.deleteOfflineProducts()
+            self.deleteOfflineProducts(deletedOffline)
         }
     }
     
