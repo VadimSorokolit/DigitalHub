@@ -78,6 +78,7 @@ struct FilteredProductsView: View {
                     
                     if let section = section {
                         Button(action: {
+                            
                             isShowAlert = true
                         }) {
                             HStack(spacing: 6.0) {
@@ -239,7 +240,7 @@ struct FilteredProductsView: View {
                     message: "Are you sure you want to \(actionText)?",
                     onConfirm: {
                         isShowAlert = false
-                        viewModel.updateSectionProductsStatus(sectionId: sectionId)
+                        viewModel.updateProductsStatus(sectionId: sectionId)
                     },
                     onCancel: {
                         isShowAlert = false

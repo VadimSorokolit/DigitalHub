@@ -90,12 +90,12 @@ class ProductsViewModel: ObservableObject {
     }
     
     private func setupPublishers() {
-        $searchQuery
+        self.$searchQuery
             .debounce(for: .seconds(0.3), scheduler: DispatchQueue.main)
             .sink { [weak self] query in
                 self?.searchProducts(query: query)
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
         
         NetworkMonitor.shared.$isConnected
             .prepend(NetworkMonitor.shared.isConnected)
@@ -105,7 +105,7 @@ class ProductsViewModel: ObservableObject {
                     self.syncAllPendingProducts()
                 }
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     private func convert(_ storage: StorageProduct) -> Product {
@@ -152,12 +152,12 @@ class ProductsViewModel: ObservableObject {
                     .receive(on: DispatchQueue.main)
                     .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
                     .flatMap { [weak self] createdProduct -> AnyPublisher<[StorageProduct], Never> in
-                        guard let self else { return Just([]).eraseToAnyPublisher() }
+                        guard let self else { return Empty().eraseToAnyPublisher() }
                         
                         return self.dataStorage.update(ids: [createdProduct.id], newState: .synced)
                             .handleEvents(receiveOutput: { _ in })
                             .catch { error in
-                                Just([StorageProduct]()).eraseToAnyPublisher()
+                                Empty().eraseToAnyPublisher()
                             }
                             .eraseToAnyPublisher()
                     }
@@ -197,13 +197,13 @@ class ProductsViewModel: ObservableObject {
                     .receive(on: DispatchQueue.main)
                     .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
                     .flatMap { [weak self] updateProduct -> AnyPublisher<[StorageProduct], Never> in
-                        guard let self else { return Just([]).eraseToAnyPublisher() }
+                        guard let self else { return Empty().eraseToAnyPublisher() }
                         
                         return self.dataStorage.update(ids: [updateProduct.id], newState: .synced)
                             .handleEvents(receiveOutput: { updated in
                             })
                             .catch { error in
-                                Just([StorageProduct]()).eraseToAnyPublisher()
+                                Empty().eraseToAnyPublisher()
                             }
                             .eraseToAnyPublisher()
                     }
@@ -216,9 +216,9 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
-    private func updateSearchProductStatus(_ updated: StorageProduct) {
-        guard let index = self.searchResults.firstIndex(where: { $0.id == updated.id }) else { return }
-        self.searchResults[index] = updated
+    private func updateSearchResult(_ storageProduct: StorageProduct) {
+        guard let index = self.searchResults.firstIndex(where: { $0.id == storageProduct.id }) else { return }
+        self.searchResults[index] = storageProduct
     }
     
     private func removeSectionProduct(id: String) {
@@ -231,12 +231,11 @@ class ProductsViewModel: ObservableObject {
     
     private func deleteProducts(_ products: [Product]) {
         let delayPerRequest: TimeInterval = 1.0
-        isLoading = true
+        self.isLoading = true
         
         let sequence = Publishers.Sequence(sequence: products)
             .flatMap(maxPublishers: .max(25)) { product in
                 self.apiClient.deleteProduct(id: product.id)
-                    .receive(on: DispatchQueue.global())
                     .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.global())
                     .flatMap { [weak self] productId in
                         guard let self = self else {
@@ -258,7 +257,7 @@ class ProductsViewModel: ObservableObject {
                 self?.handleCompletion(completion)
             } receiveValue: { _ in
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     private func deleteOfflineProducts() {
@@ -284,7 +283,7 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { _ in }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     // MARK: - Methods. Public
@@ -300,13 +299,13 @@ class ProductsViewModel: ObservableObject {
                 self.storageProducts = products
                 self.createSections(with: products)
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     func createStorageProduct(_ product: StorageProduct) {
-        isStorageSaveInProgress = true
+        self.isStorageSaveInProgress = true
         
-        dataStorage.createProduct(product)
+        self.dataStorage.createProduct(product)
             .handleEvents(receiveOutput: { created in
                 self.addSectionProduct(created)
             })
@@ -323,7 +322,7 @@ class ProductsViewModel: ObservableObject {
                     self?.syncAllPendingProducts()
                 }
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     func updateStorageProductStatus(_ product: StorageProduct, newState: ProductState) {
@@ -348,15 +347,15 @@ class ProductsViewModel: ObservableObject {
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] products in
                 self?.updateSectionProduct(product)
-                self?.updateSearchProductStatus(product)
+                self?.updateSearchResult(product)
                 if NetworkMonitor.shared.isConnected {
                     self?.syncAllPendingProducts()
                 }
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
-    func updateSectionProductsStatus(sectionId: UUID) {
+    func updateProductsStatus(sectionId: UUID) {
         guard let section = section(withId: sectionId), !section.products.isEmpty else { return }
         
         let isFavorite = section.products.first?.isFavorite
@@ -372,16 +371,16 @@ class ProductsViewModel: ObservableObject {
         var publishers: [AnyPublisher<[StorageProduct], APIError>] = []
         
         if !createdIDs.isEmpty {
-            let createdPublisher = dataStorage.updateProduct(ids: createdIDs, newState: .created, isFavorite: isFavorite)
+            let createdPublisher = self.dataStorage.updateProduct(ids: createdIDs, newState: .created, isFavorite: isFavorite)
             publishers.append(createdPublisher)
         }
         
         if !updatedIDs.isEmpty {
-            let updatedPublisher = dataStorage.updateProduct(ids: updatedIDs, newState: .updated, isFavorite: isFavorite)
+            let updatedPublisher = self.dataStorage.updateProduct(ids: updatedIDs, newState: .updated, isFavorite: isFavorite)
             publishers.append(updatedPublisher)
         }
         
-        guard !publishers.isEmpty else { return }
+        if publishers.isEmpty { return }
         
         Publishers.MergeMany(publishers)
             .receive(on: DispatchQueue.main)
@@ -393,19 +392,19 @@ class ProductsViewModel: ObservableObject {
                     self?.syncAllPendingProducts()
                 }
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     private func syncAllPendingProducts() {
         let created = self.storageProducts
             .filter { $0.state == ProductState.created.rawValue }
-            .map { convert($0) }
+            .map { self.convert($0) }
         let updated = self.storageProducts
             .filter { $0.state == ProductState.updated.rawValue }
-            .map { convert($0) }
+            .map { self.convert($0) }
         let deleted = self.storageProducts
             .filter { $0.state == ProductState.deleted.rawValue }
-            .map { convert($0) }
+            .map { self.convert($0) }
         let deletedOffline = self.storageProducts
             .filter { $0.state == ProductState.deletedOffline.rawValue }
         
@@ -480,7 +479,7 @@ class ProductsViewModel: ObservableObject {
             } receiveValue: { [weak self] results in
                 self?.searchResults = results
             }
-            .store(in: &subscriptions)
+            .store(in: &self.subscriptions)
     }
     
     func createFile(_ file: Data) {

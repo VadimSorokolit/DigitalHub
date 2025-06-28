@@ -259,21 +259,21 @@ struct ProductsView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         if let section = viewModel.section(withId: sectionId) {
                             HStack(alignment: .top, spacing: 12.0) {
-                                ForEach(Array(section.products.enumerated()), id: \.element.id) { index, product in
+                                ForEach(section.products, id: \.id) { product in
                                     CellView(product: product, onLikeToogle: {
                                         viewModel.updateStorageProductStatus(product, newState: .updated)
                                     })
                                     .background(
                                         Group {
-                                            if index == section.products.count - 1 {
+                                            if product == section.products.last {
                                                 GeometryReader { proxy in
                                                     Color.clear
                                                         .onChange(of: proxy.frame(in: .global)) { oldFrame, newFrame in
                                                             let screenWidth = UIScreen.main.bounds.width
                                                             if newFrame.maxX <= screenWidth {
-                                                                if viewModel.hasMoreData && !viewModel.isPagination {
+                                                                if viewModel.hasMoreData, !viewModel.isPagination {
                                                                     viewModel.loadNextPage()
-                                                                } else if !viewModel.hasMoreData && !viewModel.isPagination {
+                                                                } else if !viewModel.hasMoreData, !viewModel.isPagination {
                                                                     canShowAlert = true
                                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                                                                         isShowingAlert = true
@@ -338,7 +338,7 @@ struct ProductsView: View {
                                     .cornerRadius(8.0, corners: [.topLeft, .topRight])
                                 
                                 Group {
-                                    if let urlString = product.imageURL, !urlString.isEmpty, let url = URL(string: urlString) {
+                                    if let urlString = product.imageURL, let url = URL(string: urlString) {
                                         WebImage(url: url) { image in
                                             image
                                                 .resizable()
@@ -416,7 +416,8 @@ struct ProductsView: View {
                                 
                                 Button(action: {
                                     onLikeToogle()
-                                }) { Image(GlobalConstants.fillHeartImageName)
+                                }) {
+                                    Image(GlobalConstants.fillHeartImageName)
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 20.0, height: 16.0)
@@ -499,21 +500,21 @@ struct ProductsView: View {
                     ScrollView(.vertical, showsIndicators: false) {
                         if let section = viewModel.section(withId: sectionId) {
                             VStack(spacing: 6.0) {
-                                ForEach(Array(section.products.enumerated()), id: \.element.id) { index, product in
+                                ForEach(section.products, id: \.id) { product in
                                     CellView(product: product, onLikeToggle: {
                                         viewModel.updateStorageProductStatus(product, newState: .updated)
                                     })
                                     .background(
                                         Group {
-                                            if index == section.products.count - 1 {
+                                            if product == section.products.last {
                                                 GeometryReader { proxy in
                                                     Color.clear
                                                         .onChange(of: proxy.frame(in: .global)) { oldFrame, newFrame in
                                                             let screenHeight = UIScreen.main.bounds.height
                                                             if newFrame.maxY <= screenHeight {
-                                                                if viewModel.hasMoreData && !viewModel.isPagination {
+                                                                if viewModel.hasMoreData, !viewModel.isPagination {
                                                                     viewModel.loadNextPage()
-                                                                } else if !viewModel.hasMoreData && !viewModel.isPagination {
+                                                                } else if !viewModel.hasMoreData, !viewModel.isPagination {
                                                                     canShowAlert = true
                                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                                                                         isShowingAlert = true

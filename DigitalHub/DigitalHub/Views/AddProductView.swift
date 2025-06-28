@@ -22,9 +22,9 @@ struct AddProductView: View {
     // MARK: - Properties
     
     @ObservedObject var viewModel: ProductsViewModel
-    @State var product = StorageProduct()
     @ObservedObject var networMonitor: NetworkMonitor
-    @State private var producName: String = ""
+    @State var product = StorageProduct()
+    @State private var productName: String = ""
     @State private var brandName: String? = nil
     @State private var imageURL: String? = nil
     @State private var isFavorite: Bool = false
@@ -43,13 +43,13 @@ struct AddProductView: View {
             VStack(spacing: 150.0) {
                 VStack(spacing: 36.0) {
                     HeaderView(viewModel: viewModel)
-                    ProductView(producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, showNoInternetAlert: $showNoInternetAlert)
+                    ProductView(productName: $productName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, showNoInternetAlert: $showNoInternetAlert)
                 }
                 
-                AddProductButtonView(viewModel: viewModel, networKMonitor: networMonitor, pickedImage: $pickedImage, product: $product, didSwipe: $didSwipe)
+                AddProductButtonView(viewModel: viewModel, networkMonitor: networMonitor, pickedImage: $pickedImage, product: $product, didSwipe: $didSwipe)
             }
         }
-        .modifier(ProductFieldsModifier(viewModel: viewModel, product: $product, producName: $producName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, copyProduct: $copyProduct))
+        .modifier(ProductFieldsModifier(viewModel: viewModel, storageProduct: $product, producName: $productName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, copyProduct: $copyProduct))
         .modifier(ScreenBackgroundModifier())
     }
     
@@ -84,7 +84,7 @@ struct AddProductView: View {
     }
     
     private struct CellView: View {
-        @Binding var producName: String
+        @Binding var productName: String
         @Binding var brandName: String?
         @Binding var imageURL: String?
         @Binding var isFavorite: Bool
@@ -95,7 +95,7 @@ struct AddProductView: View {
         @Binding var showNoInternetAlert: Bool
         
         init() {
-            _producName = .constant("")
+            _productName = .constant("")
             _brandName = .constant(nil)
             _imageURL = .constant(nil)
             _isFavorite = .constant(false)
@@ -117,7 +117,7 @@ struct AddProductView: View {
             pickedImage: Binding<UIImage?>,
             showNoInternetAlert: Binding<Bool>
         ) {
-            _producName = producName
+            _productName = producName
             _brandName = brandName
             _imageURL = imageURL
             _isFavorite = isFavorite
@@ -131,7 +131,7 @@ struct AddProductView: View {
         var body: some View {
             VStack(spacing: 29.0) {
                 ImageView(imageURL: $imageURL, pickerItem: $pickerItem, pickedImage: $pickedImage, showNoInternetAlert: $showNoInternetAlert)
-                InfoView(producName: $producName, brandName: $brandName, imageURLString: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount)
+                InfoView(producName: $productName, brandName: $brandName, imageURLString: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount)
             }
             .frame(width: 290.0)
             .padding([.top, .bottom, .horizontal], 22.0)
@@ -146,6 +146,7 @@ struct AddProductView: View {
             @Binding var showNoInternetAlert: Bool
             private let width: CGFloat = 290.0
             private let height: CGFloat = 234.0
+            private let sizeDivider: CGFloat = 2.0
             private let cornerRadius: CGFloat = 18.0
             
             var body: some View {
@@ -166,7 +167,7 @@ struct AddProductView: View {
                         Image(systemName: GlobalConstants.placeholderImageName)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: width / 2.0, height: height / 2.0)
+                            .frame(width: width / sizeDivider, height: height / sizeDivider)
                             .foregroundColor(Color(hex: GlobalConstants.cellImagePlaceholderColor))
                     }
 
@@ -195,7 +196,7 @@ struct AddProductView: View {
         private struct InfoView: View {
             @Binding var producName: String
             @Binding var brandName: String?
-            @Binding var  imageURLString: String?
+            @Binding var imageURLString: String?
             @Binding var isFavorite: Bool
             @Binding var price: String?
             @Binding var discount: String?
@@ -366,7 +367,7 @@ struct AddProductView: View {
     }
     
     private struct ProductView: View {
-        @Binding var producName: String
+        @Binding var productName: String
         @Binding var brandName: String?
         @Binding var imageURL: String?
         @Binding var isFavorite: Bool
@@ -384,7 +385,7 @@ struct AddProductView: View {
                     .redacted(reason: .invalidated)
                 
                 CellView(
-                    producName: $producName,
+                    producName: $productName,
                     brandName: $brandName,
                     imageURL: $imageURL,
                     isFavorite: $isFavorite,
@@ -403,7 +404,7 @@ struct AddProductView: View {
     
     private struct AddProductButtonView: View {
         @ObservedObject var viewModel: ProductsViewModel
-        @ObservedObject var networKMonitor: NetworkMonitor
+        @ObservedObject var networkMonitor: NetworkMonitor
         @Binding var pickedImage: UIImage?
         @Binding var product: StorageProduct
         @Binding var didSwipe: Bool
@@ -432,7 +433,7 @@ struct AddProductView: View {
                     }
                 }
             }
-            .opacity((product.isValid) ? 1.0 : 0.5)
+            .opacity(product.isValid ? 1.0 : 0.5)
         }
         
     }
@@ -452,7 +453,7 @@ struct AddProductView: View {
     
     struct ProductFieldsModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
-        @Binding var product: StorageProduct
+        @Binding var storageProduct: StorageProduct
         @Binding var producName: String
         @Binding var brandName: String?
         @Binding var imageURL: String?
@@ -468,7 +469,7 @@ struct AddProductView: View {
             content
                 .onChange(of: didSwipe) {
                     if !didSwipe {
-                        copyProduct = product.copy()
+                        copyProduct = storageProduct.copy()
                         producName = ""
                         brandName = nil
                         imageURL = nil
@@ -476,14 +477,14 @@ struct AddProductView: View {
                         price = nil
                         discount = nil
                         pickedImage = nil
-                        product = StorageProduct()
+                        storageProduct = StorageProduct()
                     }
                 }
                 .onChange(of: producName) {
-                    product.name = producName
+                    storageProduct.name = producName
                 }
                 .onChange(of: brandName) {
-                    product.brandName = brandName
+                    storageProduct.brandName = brandName
                 }
                 .onReceive(viewModel.$fileLinkURL) { newURL in
                     guard let url = newURL else { return }
@@ -491,20 +492,20 @@ struct AddProductView: View {
                     viewModel.createStorageProduct(copyProduct)
                 }
                 .onChange(of: isFavorite) {
-                    product.isFavorite = isFavorite
+                    storageProduct.isFavorite = isFavorite
                 }
                 .onChange(of: price) {
                     if let price = price {
-                        product.price = "$ \(price)"
+                        storageProduct.price = "$ \(price)"
                     } else {
-                        product.price = "--"
+                        storageProduct.price = "--"
                     }
                 }
                 .onChange(of: discount) {
                     if let discount = discount {
-                        product.discount = "- \(discount) %"
+                        storageProduct.discount = "- \(discount) %"
                     } else {
-                        product.discount = "--"
+                        storageProduct.discount = "--"
                     }
                 }
                 .onChange(of: pickerItem) {

@@ -60,7 +60,7 @@ struct CellView: View {
                     .cornerRadius(8.0)
                 
                 Group {
-                    if let urlString = product.imageURL, !urlString.isEmpty, let url = URL(string: urlString) {
+                    if let urlString = product.imageURL, let url = URL(string: urlString) {
                         WebImage(url: url) { image in
                             image
                                 .resizable()
@@ -123,11 +123,11 @@ struct CellView: View {
                         styledText(suffix, highlight: false)
                     }
                 } else {
-                    styledText(productName)
+                    styledText(productName, highlight: false)
                 }
             }
             
-            private func styledText(_ text: String, highlight: Bool = false) -> some View {
+            private func styledText(_ text: String, highlight: Bool) -> some View {
                 Text(text)
                     .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
                     .foregroundColor(Color(hex: 0x1F2937))
