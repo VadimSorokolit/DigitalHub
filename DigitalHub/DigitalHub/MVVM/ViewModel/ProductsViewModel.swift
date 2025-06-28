@@ -66,6 +66,8 @@ class ProductsViewModel: ObservableObject {
     private let apiClient: ProductApiClientProtocol
     private let dataStorage: ProductStorageProtocol
     private var subscriptions: Set<AnyCancellable> = Set<AnyCancellable>()
+    private let MAX_PUBLISHERS_PER_REQUEST: Int = 25
+    private let DELAY_BETWEEN_REQUESTS: TimeInterval = 1.0
     
     // MARK: - Initializer
     
@@ -142,14 +144,12 @@ class ProductsViewModel: ObservableObject {
     }
     
     private func createProducts(_ newProducts: [Product]) {
-        let delayPerRequest = 1.0
         self.isLoading = true
         
-        let sequence = Publishers.Sequence(sequence: newProducts)
-            .flatMap(maxPublishers: .max(25)) { product in
+        Publishers.Sequence(sequence: newProducts)
+            .flatMap(maxPublishers: .max(self.MAX_PUBLISHERS_PER_REQUEST)) { product in
                 self.apiClient.createProduct(product)
-                    .receive(on: DispatchQueue.main)
-                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
+                    .delay(for: .seconds(self.DELAY_BETWEEN_REQUESTS), scheduler: DispatchQueue.global())
                     .flatMap { [weak self] createdProduct -> AnyPublisher<[StorageProduct], Never> in
                         guard let self else { return Empty().eraseToAnyPublisher() }
                         
@@ -161,8 +161,7 @@ class ProductsViewModel: ObservableObject {
                             .eraseToAnyPublisher()
                     }
             }
-        
-        sequence
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { _ in }
@@ -187,14 +186,13 @@ class ProductsViewModel: ObservableObject {
     }
     
     private func updateProductsStatus(_ products: [Product]) {
-        let delayPerRequest = 1.0
         self.isLoading = true
         
-        let sequence = Publishers.Sequence(sequence: products)
-            .flatMap(maxPublishers: .max(25)) { product in
+        Publishers.Sequence(sequence: products)
+            .flatMap(maxPublishers: .max(self.MAX_PUBLISHERS_PER_REQUEST)) { product in
                 self.apiClient.updateProductStatus(id: product.id, isFavorite: product.isFavorite)
                     .receive(on: DispatchQueue.main)
-                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.main)
+                    .delay(for: .seconds(self.DELAY_BETWEEN_REQUESTS), scheduler: DispatchQueue.global())
                     .flatMap { [weak self] updateProduct -> AnyPublisher<[StorageProduct], Never> in
                         guard let self else { return Empty().eraseToAnyPublisher() }
                         
@@ -207,8 +205,7 @@ class ProductsViewModel: ObservableObject {
                             .eraseToAnyPublisher()
                     }
             }
-        
-        sequence
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { _ in }
@@ -229,13 +226,12 @@ class ProductsViewModel: ObservableObject {
     }
     
     private func deleteProducts(_ products: [Product]) {
-        let delayPerRequest: TimeInterval = 1.0
         self.isLoading = true
         
-        let sequence = Publishers.Sequence(sequence: products)
-            .flatMap(maxPublishers: .max(25)) { product in
+        Publishers.Sequence(sequence: products)
+            .flatMap(maxPublishers: .max(self.MAX_PUBLISHERS_PER_REQUEST)) { product in
                 self.apiClient.deleteProduct(id: product.id)
-                    .delay(for: .seconds(delayPerRequest), scheduler: DispatchQueue.global())
+                    .delay(for: .seconds(self.DELAY_BETWEEN_REQUESTS), scheduler: DispatchQueue.global())
                     .flatMap { [weak self] productId in
                         guard let self = self else {
                             return Fail<String, APIError>(error: .deleteFailed)
@@ -250,8 +246,6 @@ class ProductsViewModel: ObservableObject {
                     }
             }
             .receive(on: DispatchQueue.main)
-        
-        sequence
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { _ in

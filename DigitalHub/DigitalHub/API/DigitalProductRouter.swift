@@ -8,6 +8,11 @@
 import Foundation
 import Moya
 
+/**
+ - Note:
+ API Docs: - https://docs.stripe.com/api/products
+ */
+
 private struct Constants {
     
     struct API {

@@ -237,7 +237,7 @@ struct FilteredProductsView: View {
             content
                 .loadAlert(
                     isShow: $isShowAlert,
-                    message: "Are you sure you want to \(actionText)?",
+                    message: "Are you sure you want to\n\(actionText)?",
                     onConfirm: {
                         isShowAlert = false
                         viewModel.updateProductsStatus(sectionId: sectionId)
