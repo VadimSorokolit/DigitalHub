@@ -31,10 +31,12 @@ struct AddProductView: View {
     @State private var price: String? = nil
     @State private var discount: String? = nil
     @State private var pickerItem: PhotosPickerItem? = nil
-    @State private var pickedImage: UIImage?
-    @State private var didSwipe = false
-    @State private var copyProduct = StorageProduct()
-    @State private var showNoInternetAlert = false
+    @State private var pickedImage: UIImage? = nil
+    @State private var didSwipe: Bool = false
+    @State private var copyProduct: StorageProduct = StorageProduct()
+    @State private var showAlert: Bool = false
+    @State var alertTitle: String = ""
+    @State var alertMessage: String = ""
     
     // MARK: - Main body
     
@@ -43,14 +45,15 @@ struct AddProductView: View {
             VStack(spacing: 150.0) {
                 VStack(spacing: 36.0) {
                     HeaderView(viewModel: viewModel)
-                    ProductView(productName: $productName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, showNoInternetAlert: $showNoInternetAlert)
+                    ProductView(productName: $productName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, alertTitle: $alertTitle, alertMessage: $alertMessage, showAlert: $showAlert)
                 }
                 
                 AddProductButtonView(viewModel: viewModel, networkMonitor: networMonitor, pickedImage: $pickedImage, product: $product, didSwipe: $didSwipe)
             }
         }
-        .modifier(ProductFieldsModifier(viewModel: viewModel, storageProduct: $product, producName: $productName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, copyProduct: $copyProduct))
+        .modifier(ProductFieldsModifier(viewModel: viewModel, storageProduct: $product, producName: $productName, brandName: $brandName, imageURL: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount, pickerItem: $pickerItem, pickedImage: $pickedImage, didSwipe: $didSwipe, copyProduct: $copyProduct, alertTitle: $alertTitle, alertMessage: $alertMessage, showAlert: $showAlert))
         .modifier(ScreenBackgroundModifier())
+        .modifier(AlertViewModifier(alertTitle: $alertTitle, alertMessage: $alertMessage, showAlert: $showAlert))
     }
     
     // MARK: - Subviews
@@ -92,7 +95,9 @@ struct AddProductView: View {
         @Binding var discount: String?
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
-        @Binding var showNoInternetAlert: Bool
+        @Binding var alertTitle: String
+        @Binding var alertMessage: String
+        @Binding var showAlert: Bool
         
         init() {
             _productName = .constant("")
@@ -103,7 +108,9 @@ struct AddProductView: View {
             _discount = .constant(nil)
             _pickerItem = .constant(nil)
             _pickedImage = .constant(nil)
-            _showNoInternetAlert = .constant(false)
+            _alertTitle = .constant("")
+            _alertMessage = .constant("")
+            _showAlert = .constant(false)
         }
         
         init(
@@ -115,7 +122,9 @@ struct AddProductView: View {
             discount: Binding<String?>,
             pickerItem: Binding<PhotosPickerItem?>,
             pickedImage: Binding<UIImage?>,
-            showNoInternetAlert: Binding<Bool>
+            alertTitle: Binding<String>,
+            alertMessage: Binding<String>,
+            showAlert: Binding<Bool>
         ) {
             _productName = producName
             _brandName = brandName
@@ -125,12 +134,14 @@ struct AddProductView: View {
             _discount = discount
             _pickerItem = pickerItem
             _pickedImage = pickedImage
-            _showNoInternetAlert = showNoInternetAlert
+            _alertTitle = alertTitle
+            _alertMessage = alertMessage
+            _showAlert = showAlert
         }
         
         var body: some View {
             VStack(spacing: 29.0) {
-                ImageView(imageURL: $imageURL, pickerItem: $pickerItem, pickedImage: $pickedImage, showNoInternetAlert: $showNoInternetAlert)
+                ImageView(imageURL: $imageURL, pickerItem: $pickerItem, pickedImage: $pickedImage, alertTitle: $alertTitle, alertMessage: $alertMessage, showAlert: $showAlert)
                 InfoView(producName: $productName, brandName: $brandName, imageURLString: $imageURL, isFavorite: $isFavorite, price: $price, discount: $discount)
             }
             .frame(width: 290.0)
@@ -143,7 +154,9 @@ struct AddProductView: View {
             @Binding var imageURL: String?
             @Binding var pickerItem: PhotosPickerItem?
             @Binding var pickedImage: UIImage?
-            @Binding var showNoInternetAlert: Bool
+            @Binding var alertTitle: String
+            @Binding var alertMessage: String
+            @Binding var showAlert: Bool
             private let width: CGFloat = 290.0
             private let height: CGFloat = 234.0
             private let sizeDivider: CGFloat = 2.0
@@ -155,7 +168,7 @@ struct AddProductView: View {
                         .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
                         .frame(width: width, height: height)
                         .cornerRadius(cornerRadius)
-
+                    
                     if let image = pickedImage {
                         Image(uiImage: image)
                             .resizable()
@@ -170,7 +183,7 @@ struct AddProductView: View {
                             .frame(width: width / sizeDivider, height: height / sizeDivider)
                             .foregroundColor(Color(hex: GlobalConstants.cellImagePlaceholderColor))
                     }
-
+                    
                     if NetworkMonitor.shared.isConnected {
                         PhotosPicker(selection: $pickerItem, matching: .images) {
                             Color.clear.frame(width: width, height: height)
@@ -180,14 +193,11 @@ struct AddProductView: View {
                             .frame(width: width, height: height)
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                showNoInternetAlert = true
+                                showAlert = true
+                                alertTitle = "No Internet Connection"
+                                alertMessage = "You need to be connected to the internet to pick an image."
                             }
                     }
-                }
-                .alert("No Internet Connection", isPresented: $showNoInternetAlert) {
-                    Button("OK", role: .cancel) { }
-                } message: {
-                    Text("You need to be connected to the internet to pick an image.")
                 }
             }
             
@@ -376,7 +386,9 @@ struct AddProductView: View {
         @Binding var pickerItem: PhotosPickerItem?
         @Binding var pickedImage: UIImage?
         @Binding var didSwipe: Bool
-        @Binding var showNoInternetAlert: Bool
+        @Binding var alertTitle: String
+        @Binding var alertMessage: String
+        @Binding var showAlert: Bool
         
         var body: some View {
             ZStack {
@@ -393,7 +405,9 @@ struct AddProductView: View {
                     discount: $discount,
                     pickerItem: $pickerItem,
                     pickedImage: $pickedImage,
-                    showNoInternetAlert: $showNoInternetAlert
+                    alertTitle: $alertTitle,
+                    alertMessage: $alertMessage,
+                    showAlert: $showAlert
                 )
                 .rotationEffect(.degrees(didSwipe ? 20.0 : 0.0), anchor: UnitPoint(x: 2.0, y: 5.0))
                 .animation(didSwipe ? Animation.easeInOut(duration: Constants.animationDuration) : nil, value: didSwipe)
@@ -438,6 +452,14 @@ struct AddProductView: View {
         
     }
     
+    // MARK: - Methods
+    
+    private func showAlert(title: String, message: String) {
+        alertTitle = title
+        alertMessage = message
+        showAlert = true
+    }
+    
     // MARK: - Modifiers
     
     private struct ScreenBackgroundModifier: ViewModifier {
@@ -464,6 +486,9 @@ struct AddProductView: View {
         @Binding var pickedImage: UIImage?
         @Binding var didSwipe: Bool
         @Binding var copyProduct: StorageProduct
+        @Binding var alertTitle: String
+        @Binding var alertMessage: String
+        @Binding var showAlert: Bool
         
         func body(content: Content) -> some View {
             content
@@ -488,6 +513,7 @@ struct AddProductView: View {
                 }
                 .onReceive(viewModel.$fileLinkURL) { newURL in
                     guard let url = newURL else { return }
+                    
                     copyProduct.imageURL = url
                     viewModel.createStorageProduct(copyProduct)
                 }
@@ -495,18 +521,22 @@ struct AddProductView: View {
                     storageProduct.isFavorite = isFavorite
                 }
                 .onChange(of: price) {
-                    if let price = price {
-                        storageProduct.price = "$ \(price)"
-                    } else {
-                        storageProduct.price = "--"
+                    guard let price = price, let intValue = Int(price), (1...9999).contains(intValue) else {
+                        alertTitle = "Invalid price"
+                        alertMessage = "Please enter a price from 1 to 9999"
+                        showAlert = true
+                        return
                     }
+                    storageProduct.price = "$ \(price)"
                 }
                 .onChange(of: discount) {
-                    if let discount = discount {
-                        storageProduct.discount = "- \(discount) %"
-                    } else {
-                        storageProduct.discount = "--"
+                    guard let discount, let intValue = Int(discount), (1...99).contains(intValue) else {
+                        alertTitle = "Invalid discount"
+                        alertMessage = "Please enter a discount from 1 to 99"
+                        showAlert = true
+                        return
                     }
+                    storageProduct.discount = "- \(discount) %"
                 }
                 .onChange(of: pickerItem) {
                     Task {
@@ -518,6 +548,21 @@ struct AddProductView: View {
                 }
         }
         
+    }
+    
+    struct AlertViewModifier: ViewModifier {
+        @Binding var alertTitle: String
+        @Binding var alertMessage: String
+        @Binding var showAlert: Bool
+
+        func body(content: Content) -> some View {
+            content
+                .alert(alertTitle, isPresented: $showAlert) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(alertMessage)
+                }
+        }
     }
     
 }

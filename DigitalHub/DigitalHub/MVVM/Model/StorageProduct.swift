@@ -31,8 +31,11 @@ final class StorageProduct {
 
     var isValid: Bool {
         !name.isEmpty
+        && !(brandName?.isEmpty ?? true)
+        && !(price?.isEmpty ?? true)
+        && !(discount?.isEmpty ?? true)
     }
-
+    
     // MARK: - Initializers
 
     init(
