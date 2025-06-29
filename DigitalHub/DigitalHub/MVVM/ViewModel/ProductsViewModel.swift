@@ -378,27 +378,27 @@ class ProductsViewModel: ObservableObject {
     }
     
     func deleteProduct(_ product: StorageProduct) {
-        if !NetworkMonitor.shared.isConnected {
+        isLoading = true
+        
+        if NetworkMonitor.shared.isConnected {
+            let converted = convert(product)
+            self.deleteProducts([converted])
+        } else {
             if product.state == ProductState.created.rawValue {
-                self.isLoading = true
                 self.dataStorage.deleteProduct(id: product.id)
                     .receive(on: DispatchQueue.main)
                     .sink { [weak self] completion in
                         self?.handleCompletion(completion)
-                    } receiveValue: { id in
-                        self.removeSectionProduct(id: id)
+                    } receiveValue: { [weak self] id in
+                        self?.removeSectionProduct(id: id)
                     }
-                    .store(in: &self.subscriptions)
+                    .store(in: &subscriptions)
             } else {
                 self.updateStorageProductStatus(product, newState: .deleted)
             }
-        } else {
-            let convertedProduct = self.convert(product)
-            self.deleteProducts([convertedProduct])
         }
     }
 
-    
     private func syncAllPendingProducts() {
         self.dataStorage.fetchAllProducts()
             .sink(receiveCompletion: { completion in
