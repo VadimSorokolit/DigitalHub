@@ -128,7 +128,7 @@ class ProductsViewModel: ObservableObject {
             subtitle: SectionConstants.Subtitles.favorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
-            products: products.filter { $0.isFavorite && $0.state != ProductState.deleted.rawValue && $0.state != ProductState.deletedOffline.rawValue }
+            products: products.filter { $0.isFavorite && $0.state != ProductState.deleted.rawValue }
         )
         
         let unfavoriteSection = ProductsSection(
@@ -137,7 +137,7 @@ class ProductsViewModel: ObservableObject {
             subtitle: SectionConstants.Subtitles.unfavorite,
             buttonTitle: SectionConstants.Button.title,
             buttonImageName: SectionConstants.Button.imageName,
-            products: products.filter { !$0.isFavorite && $0.state != ProductState.deleted.rawValue && $0.state != ProductState.deletedOffline.rawValue }
+            products: products.filter { !$0.isFavorite && $0.state != ProductState.deleted.rawValue }
         )
         
         self.sections = [favoriteSection, unfavoriteSection]
@@ -179,8 +179,7 @@ class ProductsViewModel: ObservableObject {
     private func updateSectionProduct(_ product: StorageProduct) {
         self.removeSectionProduct(id: product.id)
         
-        guard product.state != ProductState.deleted.rawValue,
-              product.state != ProductState.deletedOffline.rawValue else { return }
+        guard product.state != ProductState.deleted.rawValue else { return }
         
         self.addSectionProduct(product)
     }
@@ -317,12 +316,9 @@ class ProductsViewModel: ObservableObject {
         let isOffline = !NetworkMonitor.shared.isConnected
         
         let finalState: ProductState = {
-            if product.state == ProductState.created.rawValue, isOffline, newState != .deleted {
+            if product.state == ProductState.created.rawValue, isOffline {
                 return ProductState(rawValue: product.state) ?? .created
-            } else if product.state == ProductState.created.rawValue, isOffline, newState == .deleted {
-                return ProductState.deletedOffline
-            }
-            else {
+            } else {
                 return newState
             }
         }()
@@ -381,6 +377,28 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
+    func deleteProduct(_ product: StorageProduct) {
+        if !NetworkMonitor.shared.isConnected {
+            if product.state == ProductState.created.rawValue {
+                self.isLoading = true
+                self.dataStorage.deleteProduct(id: product.id)
+                    .receive(on: DispatchQueue.main)
+                    .sink { [weak self] completion in
+                        self?.handleCompletion(completion)
+                    } receiveValue: { id in
+                        self.removeSectionProduct(id: id)
+                    }
+                    .store(in: &self.subscriptions)
+            } else {
+                self.updateStorageProductStatus(product, newState: .deleted)
+            }
+        } else {
+            let convertedProduct = self.convert(product)
+            self.deleteProducts([convertedProduct])
+        }
+    }
+
+    
     private func syncAllPendingProducts() {
         self.dataStorage.fetchAllProducts()
             .sink(receiveCompletion: { completion in
@@ -395,7 +413,6 @@ class ProductsViewModel: ObservableObject {
         let created = products.filter { $0.state == ProductState.created.rawValue }.map { self.convert($0) }
         let updated = products.filter { $0.state == ProductState.updated.rawValue }.map { self.convert($0) }
         let deleted = products.filter { $0.state == ProductState.deleted.rawValue }.map { self.convert($0) }
-        let deletedOffline = products.filter { $0.state == ProductState.deletedOffline.rawValue }.map { self.convert($0) }
         
         if !created.isEmpty {
             self.createProducts(created)
@@ -405,9 +422,6 @@ class ProductsViewModel: ObservableObject {
         }
         if !deleted.isEmpty {
             self.deleteProducts(deleted)
-        }
-        if !deletedOffline.isEmpty {
-            self.deleteOfflineProducts(deletedOffline)
         }
     }
     

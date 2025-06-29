@@ -13,7 +13,6 @@ enum ProductState: String {
     case created
     case updated
     case deleted
-    case deletedOffline
 }
 
 @Model
@@ -30,12 +29,20 @@ final class StorageProduct {
     var state: String = ProductState.created.rawValue
 
     var isValid: Bool {
-        !name.isEmpty
-        && !(brandName?.isEmpty ?? true)
-        && !(price?.isEmpty ?? true)
-        && !(discount?.isEmpty ?? true)
+        guard !name.isEmpty, let brand = brandName, !brand.isEmpty else {
+            return false
+        }
+        let rawPrice = price?.filter { $0.isNumber } ?? ""
+        guard let priceValue = Int(rawPrice), (1...9999).contains(priceValue) else {
+            return false
+        }
+        let rawDiscount = discount?.filter { $0.isNumber } ?? ""
+        guard let discountValue = Int(rawDiscount), (1...99).contains(discountValue) else {
+            return false
+        }
+        return true
     }
-    
+   
     // MARK: - Initializers
 
     init(

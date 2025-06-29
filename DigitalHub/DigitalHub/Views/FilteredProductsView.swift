@@ -120,7 +120,7 @@ struct FilteredProductsView: View {
                     if let section = viewModel.section(withId: sectionId) {
                         ForEach(section.products) { product in
                             SwipeCell(openCellId: $openCellId, id: product.id, onDelete: {
-                                viewModel.updateStorageProductStatus(product, newState: .deleted) },
+                                viewModel.deleteProduct(product) },
                                       content: {
                                 CellView(
                                     product: product,

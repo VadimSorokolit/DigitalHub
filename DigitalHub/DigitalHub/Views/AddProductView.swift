@@ -4,7 +4,7 @@
 //
 //  Created by Vadim Sorokolit on 05.06.2025.
 //
-    
+
 import SwiftUI
 import PhotosUI
 
@@ -438,12 +438,12 @@ struct AddProductView: View {
                 if product.isValid {
                     didSwipe = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + Constants.animationDuration) {
-                        didSwipe = false
                         if let imageData = pickedImage?.jpegData(compressionQuality: 1.0) {
                             viewModel.createFile(imageData)
                         } else {
                             viewModel.createStorageProduct(product)
                         }
+                        didSwipe = false
                     }
                 }
             }
@@ -495,14 +495,14 @@ struct AddProductView: View {
                 .onChange(of: didSwipe) {
                     if !didSwipe {
                         copyProduct = storageProduct.copy()
+                        storageProduct = StorageProduct()
                         producName = ""
                         brandName = nil
                         imageURL = nil
                         isFavorite = false
-                        price = nil
                         discount = nil
+                        price = nil
                         pickedImage = nil
-                        storageProduct = StorageProduct()
                     }
                 }
                 .onChange(of: producName) {
@@ -521,22 +521,34 @@ struct AddProductView: View {
                     storageProduct.isFavorite = isFavorite
                 }
                 .onChange(of: price) {
-                    guard let price = price, let intValue = Int(price), (1...9999).contains(intValue) else {
-                        alertTitle = "Invalid price"
-                        alertMessage = "Please enter a price from 1 to 9999"
-                        showAlert = true
-                        return
+                    let digitsOnly = (price ?? "").filter { $0.isNumber }
+                    price = digitsOnly
+                    
+                    if let value = Int(digitsOnly), (1...9999).contains(value) {
+                        storageProduct.price = "$ \(digitsOnly)"
+                    } else {
+                        if !digitsOnly.isEmpty {
+                            storageProduct.price = nil
+                            alertTitle = "Invalid price"
+                            alertMessage = "Please enter a price from 1 to 9999"
+                            showAlert = true
+                        }
                     }
-                    storageProduct.price = "$ \(price)"
                 }
                 .onChange(of: discount) {
-                    guard let discount, let intValue = Int(discount), (1...99).contains(intValue) else {
-                        alertTitle = "Invalid discount"
-                        alertMessage = "Please enter a discount from 1 to 99"
-                        showAlert = true
-                        return
+                    let digitsOnly = (discount ?? "").filter { $0.isNumber }
+                    discount = digitsOnly
+                    
+                    if let value = Int(digitsOnly), (1...99).contains(value) {
+                        storageProduct.discount = "- \(digitsOnly) %"
+                    } else {
+                        if !digitsOnly.isEmpty {
+                            storageProduct.discount = nil
+                            alertTitle = "Invalid discount"
+                            alertMessage = "Please enter a discount from 1 to 99"
+                            showAlert = true
+                        }
                     }
-                    storageProduct.discount = "- \(discount) %"
                 }
                 .onChange(of: pickerItem) {
                     Task {
@@ -554,7 +566,7 @@ struct AddProductView: View {
         @Binding var alertTitle: String
         @Binding var alertMessage: String
         @Binding var showAlert: Bool
-
+        
         func body(content: Content) -> some View {
             content
                 .alert(alertTitle, isPresented: $showAlert) {
