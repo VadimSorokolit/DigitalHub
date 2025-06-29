@@ -252,25 +252,6 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
-    private func deleteOfflineProducts(_ products: [Product]) {
-        self.isLoading = true
-        
-        let publishers = products.map { product in
-            self.dataStorage.deleteProduct(id: product.id)
-                .handleEvents(receiveOutput: { [weak self] id in
-                    self?.removeSectionProduct(id: id)
-                })
-                .eraseToAnyPublisher()
-        }
-        
-        Publishers.MergeMany(publishers)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.handleCompletion(completion)
-            } receiveValue: { _ in }
-            .store(in: &self.subscriptions)
-    }
-    
     // MARK: - Methods. Public
     
     func loadStorageProducts() {
@@ -378,7 +359,7 @@ class ProductsViewModel: ObservableObject {
     }
     
     func deleteProduct(_ product: StorageProduct) {
-        isLoading = true
+        self.isLoading = true
         
         if NetworkMonitor.shared.isConnected {
             let converted = convert(product)
