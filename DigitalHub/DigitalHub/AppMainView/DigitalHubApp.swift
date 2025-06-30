@@ -94,9 +94,6 @@ private struct DigitalHubApp: App {
             .onReceive(viewModel.$isLoading) { isLoading in
                 showSpinner = isLoading
             }
-            .onReceive(viewModel.$isStorageSaveInProgress) { isStorageSaveInProgress in
-                showSpinner = isStorageSaveInProgress
-            }
         }
     }
     

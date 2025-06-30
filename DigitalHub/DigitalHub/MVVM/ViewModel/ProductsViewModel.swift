@@ -53,7 +53,6 @@ class ProductsViewModel: ObservableObject {
     @Published var searchResults: [StorageProduct] = []
     @Published var searchQuery: String = ""
     @Published var errorMessage: String? = nil
-    @Published var isStorageSaveInProgress: Bool = false
     @Published var isLoading: Bool = false
     @Published var isPagination: Bool = false
     @Published var fileLinkURL: String? = nil
@@ -83,7 +82,6 @@ class ProductsViewModel: ObservableObject {
     private func handleCompletion(_ completion: Subscribers.Completion<APIError>) {
         self.isLoading = false
         self.isPagination = false
-        self.isStorageSaveInProgress = false
         
         if case let .failure(error) = completion {
             self.errorMessage = error.errorDescription
@@ -101,6 +99,7 @@ class ProductsViewModel: ObservableObject {
         NetworkMonitor.shared.$isConnected
             .prepend(NetworkMonitor.shared.isConnected)
             .removeDuplicates()
+            .receive(on: DispatchQueue.main)
             .sink { isConnected in
                 if isConnected {
                     self.syncAllPendingProducts()
@@ -268,7 +267,7 @@ class ProductsViewModel: ObservableObject {
     }
     
     func createStorageProduct(_ product: StorageProduct) {
-        self.isStorageSaveInProgress = true
+        self.isLoading = true
         
         self.dataStorage.createProduct(product)
             .handleEvents(receiveOutput: { created in
@@ -290,7 +289,7 @@ class ProductsViewModel: ObservableObject {
     }
     
     func updateStorageProductStatus(_ product: StorageProduct, newState: ProductState) {
-        self.isStorageSaveInProgress = true
+        self.isLoading = true
         
         let isOffline = !NetworkMonitor.shared.isConnected
         
@@ -317,6 +316,8 @@ class ProductsViewModel: ObservableObject {
     }
     
     func updateProductsStatus(sectionId: UUID) {
+        self.isLoading = true
+        
         guard let section = section(withId: sectionId), !section.products.isEmpty else { return }
         
         let isFavorite = section.products.first?.isFavorite
@@ -379,6 +380,8 @@ class ProductsViewModel: ObservableObject {
     }
 
     private func syncAllPendingProducts() {
+        self.isLoading = true
+        
         self.dataStorage.fetchAllProducts()
             .sink(receiveCompletion: { completion in
                 self.handleCompletion(completion)
