@@ -10,7 +10,7 @@ import Combine
 @testable import DigitalHub
 
 final class NetworkMonitorTests: XCTestCase {
-    private var cancellables = Set<AnyCancellable>()
+    private var subscriptions = Set<AnyCancellable>()
 
     func test_isConnectedPublishesChange() {
         let mockMonitor = MockNetworkMonitor(isConnected: false)
@@ -20,7 +20,7 @@ final class NetworkMonitorTests: XCTestCase {
             .sink { value in
                 results.append(value)
             }
-            .store(in: &cancellables)
+            .store(in: &subscriptions)
 
         mockMonitor.setConnected(true)
         mockMonitor.setConnected(false)
