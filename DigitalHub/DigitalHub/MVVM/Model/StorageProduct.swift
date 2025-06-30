@@ -17,8 +17,10 @@ enum ProductState: String {
 
 @Model
 final class StorageProduct {
+    
+    // MARK: - Product Properties
     @Attribute(.unique) var id: String
-
+    
     var name: String
     var brandName: String?
     var imageURL: String?
@@ -27,7 +29,7 @@ final class StorageProduct {
     var discount: String?
     
     var state: String = ProductState.created.rawValue
-
+    
     var isValid: Bool {
         guard !name.isEmpty, let brand = brandName, !brand.isEmpty else {
             return false
@@ -42,9 +44,9 @@ final class StorageProduct {
         }
         return true
     }
-   
+    
     // MARK: - Initializers
-
+    
     init(
         id: String,
         name: String,
@@ -64,7 +66,7 @@ final class StorageProduct {
         self.discount = discount
         self.state = productState
     }
-
+    
     convenience init(emptyWith id: String = "prod_\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))") {
         self.init(
             id: id,
@@ -77,9 +79,9 @@ final class StorageProduct {
             productState: ProductState.created.rawValue
         )
     }
-
+    
     // MARK: - Methods
-
+    
     func copy(withState newState: ProductState) -> StorageProduct {
         return StorageProduct(
             id: self.id,
@@ -92,4 +94,5 @@ final class StorageProduct {
             productState: newState.rawValue
         )
     }
+    
 }

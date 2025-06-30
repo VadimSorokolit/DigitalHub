@@ -76,14 +76,14 @@ struct FilteredProductsView: View {
                     
                     Spacer()
                     
-                    if let section = section {
+                    if let section = section, !section.products.isEmpty {
                         Button(action: {
                             
                             isShowAlert = true
                         }) {
                             HStack(spacing: 6.0) {
                                 Text(section.type == .favorites ? "Remove" : "Add")
-                                    .font(.custom(GlobalConstants.semiBoldFont, size: 10.0))
+                                    .font(.custom(GlobalConstants.mediumFont, size: 10.0))
                                     .foregroundColor(Color(hex: 0x3C79E6))
                                 Image(
                                     isSelectedAll
@@ -101,7 +101,7 @@ struct FilteredProductsView: View {
                 .padding(.horizontal, 30.0)
                 
                 Text(headerTitleName)
-                    .font(.custom(GlobalConstants.regularFont, size: 20.0))
+                    .font(.custom(GlobalConstants.mediumFont, size: 20.0))
                     .foregroundColor(Color(hex: 0x1F2937))
             }
             .padding(.top, 26.0)

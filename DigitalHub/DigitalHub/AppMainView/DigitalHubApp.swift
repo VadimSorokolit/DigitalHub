@@ -46,13 +46,13 @@ private struct DigitalHubApp: App {
     
     private static func resetStorageIfNeeded() {
         let fileManager = FileManager.default
-
+        
         let baseURL = FileManager.default
             .urls(for: .applicationSupportDirectory, in: .userDomainMask)
             .first!
-
+        
         let storeURL = baseURL.appendingPathComponent("default.store")
-
+        
         if fileManager.fileExists(atPath: storeURL.path) {
             do {
                 try fileManager.removeItem(at: storeURL)

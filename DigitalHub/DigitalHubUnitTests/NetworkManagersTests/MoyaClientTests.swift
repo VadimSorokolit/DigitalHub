@@ -66,7 +66,7 @@ final class MoyaClientTests: XCTestCase {
             })
             .store(in: &self.subscriptions)
         
-        wait(for: [expectation], timeout: 5.0)
+        self.wait(for: [expectation], timeout: 5.0)
         
         XCTAssertNotNil(receivedList)
     }
@@ -82,11 +82,13 @@ final class MoyaClientTests: XCTestCase {
         
         let expectedPrefix = "Ali"
         let expectedCount = 3
-        
+        let searchDelay: TimeInterval = 60.0 /** Delay to ensure Stripe has indexed the newly created products for search
+                                              https://docs.stripe.com/search?utm_source=chatgpt.com#data-freshnes
+                                              */
         Publishers.Sequence(sequence: newProducts)
             .flatMap(maxPublishers: .max(1)) { self.requireClient().createProduct($0) }
             .collect()
-            .delay(for: .seconds(44), scheduler: DispatchQueue.global())
+            .delay(for: .seconds(searchDelay), scheduler: DispatchQueue.global())
             .flatMap { _ in
                 self.requireClient().searchProducts(name: expectedPrefix, startingAfterId: nil)
             }
@@ -112,7 +114,7 @@ final class MoyaClientTests: XCTestCase {
             })
             .store(in: &subscriptions)
         
-        wait(for: [expectation], timeout: 60.0)
+        self.wait(for: [expectation], timeout: 65.0)
     }
     
     func test_createFile() {
@@ -144,7 +146,7 @@ final class MoyaClientTests: XCTestCase {
             }
             .store(in: &self.subscriptions)
         
-        wait(for: [expectation], timeout: 5.0)
+        self.wait(for: [expectation], timeout: 5.0)
     }
     
     func test_createFileLink() {
@@ -182,7 +184,7 @@ final class MoyaClientTests: XCTestCase {
             }
             .store(in: &self.subscriptions)
         
-        wait(for: [expectation], timeout: 5.0)
+        self.wait(for: [expectation], timeout: 5.0)
     }
     
     func test_createProduct() {
@@ -212,7 +214,7 @@ final class MoyaClientTests: XCTestCase {
             }
             .store(in: &self.subscriptions)
         
-        wait(for: [expectation], timeout: 5.0)
+        self.wait(for: [expectation], timeout: 5.0)
     }
     
     func test_updateProductStatusAndDelete() {
@@ -247,7 +249,7 @@ final class MoyaClientTests: XCTestCase {
             }
             .store(in: &self.subscriptions)
         
-        wait(for: [expectation], timeout: 5.0)
+        self.wait(for: [expectation], timeout: 5.0)
     }
     
     func test_DeleteProduct() {
@@ -277,7 +279,7 @@ final class MoyaClientTests: XCTestCase {
             }
             .store(in: &self.subscriptions)
         
-        wait(for: [expectation], timeout: 5.0)
+        self.wait(for: [expectation], timeout: 5.0)
     }
 
 }

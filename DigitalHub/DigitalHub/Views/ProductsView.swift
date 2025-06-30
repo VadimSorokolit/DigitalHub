@@ -98,7 +98,7 @@ struct ProductsView: View {
                 
                 var body: some View {
                     Text(Constants.headerTitleName)
-                        .font(.custom(GlobalConstants.regularFont, size: Constants.headerTitleFontSize))
+                        .font(.custom(GlobalConstants.mediumFont, size: Constants.headerTitleFontSize))
                         .foregroundColor(Color(hex: Constants.headerTitleFontColor))
                         .overlay(
                             Image(Constants.headerImageName)

@@ -265,7 +265,7 @@ struct AddProductView: View {
                         .cornerRadius(6.79, corners: [.topLeft, .topRight, .bottomRight])
                         .cornerRadius(22.64, corners: [.bottomLeft])
                     
-                    CustomTextField(optionalText: $price, placeholder: "Price", leadinPadding: 8.0, width: 60.0, height: 22.0, fontSize: 10.0, cornerRadius: 6.0)
+                    CustomTextField(optionalText: $price, placeholder: "Price", leadinPadding: 7.0, width: 82.0, height: 21.0, fontSize: 10.0, cornerRadius: 5.89)
                 }
                 .keyboardType(.numberPad)
             }
@@ -279,10 +279,10 @@ struct AddProductView: View {
                 ZStack {
                     Rectangle()
                         .fill(Color(hex: GlobalConstants.discountLabelColor))
-                        .frame(width: 52.0, height: 21.0)
-                        .cornerRadius(7.0)
+                        .frame(width: 66.0, height: 23.2)
+                        .cornerRadius(6.79)
                     
-                    CustomTextField(optionalText: $discount, placeholder: "Tax", leadinPadding: 4.0, width: 34.0, height: 12.0, fontSize: 10.0, cornerRadius: 3.0)
+                    CustomTextField(optionalText: $discount, placeholder: "Discount", leadinPadding: 4.33, width: 53.02, height: 13.59, fontSize: 10.0, cornerRadius: 3.34)
                 }
                 .offset(x: 23.0, y: -7.0)
                 .keyboardType(.numberPad)

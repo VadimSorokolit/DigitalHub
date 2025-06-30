@@ -15,14 +15,12 @@ protocol ProductStorageProtocol: AnyObject {
     func createProduct(_ product: StorageProduct) -> AnyPublisher<StorageProduct, APIError>
     func updateProduct(ids: [String], newState: ProductState, isFavorite: Bool?) -> AnyPublisher<[StorageProduct], APIError>
     func deleteProduct(id: String) -> AnyPublisher<String, APIError>
-    func setProducts(_ products: [StorageProduct])
 }
 
 class LocalStorage: ProductStorageProtocol {
     
     // MARK: - Properties
     
-    @Published var storageProducts: [StorageProduct] = []
     private let context: ModelContext
     
     // MARK: - Initializer
@@ -48,10 +46,6 @@ class LocalStorage: ProductStorageProtocol {
             .publisher
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
-    }
-    
-    func setProducts(_ products: [StorageProduct]) {
-        storageProducts = products
     }
     
     func searchProducts(query: String) -> AnyPublisher<[StorageProduct], APIError> {

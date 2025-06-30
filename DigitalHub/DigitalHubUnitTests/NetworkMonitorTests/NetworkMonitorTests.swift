@@ -20,16 +20,17 @@ final class NetworkMonitorTests: XCTestCase {
     func test_isConnectedPublishesChange() {
         let mockMonitor = MockNetworkMonitor(isConnected: false)
         var results: [Bool] = []
-
+        
         mockMonitor.isConnectedPublisher
             .sink { value in
                 results.append(value)
             }
-            .store(in: &subscriptions)
-
+            .store(in: &self.subscriptions)
+        
         mockMonitor.setConnected(true)
         mockMonitor.setConnected(false)
-
+        
         XCTAssertEqual(results, [false, true, false])
     }
+    
 }

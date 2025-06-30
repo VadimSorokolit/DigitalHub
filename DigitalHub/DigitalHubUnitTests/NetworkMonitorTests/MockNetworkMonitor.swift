@@ -16,22 +16,23 @@ final class MockNetworkMonitor: NetworkMonitoring {
     
     var isConnected: Bool
     var isConnectedSubject = CurrentValueSubject<Bool, Never>(false)
-
+    
     var isConnectedPublisher: AnyPublisher<Bool, Never> {
-        isConnectedSubject.eraseToAnyPublisher()
+        self.isConnectedSubject.eraseToAnyPublisher()
     }
     
     // MARK: - Initializer
     
     init(isConnected: Bool = false) {
         self.isConnected = isConnected
-        isConnectedSubject.send(isConnected)
+        self.isConnectedSubject.send(isConnected)
     }
     
     // MARK: - Methods
     
     func setConnected(_ connected: Bool) {
         self.isConnected = connected
-        isConnectedSubject.send(connected)
+        self.isConnectedSubject.send(connected)
     }
+    
 }

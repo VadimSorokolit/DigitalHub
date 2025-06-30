@@ -262,7 +262,6 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { products in
-                self.dataStorage.setProducts(products)
                 self.createSections(with: products)
             }
             .store(in: &self.subscriptions)
@@ -283,7 +282,6 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { [weak self] products in
-                self?.dataStorage.setProducts(products)
                 if NetworkMonitor.shared.isConnected {
                     self?.syncAllPendingProducts()
                 }
