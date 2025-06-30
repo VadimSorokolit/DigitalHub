@@ -10,8 +10,13 @@ import Combine
 @testable import DigitalHub
 
 final class NetworkMonitorTests: XCTestCase {
+    
+    // MARK: - Properties
+    
     private var subscriptions = Set<AnyCancellable>()
-
+    
+    // MARK: - Test Methods
+    
     func test_isConnectedPublishesChange() {
         let mockMonitor = MockNetworkMonitor(isConnected: false)
         var results: [Bool] = []
