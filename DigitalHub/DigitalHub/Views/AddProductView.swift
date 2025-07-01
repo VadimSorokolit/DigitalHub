@@ -164,17 +164,17 @@ struct AddProductView: View {
             
             var body: some View {
                 ZStack {
-                    Rectangle()
-                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
-                        .frame(width: width, height: height)
-                        .cornerRadius(cornerRadius)
-                    
+                    if pickedImage == nil {
+                        Rectangle()
+                            .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
+                            .frame(width: width, height: height)
+                            .cornerRadius(cornerRadius)
+                    }
                     if let image = pickedImage {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFill()
+                            .scaledToFit()
                             .frame(width: width, height: height)
-                            .clipped()
                             .cornerRadius(cornerRadius)
                     } else {
                         Image(systemName: GlobalConstants.placeholderImageName)

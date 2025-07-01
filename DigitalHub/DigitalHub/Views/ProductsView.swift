@@ -331,17 +331,19 @@ struct ProductsView: View {
                         
                         var body: some View {
                             ZStack {
-                                Rectangle()
-                                    .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
-                                    .frame(width: Constants.favoriteProductImageWidth, height: Constants.favoriteProductImageHeight)
-                                    .clipped()
-                                    .cornerRadius(8.0, corners: [.topLeft, .topRight])
+                                if product.imageURL == nil {
+                                    Rectangle()
+                                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
+                                        .frame(width: Constants.favoriteProductImageWidth, height: Constants.favoriteProductImageHeight)
+                                        .cornerRadius(8.0, corners: [.topLeft, .topRight])
+                                }
                                 
                                 Group {
                                     if let urlString = product.imageURL, let url = URL(string: urlString) {
                                         WebImage(url: url) { image in
                                             image
                                                 .resizable()
+                                                .scaledToFit()
                                         } placeholder: {
                                             ProgressView()
                                         }

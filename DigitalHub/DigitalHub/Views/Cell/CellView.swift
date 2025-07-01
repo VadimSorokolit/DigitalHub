@@ -54,17 +54,19 @@ struct CellView: View {
         
         var body: some View {
             ZStack {
-                Rectangle()
-                    .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
-                    .frame(width: Constants.cellImageWidth, height: Constants.cellImageWidth)
-                    .cornerRadius(8.0)
+                if product.imageURL == nil {
+                    Rectangle()
+                        .fill(Color(hex: GlobalConstants.cellImagePlaceholderBackgroundColor))
+                        .frame(width: Constants.cellImageWidth, height: Constants.cellImageWidth)
+                        .cornerRadius(8.0)
+                }
                 
                 Group {
                     if let urlString = product.imageURL, let url = URL(string: urlString) {
                         WebImage(url: url) { image in
                             image
                                 .resizable()
-                                .scaledToFill()
+                                .scaledToFit()
                         } placeholder: {
                             ProgressView()
                         }
@@ -103,36 +105,24 @@ struct CellView: View {
             let searchText: String?
             
             var body: some View {
+                Text(highlighteAttributedString)
+                    .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+            }
+            
+            private var highlighteAttributedString: AttributedString {
+                var attributedString = AttributedString(productName)
                 let query = searchText?
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                     .lowercased() ?? ""
                 
-                let lowercasedName = productName.lowercased()
-                
-                if query.count > 2, let range = lowercasedName.range(of: query) {
-                    let start = productName.distance(from: productName.startIndex, to: range.lowerBound)
-                    let matchLength = query.count
-                    
-                    let prefix = String(productName.prefix(start))
-                    let match = String(productName.dropFirst(start).prefix(matchLength))
-                    let suffix = String(productName.dropFirst(start + matchLength))
-                    
-                    HStack(spacing: 0.0) {
-                        styledText(prefix, highlight: false)
-                        styledText(match, highlight: true)
-                        styledText(suffix, highlight: false)
-                    }
-                } else {
-                    styledText(productName, highlight: false)
+                if query.count > 2,
+                   let range = attributedString.range(of: query, options: .caseInsensitive)
+                {
+                    attributedString[range].backgroundColor = Color(hex: 0xFCFAA6)
                 }
-            }
-            
-            private func styledText(_ text: String, highlight: Bool) -> some View {
-                Text(text)
-                    .font(.custom(GlobalConstants.semiBoldFont, size: 16.0))
-                    .foregroundColor(Color(hex: 0x1F2937))
-                    .background(highlight ? Color(hex: 0xFCFAA6) : .clear)
-                    .lineLimit(3)
+                return attributedString
             }
         }
         
