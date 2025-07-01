@@ -12,7 +12,7 @@ import CombineMoya
 // Client Interface
 protocol ProductApiClientProtocol: AnyObject {
     func getProducts(startingAfterId: String?) -> AnyPublisher<ProductList, APIError>
-    func searchProducts(name: String, startingAfterId: String?) -> AnyPublisher<ProductList, APIError>
+    func searchProducts(query: String, startingAfterId: String?) -> AnyPublisher<ProductList, APIError>
     func createProduct(_ product: Product) -> AnyPublisher<Product, APIError>
     func createFile(_ data: Data) -> AnyPublisher<ImageFile, APIError>
     func createFileLink(_ fileId: String) -> AnyPublisher<ImageFileLink, APIError>
@@ -26,9 +26,9 @@ class MoyaClient: ProductApiClientProtocol {
     
     // API: - https://docs.stripe.com/api/products/search
     
-    func searchProducts(name: String, startingAfterId: String? = nil) -> AnyPublisher<ProductList, APIError> {
+    func searchProducts(query: String, startingAfterId: String? = nil) -> AnyPublisher<ProductList, APIError> {
         return provider
-            .requestPublisher(.searchProducts(name: name, startingAfterId: startingAfterId))
+            .requestPublisher(.searchProducts(query: query, startingAfterId: startingAfterId))
             .map(\.data)
             .decode(type: ProductList.self, decoder: JSONDecoder())
             .mapError { APIError.from($0) }

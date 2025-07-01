@@ -240,7 +240,7 @@ struct FilteredProductsView: View {
                     message: "Are you sure you want to\n\(actionText)?",
                     onConfirm: {
                         isShowAlert = false
-                        viewModel.updateProductsStatus(sectionId: sectionId)
+                        viewModel.toggleProductsStatus(sectionId: sectionId)
                     },
                     onCancel: {
                         isShowAlert = false

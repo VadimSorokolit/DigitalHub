@@ -26,17 +26,17 @@ final class LocalStorageTests: XCTestCase {
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         
         self.container = try ModelContainer(for: schema, configurations: [config])
-        self.context = ModelContext(container)
-        self.storage = LocalStorage(context: context)
+        self.context = ModelContext(self.container)
+        self.storage = LocalStorage(context: self.context)
     }
     
     override func tearDownWithError() throws {
+        try super.tearDownWithError()
+        
         self.container = nil
         self.context = nil
         self.storage = nil
         self.subscriptions.removeAll()
-        
-        try super.tearDownWithError()
     }
     
     // MARK: - Test Methods
@@ -45,15 +45,14 @@ final class LocalStorageTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Fetch all products")
         
         self.storage.fetchAllProducts()
-            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     
                     XCTFail("Error: \(error.localizedDescription)")
                 }
             }, receiveValue: { products in
-                print(products.count)
-                XCTAssertEqual(products.count, 0)
+                
+                XCTAssertTrue(products.isEmpty)
                 
                 expectation.fulfill()
             })
@@ -65,27 +64,25 @@ final class LocalStorageTests: XCTestCase {
     func test_searchProducts() {
         let expectation = XCTestExpectation(description: "Search products")
         
-        let newProduct1 = StorageProduct()
-        newProduct1.name = "Test Product 1"
-        newProduct1.price = "10"
+        let testProduct1 = StorageProduct(); testProduct1.name = "Test Product 1"; testProduct1.price = "10"
+        let testProduct2 = StorageProduct(); testProduct2.name = "Producttest2"; testProduct2.price = "20"
+        let testProduct3 = StorageProduct(); testProduct3.name = "AnotherTestProduct"; testProduct3.price = "30"
+        let testProduct4 = StorageProduct(); testProduct4.name = "AnotherTeProduct"; testProduct4.price = "40"
+        let testProduct5 = StorageProduct(); testProduct5.name = "LastProduct"; testProduct5.price = "50"
         
-        let newProduct2 = StorageProduct()
-        newProduct2.name = "Producttest2"
-        newProduct2.price = "20"
+        let testProducts = [testProduct1, testProduct2, testProduct3, testProduct4, testProduct5]
+        let query = "Test"
+        let expectedQueryProuductsCount = testProducts.filter {
+            $0.name.localizedCaseInsensitiveContains(query)
+        }.count
         
-        let newProduct3 = StorageProduct()
-        newProduct3.name = "AnotherTestProduct"
-        newProduct3.price = "30"
-        
-        self.storage.createProduct(newProduct1)
-            .flatMap { _ in
-                self.storage.createProduct(newProduct2)
+        Publishers.Sequence(sequence: testProducts)
+            .flatMap {
+                self.storage.createProduct($0)
             }
+            .collect()
             .flatMap { _ in
-                self.storage.createProduct(newProduct3)
-            }
-            .flatMap { _ in
-                self.storage.searchProducts(query: "Test")
+                self.storage.searchProducts(query: query)
             }
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
@@ -94,7 +91,7 @@ final class LocalStorageTests: XCTestCase {
                 }
             }, receiveValue: { foundProducts in
                 
-                XCTAssertEqual(foundProducts.count, 3)
+                XCTAssertEqual(foundProducts.count, expectedQueryProuductsCount)
                 
                 expectation.fulfill()
             })
@@ -106,12 +103,11 @@ final class LocalStorageTests: XCTestCase {
     func test_createProduct() {
         let expectation = XCTestExpectation(description: "Create product")
         
-        let newProduct = StorageProduct()
-        newProduct.name = "Test Product"
-        newProduct.price = "10"
+        let testProduct = StorageProduct()
+        testProduct.name = "Test Product"
+        testProduct.price = "10"
         
-        self.storage.createProduct(newProduct)
-            .receive(on: DispatchQueue.main)
+        self.storage.createProduct(testProduct)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     
@@ -120,7 +116,7 @@ final class LocalStorageTests: XCTestCase {
             }, receiveValue: { createdProduct in
                 
                 XCTAssertNotNil(createdProduct)
-                XCTAssertEqual(newProduct.id, createdProduct.id)
+                XCTAssertEqual(testProduct.id, createdProduct.id)
                 
                 expectation.fulfill()
             })
@@ -132,14 +128,14 @@ final class LocalStorageTests: XCTestCase {
     func test_updateProduct() {
         let expectation = XCTestExpectation(description: "Update product")
         
-        let newProduct = StorageProduct()
-        newProduct.name = "Test Product Updated"
-        newProduct.isFavorite = false
-        newProduct.price = "100"
+        let testProduct = StorageProduct()
+        testProduct.name = "Test Product Updated"
+        testProduct.isFavorite = false
+        testProduct.price = "100"
         
-        self.storage.createProduct(newProduct)
+        self.storage.createProduct(testProduct)
             .flatMap { createdProduct in
-                return self.storage.updateProduct(ids: [createdProduct.id], newState: .updated, isFavorite: createdProduct.isFavorite)
+                return self.storage.updateProduct(ids: [createdProduct.id], newState: .updated, isFavorite: !createdProduct.isFavorite)
             }
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
@@ -154,8 +150,8 @@ final class LocalStorageTests: XCTestCase {
                 
                 XCTAssertEqual(updatedProduct?.state, ProductState.updated.rawValue)
                 XCTAssertEqual(updatedProduct?.isFavorite, true)
-                XCTAssertEqual(updatedProduct?.isFavorite, newProduct.isFavorite)
-                XCTAssertEqual(updatedProduct?.id, newProduct.id)
+                XCTAssertEqual(updatedProduct?.isFavorite, testProduct.isFavorite)
+                XCTAssertEqual(updatedProduct?.id, testProduct.id)
                 
                 expectation.fulfill()
             })
@@ -167,12 +163,12 @@ final class LocalStorageTests: XCTestCase {
     func test_deleteProduct() {
         let expectation = XCTestExpectation(description: "Delete product")
         
-        let newProduct = StorageProduct()
-        newProduct.name = "Test Product Deleted"
-        newProduct.isFavorite = false
-        newProduct.price = "100"
+        let testProduct = StorageProduct()
+        testProduct.name = "Test Product Deleted"
+        testProduct.isFavorite = false
+        testProduct.price = "100"
         
-        self.storage.createProduct(newProduct)
+        self.storage.createProduct(testProduct)
             .flatMap { createdProduct in
                 return self.storage.deleteProduct(id: createdProduct.id)
             }
@@ -184,7 +180,7 @@ final class LocalStorageTests: XCTestCase {
             }, receiveValue: { deletedProductId in
                 
                 XCTAssertNotNil(deletedProductId)
-                XCTAssertEqual(deletedProductId, newProduct.id)
+                XCTAssertEqual(deletedProductId, testProduct.id)
                 
                 expectation.fulfill()
             })

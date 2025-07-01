@@ -107,19 +107,7 @@ class ProductsViewModel: ObservableObject {
             }
             .store(in: &self.subscriptions)
     }
-    
-    private func convert(_ storage: StorageProduct) -> Product {
-        Product(
-            name: storage.name,
-            brandName: storage.brandName,
-            imageURL: storage.imageURL,
-            id: storage.id,
-            isFavorite: storage.isFavorite,
-            price: storage.price,
-            discount: storage.discount
-        )
-    }
-    
+
     private func createSections(with products: [StorageProduct]) {
         let favoriteSection = ProductsSection(
             type: .favorites,
@@ -273,10 +261,6 @@ class ProductsViewModel: ObservableObject {
             .handleEvents(receiveOutput: { created in
                 self.addSectionProduct(created)
             })
-            .flatMap { [weak self] _ in
-                self?.dataStorage.fetchAllProducts()
-                ?? Empty(completeImmediately: true).eraseToAnyPublisher()
-            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
@@ -301,7 +285,7 @@ class ProductsViewModel: ObservableObject {
             }
         }()
         
-        self.dataStorage.updateProduct(ids: [product.id], newState: finalState, isFavorite: product.isFavorite)
+        self.dataStorage.updateProduct(ids: [product.id], newState: finalState, isFavorite: !product.isFavorite)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
@@ -315,54 +299,56 @@ class ProductsViewModel: ObservableObject {
             .store(in: &self.subscriptions)
     }
     
-    func updateProductsStatus(sectionId: UUID) {
+    func toggleProductsStatus(sectionId: UUID) {
         self.isLoading = true
         
         guard let section = section(withId: sectionId), !section.products.isEmpty else { return }
         
-        let isFavorite = section.products.first?.isFavorite
-        
-        let createdIDs = section.products
-            .filter { $0.state == ProductState.created.rawValue }
-            .map { $0.id }
-        
-        let updatedIDs = section.products
-            .filter { $0.state != ProductState.created.rawValue }
-            .map { $0.id }
-        
-        var publishers: [AnyPublisher<[StorageProduct], APIError>] = []
-        
-        if !createdIDs.isEmpty {
-            let createdPublisher = self.dataStorage.updateProduct(ids: createdIDs, newState: .created, isFavorite: isFavorite)
-            publishers.append(createdPublisher)
-        }
-        
-        if !updatedIDs.isEmpty {
-            let updatedPublisher = self.dataStorage.updateProduct(ids: updatedIDs, newState: .updated, isFavorite: isFavorite)
-            publishers.append(updatedPublisher)
-        }
-        
-        if publishers.isEmpty { return }
-        
-        Publishers.MergeMany(publishers)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                self?.handleCompletion(completion)
-            } receiveValue: { [weak self] products in
-                products.forEach { self?.updateSectionProduct($0) }
-                if NetworkMonitor.shared.isConnected {
-                    self?.syncAllPendingProducts()
-                }
+        if let isFavorite = section.products.first?.isFavorite {
+            
+            let createdIDs = section.products
+                .filter { $0.state == ProductState.created.rawValue }
+                .map { $0.id }
+            
+            let updatedIDs = section.products
+                .filter { $0.state != ProductState.created.rawValue }
+                .map { $0.id }
+            
+            var publishers: [AnyPublisher<[StorageProduct], APIError>] = []
+            
+            if !createdIDs.isEmpty {
+                let createdPublisher = self.dataStorage.updateProduct(ids: createdIDs, newState: .created, isFavorite: !isFavorite)
+                publishers.append(createdPublisher)
             }
-            .store(in: &self.subscriptions)
+            
+            if !updatedIDs.isEmpty {
+                let updatedPublisher = self.dataStorage.updateProduct(ids: updatedIDs, newState: .updated, isFavorite: !isFavorite)
+                publishers.append(updatedPublisher)
+            }
+            
+            if publishers.isEmpty { return }
+            
+            Publishers.MergeMany(publishers)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] completion in
+                    self?.handleCompletion(completion)
+                } receiveValue: { [weak self] products in
+                    products.forEach { self?.updateSectionProduct($0) }
+                    if NetworkMonitor.shared.isConnected {
+                        self?.syncAllPendingProducts()
+                    }
+                }
+                .store(in: &self.subscriptions)
+        }
     }
     
     func deleteProduct(_ product: StorageProduct) {
         self.isLoading = true
         
         if NetworkMonitor.shared.isConnected {
-            let converted = convert(product)
-            self.deleteProducts([converted])
+            let product = product.asModel
+            
+            self.deleteProducts([product])
         } else {
             if product.state == ProductState.created.rawValue {
                 self.dataStorage.deleteProduct(id: product.id)
@@ -392,9 +378,9 @@ class ProductsViewModel: ObservableObject {
     }
     
     private func syncPending(from products: [StorageProduct]) {
-        let created = products.filter { $0.state == ProductState.created.rawValue }.map { self.convert($0) }
-        let updated = products.filter { $0.state == ProductState.updated.rawValue }.map { self.convert($0) }
-        let deleted = products.filter { $0.state == ProductState.deleted.rawValue }.map { self.convert($0) }
+        let created = products.filter { $0.state == ProductState.created.rawValue }.map { $0.asModel }
+        let updated = products.filter { $0.state == ProductState.updated.rawValue }.map { $0.asModel }
+        let deleted = products.filter { $0.state == ProductState.deleted.rawValue }.map { $0.asModel }
         
         if !created.isEmpty {
             self.createProducts(created)

@@ -38,9 +38,10 @@
 		DDBA3CC52E0ACFA40020A3D6 /* StorageProduct+copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */; };
 		DDBA3CF32E0E8B7C0020A3D6 /* MockNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */; };
 		DDBA3CF52E0E8DFF0020A3D6 /* NetworkMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CF42E0E8DFE0020A3D6 /* NetworkMonitorTests.swift */; };
-		DDBA3CFB2E0EA6930020A3D6 /* MoyaClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CFA2E0EA6920020A3D6 /* MoyaClientTests.swift */; };
 		DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF841F12DF1AA7700DFE099 /* AddProductView.swift */; };
 		DDFC874A2E12D5D100C1D5C2 /* LocalStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDFC87492E12D5CF00C1D5C2 /* LocalStorageTests.swift */; };
+		DDFC874C2E1415FC00C1D5C2 /* StorageProduct+asModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDFC874B2E1415FB00C1D5C2 /* StorageProduct+asModel.swift */; };
+		DDFC875B2E1425D300C1D5C2 /* MoyaClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDFC875A2E1425D300C1D5C2 /* MoyaClientTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,9 +92,10 @@
 		DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageProduct+copy.swift"; sourceTree = "<group>"; };
 		DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkMonitor.swift; sourceTree = "<group>"; };
 		DDBA3CF42E0E8DFE0020A3D6 /* NetworkMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorTests.swift; sourceTree = "<group>"; };
-		DDBA3CFA2E0EA6920020A3D6 /* MoyaClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoyaClientTests.swift; sourceTree = "<group>"; };
 		DDF841F12DF1AA7700DFE099 /* AddProductView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddProductView.swift; sourceTree = "<group>"; };
 		DDFC87492E12D5CF00C1D5C2 /* LocalStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalStorageTests.swift; sourceTree = "<group>"; };
+		DDFC874B2E1415FB00C1D5C2 /* StorageProduct+asModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageProduct+asModel.swift"; sourceTree = "<group>"; };
+		DDFC875A2E1425D300C1D5C2 /* MoyaClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoyaClientTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -265,6 +267,7 @@
 		DD755D822DDB80B200B142FA /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				DDFC874B2E1415FB00C1D5C2 /* StorageProduct+asModel.swift */,
 				DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */,
 				DD7779A92DE7182900EDC278 /* View+loadAlert.swift */,
 				DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */,
@@ -293,7 +296,7 @@
 		DDBA3CEC2E0E89350020A3D6 /* DigitalHubUnitTests */ = {
 			isa = PBXGroup;
 			children = (
-				DDBA3CF72E0E95C80020A3D6 /* NetworkManagersTests */,
+				DDBA3CF72E0E95C80020A3D6 /* NetworkManagerTests */,
 				DDBA3CF12E0E89470020A3D6 /* NetworkMonitorTests */,
 				DDBA3CF62E0E95470020A3D6 /* LocalStorageTests */,
 			);
@@ -317,12 +320,12 @@
 			path = LocalStorageTests;
 			sourceTree = "<group>";
 		};
-		DDBA3CF72E0E95C80020A3D6 /* NetworkManagersTests */ = {
+		DDBA3CF72E0E95C80020A3D6 /* NetworkManagerTests */ = {
 			isa = PBXGroup;
 			children = (
-				DDBA3CFA2E0EA6920020A3D6 /* MoyaClientTests.swift */,
+				DDFC875A2E1425D300C1D5C2 /* MoyaClientTests.swift */,
 			);
-			path = NetworkManagersTests;
+			path = NetworkManagerTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -411,6 +414,7 @@
 					};
 					DD70B6862D8376E1003B9A05 = {
 						CreatedOnToolsVersion = 16.2;
+						LastSwiftMigration = 1640;
 						TestTargetID = DD70B66A2D8376DF003B9A05;
 					};
 				};
@@ -483,6 +487,7 @@
 				DDBA3CC52E0ACFA40020A3D6 /* StorageProduct+copy.swift in Sources */,
 				DD77799A2DE47D2500EDC278 /* FilteredProductsView.swift in Sources */,
 				DD755D842DDB80C500B142FA /* Color+hexInt.swift in Sources */,
+				DDFC874C2E1415FC00C1D5C2 /* StorageProduct+asModel.swift in Sources */,
 				DD70B6D52D838CD0003B9A05 /* NetworkManager.swift in Sources */,
 				DD77799C2DE4AF6200EDC278 /* CellView.swift in Sources */,
 				DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */,
@@ -503,8 +508,8 @@
 			files = (
 				DDBA3CF52E0E8DFF0020A3D6 /* NetworkMonitorTests.swift in Sources */,
 				DDBA3CF32E0E8B7C0020A3D6 /* MockNetworkMonitor.swift in Sources */,
+				DDFC875B2E1425D300C1D5C2 /* MoyaClientTests.swift in Sources */,
 				DDFC874A2E12D5D100C1D5C2 /* LocalStorageTests.swift in Sources */,
-				DDBA3CFB2E0EA6930020A3D6 /* MoyaClientTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -765,6 +770,7 @@
 		DD70B6982D8376E1003B9A05 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = D28SS25G7Y;
@@ -773,6 +779,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.DigitalHubUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = DigitalHub;
@@ -782,6 +789,7 @@
 		DD70B6992D8376E1003B9A05 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = D28SS25G7Y;

@@ -23,7 +23,7 @@ final class NetworkMonitor: ObservableObject, NetworkMonitoring {
     private let queue = DispatchQueue.global()
 
     var isConnectedPublisher: AnyPublisher<Bool, Never> {
-        $isConnected.eraseToAnyPublisher()
+        self.$isConnected.eraseToAnyPublisher()
     }
 
     init(monitor: NWPathMonitor = NWPathMonitor()) {
@@ -34,10 +34,10 @@ final class NetworkMonitor: ObservableObject, NetworkMonitoring {
                 self?.isConnected = (path.status == .satisfied)
             }
         }
-        monitor.start(queue: queue)
+        monitor.start(queue: self.queue)
     }
 
     deinit {
-        monitor.cancel()
+        self.monitor.cancel()
     }
 }

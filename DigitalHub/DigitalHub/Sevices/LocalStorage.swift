@@ -109,7 +109,7 @@ class LocalStorage: ProductStorageProtocol {
                 }
                 for product in products {
                     if let isFavorite = isFavorite {
-                        product.isFavorite = !isFavorite
+                        product.isFavorite = isFavorite
                     }
                     product.state = newState.rawValue
                 }

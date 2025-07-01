@@ -72,7 +72,7 @@ private struct Constants {
 
 enum DigitalProductRouter {
     case getProducts(startingAfterId: String? = nil)
-    case searchProducts(name: String, startingAfterId: String? = nil)
+    case searchProducts(query: String, startingAfterId: String? = nil)
     case createProduct(product: Product)
     case createFile(data: Data)
     case createFileLink(_ fileLinkId: String?)
