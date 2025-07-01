@@ -64,11 +64,25 @@ final class LocalStorageTests: XCTestCase {
     func test_searchProducts() {
         let expectation = XCTestExpectation(description: "Search products")
         
-        let testProduct1 = StorageProduct(); testProduct1.name = "Test Product 1"; testProduct1.price = "10"
-        let testProduct2 = StorageProduct(); testProduct2.name = "Producttest2"; testProduct2.price = "20"
-        let testProduct3 = StorageProduct(); testProduct3.name = "AnotherTestProduct"; testProduct3.price = "30"
-        let testProduct4 = StorageProduct(); testProduct4.name = "AnotherTeProduct"; testProduct4.price = "40"
-        let testProduct5 = StorageProduct(); testProduct5.name = "LastProduct"; testProduct5.price = "50"
+        let testProduct1 = StorageProduct()
+        testProduct1.name = "TestProduct\(UUID().uuidString)"
+        testProduct1.price = "10"
+        
+        let testProduct2 = StorageProduct()
+        testProduct2.name = "Producttest2\(UUID().uuidString)"
+        testProduct2.price = "20"
+        
+        let testProduct3 = StorageProduct();
+        testProduct3.name = "AnotherTestProduct\(UUID().uuidString)"
+        testProduct3.price = "30"
+        
+        let testProduct4 = StorageProduct(); 
+        testProduct4.name = "AnotherTeProduct\(UUID().uuidString)"
+        testProduct4.price = "40"
+        
+        let testProduct5 = StorageProduct()
+        testProduct5.name = "LastPstroduct\(UUID().uuidString)"
+        testProduct5.price = "50"
         
         let testProducts = [testProduct1, testProduct2, testProduct3, testProduct4, testProduct5]
         let query = "Test"

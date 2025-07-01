@@ -75,11 +75,11 @@ final class MoyaClientTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Search products")
         
         let testProducts = [
-            Product(name: "testAliOne"),
-            Product(name: "testTwoali"),
-            Product(name: "testThaliree"),
-            Product(name: "testFourai"),
-            Product(name: "testA"),
+            Product(name: "testAliOne\(UUID().uuidString)"),
+            Product(name: "testTwoali\(UUID().uuidString)"),
+            Product(name: "testThaliree\(UUID().uuidString)"),
+            Product(name: "testFourai\(UUID().uuidString)"),
+            Product(name: "testA\(UUID().uuidString)")
         ]
         
         let query = "Ali"

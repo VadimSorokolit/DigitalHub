@@ -532,6 +532,9 @@ struct AddProductView: View {
                             alertTitle = "Invalid price"
                             alertMessage = "Please enter a price from 1 to 9999"
                             showAlert = true
+                        } else {
+                            storageProduct.price = nil
+                            price = nil
                         }
                     }
                 }
@@ -547,6 +550,9 @@ struct AddProductView: View {
                             alertTitle = "Invalid discount"
                             alertMessage = "Please enter a discount from 1 to 99"
                             showAlert = true
+                        } else {
+                            storageProduct.discount = nil
+                            discount = nil
                         }
                     }
                 }
