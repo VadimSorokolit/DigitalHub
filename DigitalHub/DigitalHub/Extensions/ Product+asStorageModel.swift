@@ -8,6 +8,10 @@
 extension Product {
     
     var asStorageModel: StorageProduct {
+        let cleanedDiscount = self.discount?
+            .replacingOccurrences(of: "discount", with: "", options: .caseInsensitive)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
         let storageProduct = StorageProduct(
             id: self.id,
             name: self.name,
@@ -15,9 +19,9 @@ extension Product {
             imageURL: self.imageURL,
             isFavorite: self.isFavorite,
             price: self.price,
-            discount: self.discount
+            discount: cleanedDiscount
         )
+        
         return storageProduct
     }
-    
 }

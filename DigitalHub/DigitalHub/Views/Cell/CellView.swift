@@ -91,10 +91,10 @@ struct CellView: View {
         let onLikeToggle: () -> Void
         
         var body: some View {
-            HStack {
+            ZStack(alignment: .topTrailing) {
                 TitleHighlighted(productName: product.name, searchText: searchText)
-                
-                Spacer()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.trailing, 19.0)
                 
                 LikeButtonWithImage(product: product, onLikeToggle: onLikeToggle)
             }
