@@ -104,7 +104,7 @@ struct FilteredProductsView: View {
                     .font(.custom(GlobalConstants.mediumFont, size: 20.0))
                     .foregroundColor(Color(hex: 0x1F2937))
             }
-            .padding(.top, 26.0)
+            .padding(.top)
         }
         
     }

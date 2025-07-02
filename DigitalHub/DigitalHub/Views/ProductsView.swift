@@ -80,7 +80,7 @@ struct ProductsView: View {
                 TitleView(path: $path)
                 SearchBarView(searchQuery: $searchQuery)
             }
-            .padding(.top, 34.0)
+            .padding(.top)
             .padding(.horizontal, 18.0)
         }
         

@@ -50,7 +50,7 @@ private struct Constants {
     }
     
     struct Values {
-        static let perPage: Int = 15
+        static let perPage: Int = 100
         
         enum BoolString: String {
             case boolTrue = "true"
