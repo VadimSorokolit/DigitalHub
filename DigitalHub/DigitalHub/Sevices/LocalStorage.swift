@@ -94,37 +94,38 @@ class LocalStorage: ProductStorageProtocol {
     
     func updateProduct(ids: [String], newState: ProductState, isFavorite: Bool?) -> AnyPublisher<[StorageProduct], APIError> {
         Future { [weak self] promise in
-            guard let self else {
-                promise(.failure(APIError.unknown))
-                return
-            }
-            
-            do {
-                let descriptor = FetchDescriptor<StorageProduct>(predicate: #Predicate { ids.contains($0.id) })
-                let products = try self.context.fetch(descriptor)
-                
-                if products.isEmpty {
-                    promise(.failure(.notFound))
+            DispatchQueue.main.async {
+                guard let self else {
+                    promise(.failure(APIError.unknown))
                     return
                 }
-                for product in products {
-                    if let isFavorite = isFavorite {
-                        product.isFavorite = isFavorite
+                
+                do {
+                    let descriptor = FetchDescriptor<StorageProduct>(predicate: #Predicate { ids.contains($0.id) })
+                    let products = try self.context.fetch(descriptor)
+                    
+                    if products.isEmpty {
+                        promise(.failure(.notFound))
+                        return
                     }
-                    product.state = newState.rawValue
+                    for product in products {
+                        if let isFavorite = isFavorite {
+                            product.isFavorite = isFavorite
+                        }
+                        product.state = newState.rawValue
+                    }
+                    
+                    try self.context.save()
+                    promise(.success(products))
+                    return
+                    
+                } catch {
+                    self.context.rollback()
+                    promise(.failure(APIError.storage(error)))
+                    return
                 }
-                
-                try self.context.save()
-                promise(.success(products))
-                return
-                
-            } catch {
-                self.context.rollback()
-                promise(.failure(APIError.storage(error)))
-                return
             }
         }
-        .receive(on: DispatchQueue.main)
         .eraseToAnyPublisher()
     }
 

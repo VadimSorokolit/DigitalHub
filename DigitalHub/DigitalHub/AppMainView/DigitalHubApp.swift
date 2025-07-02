@@ -16,6 +16,7 @@ private struct DigitalHubApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var viewModel: ProductsViewModel
     @StateObject private var networkMonitor: NetworkMonitor
+    @State private var didLoadProducts = false
     @State private var showSpinner: Bool = false
     private let sharedModelContainer: ModelContainer
 
@@ -69,8 +70,11 @@ private struct DigitalHubApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ProductsView(viewModel: viewModel, networkMonitor: networkMonitor)
-                .modifier(LoadViewModifier(viewModel: viewModel, networkMonitor: networkMonitor, showSpinner: $showSpinner))
+            NavigationStack {
+                ProductsView(viewModel: viewModel, networkMonitor: networkMonitor)
+                    .modifier(LoadViewModifier(viewModel: viewModel, networkMonitor: networkMonitor, didLoadProducts: $didLoadProducts, showSpinner: $showSpinner))
+            }
+            .statusBar(hidden: true)
         }
         .modelContainer(sharedModelContainer)
     }
@@ -78,6 +82,7 @@ private struct DigitalHubApp: App {
     private struct LoadViewModifier: ViewModifier {
         @ObservedObject var viewModel: ProductsViewModel
         @ObservedObject var networkMonitor: NetworkMonitor
+        @Binding var didLoadProducts: Bool
         @Binding var showSpinner: Bool
         
         func body(content: Content) -> some View {
@@ -89,7 +94,10 @@ private struct DigitalHubApp: App {
                 }
             }
             .onAppear {
-                viewModel.loadStorageProducts()
+                if !didLoadProducts {
+                    viewModel.loadStorageProducts()
+                    didLoadProducts = true
+                }
             }
             .onReceive(viewModel.$isLoading) { isLoading in
                 showSpinner = isLoading
