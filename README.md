@@ -1,4 +1,5 @@
 # DigitalHub
+**Create, delete, search and manage products — all from one place with DigitalHub**
 
 
 *	UI Framework - **SwiftUI**
