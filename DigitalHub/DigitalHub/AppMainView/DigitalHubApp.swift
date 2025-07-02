@@ -19,12 +19,12 @@ private struct DigitalHubApp: App {
     @State private var didLoadProducts = false
     @State private var showSpinner: Bool = false
     private let sharedModelContainer: ModelContainer
-
+    
     // MARK: - Initializer
-
+    
     init() {
 #if DEBUG
-//        Self.resetStorageIfNeeded()
+        //        Self.resetStorageIfNeeded()
 #endif
         let schema = Schema([StorageProduct.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
@@ -99,8 +99,14 @@ private struct DigitalHubApp: App {
                     didLoadProducts = true
                 }
             }
-            .onReceive(viewModel.$isLoading) { isLoading in
-                showSpinner = isLoading
+            .onChange(of: viewModel.isLoading) {
+                if viewModel.isLoading {
+                    showSpinner = true
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        showSpinner = false
+                    }
+                }
             }
         }
     }

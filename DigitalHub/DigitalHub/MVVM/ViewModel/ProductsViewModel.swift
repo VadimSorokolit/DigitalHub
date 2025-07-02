@@ -101,14 +101,16 @@ class ProductsViewModel: ObservableObject {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { isConnected in
-                if isConnected {
+                if isConnected, !self.sections.isEmpty {
                     self.syncAllPendingProducts()
                 }
             }
             .store(in: &self.subscriptions)
     }
-
+    
     private func createSections(with products: [StorageProduct]) {
+        defer { self.isLoading = false }
+        
         let favoriteSection = ProductsSection(
             type: .favorites,
             title: ProductsSection.SectionType.favorites.rawValue.capitalized,
@@ -247,7 +249,12 @@ class ProductsViewModel: ObservableObject {
         self.dataStorage.fetchAllProducts()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                self?.handleCompletion(completion)
+                switch completion {
+                    case .failure:
+                        self?.handleCompletion(completion)
+                    case .finished:
+                        break
+                }
             } receiveValue: { products in
                 if products.isEmpty {
                     self.loadFirstPage()
@@ -368,7 +375,7 @@ class ProductsViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func syncAllPendingProducts() {
         self.isLoading = true
         
@@ -398,8 +405,6 @@ class ProductsViewModel: ObservableObject {
     }
     
     func loadFirstPage() {
-        self.isLoading = true
-        
         self.apiClient.getProducts(startingAfterId: nil)
             .receive(on: DispatchQueue.main)
             .flatMap { [weak self] productList -> AnyPublisher<[StorageProduct], APIError> in
@@ -420,7 +425,12 @@ class ProductsViewModel: ObservableObject {
             }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                self?.handleCompletion(completion)
+                switch completion {
+                    case .failure:
+                        self?.handleCompletion(completion)
+                    case .finished:
+                        break
+                }
             } receiveValue: { [weak self] savedProducts in
                 self?.createSections(with: savedProducts)
             }
