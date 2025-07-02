@@ -249,7 +249,11 @@ class ProductsViewModel: ObservableObject {
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
             } receiveValue: { products in
-                self.createSections(with: products)
+                if products.isEmpty {
+                    self.loadFirstPage()
+                } else {
+                    self.createSections(with: products)
+                }
             }
             .store(in: &self.subscriptions)
     }
@@ -398,18 +402,27 @@ class ProductsViewModel: ObservableObject {
         
         self.apiClient.getProducts(startingAfterId: nil)
             .receive(on: DispatchQueue.main)
+            .flatMap { [weak self] productList -> AnyPublisher<[StorageProduct], APIError> in
+                guard let self else {
+                    return Just([]).setFailureType(to: APIError.self).eraseToAnyPublisher()
+                }
+                let products = productList.products.map { $0.asStorageModel }
+                let createProductPublishers = products.map { self.dataStorage.createProduct($0) }
+                
+                return Publishers.MergeMany(createProductPublishers)
+                    .collect()
+                    .map { saved in
+                        self.hasMoreData = productList.hasMore
+                        self.lastProductId = saved.last?.id
+                        return saved
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 self?.handleCompletion(completion)
-            } receiveValue: { [weak self] productList in
-                guard let self else { return }
-                
-                let products = productList.products
-                // self.createSections(with: products)
-                self.lastProductId = products.last?.id
-                
-                if self.hasMoreData != productList.hasMore {
-                    self.hasMoreData = productList.hasMore
-                }
+            } receiveValue: { [weak self] savedProducts in
+                self?.createSections(with: savedProducts)
             }
             .store(in: &self.subscriptions)
     }
