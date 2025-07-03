@@ -15,11 +15,7 @@ struct Product: Codable, Identifiable {
     var isFavorite: Bool
     var price: String?
     var discount: String?
-    
-    var isValid: Bool {
-        !name.isEmpty
-    }
-    
+
     init() {
         self.name = ""
         self.id = UUID().uuidString

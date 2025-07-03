@@ -23,9 +23,6 @@ private struct DigitalHubApp: App {
     // MARK: - Initializer
     
     init() {
-#if DEBUG
-        //        Self.resetStorageIfNeeded()
-#endif
         let schema = Schema([StorageProduct.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
@@ -42,27 +39,6 @@ private struct DigitalHubApp: App {
             _networkMonitor = StateObject(wrappedValue: monitor)
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
-        }
-    }
-    
-    private static func resetStorageIfNeeded() {
-        let fileManager = FileManager.default
-        
-        let baseURL = FileManager.default
-            .urls(for: .applicationSupportDirectory, in: .userDomainMask)
-            .first!
-        
-        let storeURL = baseURL.appendingPathComponent("default.store")
-        
-        if fileManager.fileExists(atPath: storeURL.path) {
-            do {
-                try fileManager.removeItem(at: storeURL)
-                print("SwiftData cleaned: \(storeURL.path)")
-            } catch {
-                print(error)
-            }
-        } else {
-            print(storeURL.path)
         }
     }
     

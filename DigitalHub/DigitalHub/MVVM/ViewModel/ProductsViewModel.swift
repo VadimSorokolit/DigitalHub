@@ -185,8 +185,6 @@ class ProductsViewModel: ObservableObject {
                         guard let self else { return Empty().eraseToAnyPublisher() }
                         
                         return self.dataStorage.update(ids: [updateProduct.id], newState: .synced)
-                            .handleEvents(receiveOutput: { updated in
-                            })
                             .catch { error in
                                 Empty().eraseToAnyPublisher()
                             }
@@ -284,8 +282,6 @@ class ProductsViewModel: ObservableObject {
     }
     
     func updateStorageProductStatus(_ product: StorageProduct, newState: ProductState) {
-        self.isLoading = true
-        
         let isOffline = !NetworkMonitor.shared.isConnected
         
         let finalState: ProductState = {
@@ -295,6 +291,8 @@ class ProductsViewModel: ObservableObject {
                 return newState
             }
         }()
+        
+        self.isLoading = true
         
         self.dataStorage.updateProduct(ids: [product.id], newState: finalState, isFavorite: !product.isFavorite)
             .receive(on: DispatchQueue.main)
@@ -311,12 +309,9 @@ class ProductsViewModel: ObservableObject {
     }
     
     func toggleProductsStatus(sectionId: UUID) {
-        self.isLoading = true
-        
         guard let section = section(withId: sectionId), !section.products.isEmpty else { return }
         
         if let isFavorite = section.products.first?.isFavorite {
-            
             let createdIDs = section.products
                 .filter { $0.state == ProductState.created.rawValue }
                 .map { $0.id }
@@ -331,13 +326,13 @@ class ProductsViewModel: ObservableObject {
                 let createdPublisher = self.dataStorage.updateProduct(ids: createdIDs, newState: .created, isFavorite: !isFavorite)
                 publishers.append(createdPublisher)
             }
-            
             if !updatedIDs.isEmpty {
                 let updatedPublisher = self.dataStorage.updateProduct(ids: updatedIDs, newState: .updated, isFavorite: !isFavorite)
                 publishers.append(updatedPublisher)
             }
-            
             if publishers.isEmpty { return }
+            
+            self.isLoading = true
             
             Publishers.MergeMany(publishers)
                 .receive(on: DispatchQueue.main)
@@ -354,14 +349,13 @@ class ProductsViewModel: ObservableObject {
     }
     
     func deleteProduct(_ product: StorageProduct) {
-        self.isLoading = true
-        
         if NetworkMonitor.shared.isConnected {
             let product = product.asModel
-            
             self.deleteProducts([product])
         } else {
             if product.state == ProductState.created.rawValue {
+                self.isLoading = true
+                
                 self.dataStorage.deleteProduct(id: product.id)
                     .receive(on: DispatchQueue.main)
                     .sink { [weak self] completion in
@@ -369,7 +363,7 @@ class ProductsViewModel: ObservableObject {
                     } receiveValue: { [weak self] id in
                         self?.removeSectionProduct(id: id)
                     }
-                    .store(in: &subscriptions)
+                    .store(in: &self.subscriptions)
             } else {
                 self.updateStorageProductStatus(product, newState: .deleted)
             }
@@ -405,11 +399,12 @@ class ProductsViewModel: ObservableObject {
     }
     
     func loadFirstPage() {
+        self.isLoading = true
+        
         self.apiClient.getProducts(startingAfterId: nil)
-            .receive(on: DispatchQueue.main)
             .flatMap { [weak self] productList -> AnyPublisher<[StorageProduct], APIError> in
                 guard let self else {
-                    return Just([]).setFailureType(to: APIError.self).eraseToAnyPublisher()
+                    return Empty().setFailureType(to: APIError.self).eraseToAnyPublisher()
                 }
                 let products = productList.products.map { $0.asStorageModel }
                 let createProductPublishers = products.map { self.dataStorage.createProduct($0) }
