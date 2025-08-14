@@ -34,7 +34,7 @@
 		DD7779A42DE5B42100EDC278 /* SpinnerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A32DE5B42000EDC278 /* SpinnerView.swift */; };
 		DD7779A82DE5F57700EDC278 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A72DE5F57600EDC278 /* AlertView.swift */; };
 		DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD7779A92DE7182900EDC278 /* View+loadAlert.swift */; };
-		DDA6CEC12E1528E3003DE043 /*  Product+asStorageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA6CEC02E1528E3003DE043 /*  Product+asStorageModel.swift */; };
+		DDA6CEC12E1528E3003DE043 /* Product+asStorageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA6CEC02E1528E3003DE043 /* Product+asStorageModel.swift */; };
 		DDA98CD22DDF392F002D8D16 /* View+cornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */; };
 		DDBA3CC52E0ACFA40020A3D6 /* StorageProduct+copy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */; };
 		DDBA3CF32E0E8B7C0020A3D6 /* MockNetworkMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */; };
@@ -89,7 +89,7 @@
 		DD7779A32DE5B42000EDC278 /* SpinnerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerView.swift; sourceTree = "<group>"; };
 		DD7779A72DE5F57600EDC278 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		DD7779A92DE7182900EDC278 /* View+loadAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+loadAlert.swift"; sourceTree = "<group>"; };
-		DDA6CEC02E1528E3003DE043 /*  Product+asStorageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = " Product+asStorageModel.swift"; sourceTree = "<group>"; };
+		DDA6CEC02E1528E3003DE043 /* Product+asStorageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Product+asStorageModel.swift"; sourceTree = "<group>"; };
 		DDA98CD12DDF392E002D8D16 /* View+cornerRadius.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+cornerRadius.swift"; sourceTree = "<group>"; };
 		DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageProduct+copy.swift"; sourceTree = "<group>"; };
 		DDBA3CF22E0E8B7B0020A3D6 /* MockNetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkMonitor.swift; sourceTree = "<group>"; };
@@ -145,6 +145,8 @@
 			children = (
 				DD27C9F92DDCD6900034A127 /* Fonts */,
 				DD27CA042DDCD7900034A127 /* GlobalConstants.swift */,
+				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
+				DD27CA062DDCD8BE0034A127 /* Info.plist */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -243,8 +245,6 @@
 				DD755D822DDB80B200B142FA /* Extensions */,
 				DD27CA032DDCD7770034A127 /* Resources */,
 				DD2A59362E013C3A0048A3F5 /* Sevices */,
-				DD70B6AD2D8380D6003B9A05 /* Assets.xcassets */,
-				DD27CA062DDCD8BE0034A127 /* Info.plist */,
 			);
 			path = DigitalHub;
 			sourceTree = "<group>";
@@ -269,7 +269,7 @@
 		DD755D822DDB80B200B142FA /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				DDA6CEC02E1528E3003DE043 /*  Product+asStorageModel.swift */,
+				DDA6CEC02E1528E3003DE043 /* Product+asStorageModel.swift */,
 				DDFC874B2E1415FB00C1D5C2 /* StorageProduct+asModel.swift */,
 				DDBA3CC42E0ACFA30020A3D6 /* StorageProduct+copy.swift */,
 				DD7779A92DE7182900EDC278 /* View+loadAlert.swift */,
@@ -495,7 +495,7 @@
 				DD77799C2DE4AF6200EDC278 /* CellView.swift in Sources */,
 				DD7779AA2DE7182B00EDC278 /* View+loadAlert.swift in Sources */,
 				DD2A593A2E0147FA0048A3F5 /* LocalStorage.swift in Sources */,
-				DDA6CEC12E1528E3003DE043 /*  Product+asStorageModel.swift in Sources */,
+				DDA6CEC12E1528E3003DE043 /* Product+asStorageModel.swift in Sources */,
 				DDF841F22DF1AA7800DFE099 /* AddProductView.swift in Sources */,
 				DD2A59382E013D490048A3F5 /* NetworkMonitor.swift in Sources */,
 				DD70B6B32D8380D6003B9A05 /* DigitalHubApp.swift in Sources */,
@@ -671,7 +671,7 @@
 				DEVELOPMENT_TEAM = D28SS25G7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DigitalHub/Info.plist;
+				INFOPLIST_FILE = DigitalHub/Resources/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -708,7 +708,7 @@
 				DEVELOPMENT_TEAM = D28SS25G7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DigitalHub/Info.plist;
+				INFOPLIST_FILE = DigitalHub/Resources/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
