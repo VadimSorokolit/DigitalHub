@@ -2,6 +2,7 @@
 **Create, delete, search and manage products — all from one place with DigitalHub**
 
 
+* API - **https://docs.stripe.com/api**
 *	UI Framework - **SwiftUI**
 * Architecture - **MVVM**
 * Bindings - **Combine**
